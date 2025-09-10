@@ -19,30 +19,35 @@
 package com.isaakhanimann.journal.data.substances.repositories
 
 import android.content.Context
+import com.isaakhanimann.journal.R
 import com.isaakhanimann.journal.data.substances.classes.Category
 import com.isaakhanimann.journal.data.substances.classes.Substance
 import com.isaakhanimann.journal.data.substances.classes.SubstanceFile
 import com.isaakhanimann.journal.data.substances.classes.SubstanceWithCategories
 import com.isaakhanimann.journal.data.substances.parse.SubstanceParserInterface
+import com.isaakhanimann.journal.ui.tabs.settings.combinations.UserPreferences
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class SubstanceRepository @Inject constructor(
-    @ApplicationContext private val appContext: Context,
-    substanceParser: SubstanceParserInterface,
+    @param:ApplicationContext private val appContext: Context,
+    private val substanceParser: SubstanceParserInterface,
 ) : SubstanceRepositoryInterface {
 
-    private var substanceFile: SubstanceFile
+    private var substanceFile: SubstanceFile = parseSubstanceFile()
 
-    init {
-        val fileContent = getAssetsSubstanceFileContent()
-        substanceFile = substanceParser.parseSubstanceFile(string = fileContent)
+    fun refreshSubstance() {
+        substanceFile = parseSubstanceFile()
+    }
+
+    private fun parseSubstanceFile(): SubstanceFile {
+        return substanceParser.parseSubstanceFile(string = getAssetsSubstanceFileContent())
     }
 
     private fun getAssetsSubstanceFileContent(): String {
-        return appContext.assets.open("Substances.json").bufferedReader().use { it.readText() }
+        return appContext.resources.openRawResource(R.raw.substances).bufferedReader().use { it.readText() }
     }
 
     override fun getAllSubstances(): List<Substance> {

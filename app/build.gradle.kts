@@ -6,6 +6,7 @@ plugins {
     id("com.google.dagger.hilt.android")
     id("androidx.room")
     kotlin("plugin.serialization") version "2.0.20"
+    alias(libs.plugins.autoresconfig)
 }
 
 android {
@@ -49,6 +50,13 @@ android {
     }
 }
 
+autoResConfig {
+    generateClass = true
+    generateRes = false
+    generatedClassFullName = "com.isaakhanimann.journal.util.LangList"
+    generatedArrayFirstItem = "SYSTEM"
+}
+
 dependencies {
 
     implementation(libs.androidx.core.ktx)
@@ -87,6 +95,7 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.compose)
+    implementation(libs.androidx.appcompat)
 
     implementation(libs.androidx.core.splashscreen)
 

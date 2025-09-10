@@ -5,8 +5,8 @@ coreSplashscreen = "1.0.1"
 datastorePreferences = "1.1.2"
 hiltAndroidCompiler = "2.57"
 hiltNavigationCompose = "1.2.0"
-kotlin = "2.0.21"
-ksp = "2.0.21-1.0.25"
+kotlin = "2.2.10"
+ksp = "2.2.10-2.0.2"
 coreKtx = "1.16.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
@@ -37,6 +37,7 @@ hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltA
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroidCompiler" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version = "1.7.1" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
@@ -59,4 +60,5 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+autoresconfig = { id = "dev.rikka.tools.autoresconfig", version = "1.2.2" }
 
