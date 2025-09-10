@@ -40,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.isaakhanimann.journal.R
 
@@ -77,33 +78,35 @@ fun CustomSubstanceManagementScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (selectionMode == SelectionMode.None) "Custom Substances" else "${selectedIds.size} selected") },
+                title = { Text(if (selectionMode == SelectionMode.None) stringResource(R.string.custom_substances) else "${selectedIds.size} selected") },
                 navigationIcon = {
                     if (selectionMode != SelectionMode.None) {
                         IconButton(onClick = viewModel::clearSelection) {
-                            Icon(Icons.Default.Close, contentDescription = "Clear Selection")
+                            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.clear_selection))
                         }
                     } else {
                         IconButton(onClick = navigateBack) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(
+                                R.string.back
+                            ))
                         }
                     }
                 },
                 actions = {
                     if (selectionMode != SelectionMode.None) {
                         IconButton(onClick = viewModel::selectAll) {
-                            Icon(Icons.Default.CheckCircle, contentDescription = "Select All")
+                            Icon(Icons.Default.CheckCircle, contentDescription = stringResource(R.string.select_all))
                         }
                         IconButton(
                             onClick = { exportLauncher.launch("custom_substances.json") },
                             enabled = selectedIds.isNotEmpty()
                         ) {
-                            Icon(Icons.Default.Save, contentDescription = "Export")
+                            Icon(Icons.Default.Save, contentDescription = stringResource(R.string.export))
                         }
                     } else {
                         var menuExpanded by remember { mutableStateOf(false) }
                         IconButton(onClick = { menuExpanded = true }) {
-                            Icon(Icons.Default.MoreVert, contentDescription = "More")
+                            Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.more))
                         }
                         DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
                             DropdownMenuItem(
@@ -121,17 +124,19 @@ fun CustomSubstanceManagementScreen(
         floatingActionButton = {
             if (selectionMode == SelectionMode.None) {
                 FloatingActionButton(onClick = navigateToAddCustomSubstance) {
-                    Icon(Icons.Default.Add, contentDescription = "Add Custom Substance")
+                    Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_custom_substance))
                 }
             }
         }
     ) { padding ->
         if (substances.isEmpty()) {
             Box(
-                modifier = Modifier.fillMaxSize().padding(padding),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
                 contentAlignment = Alignment.Center
             ) {
-                Text("No custom substances found.")
+                Text(stringResource(R.string.no_custom_substances_found))
             }
         } else {
             LazyColumn(modifier = Modifier.padding(padding)) {

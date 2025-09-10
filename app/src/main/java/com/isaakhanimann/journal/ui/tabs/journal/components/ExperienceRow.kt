@@ -68,7 +68,7 @@ fun ExperienceRow(
             }
             .fillMaxWidth()
             .height(IntrinsicSize.Min)
-            .padding(horizontal = horizontalPadding, vertical = 5.dp),
+            .padding(horizontal = horizontalPadding, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

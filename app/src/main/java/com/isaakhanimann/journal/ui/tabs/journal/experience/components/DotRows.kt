@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun DotRows(numDots: Int) {
-    val verticalPadding = 2.dp
+    val verticalPadding = 8.dp
     Column {
         if (numDots==0) {
             Row(modifier = Modifier.padding(vertical = verticalPadding)) {

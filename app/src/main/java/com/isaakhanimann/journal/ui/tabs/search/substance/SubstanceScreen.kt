@@ -61,10 +61,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.isaakhanimann.journal.R
 import com.isaakhanimann.journal.data.room.experiences.entities.CustomUnit
 import com.isaakhanimann.journal.data.substances.AdministrationRoute
 import com.isaakhanimann.journal.data.substances.classes.Category
@@ -164,7 +166,7 @@ fun SubstanceScreen(
                     TextButton(
                         onClick = { uriHandler.openUri(substance.url) },
                     ) {
-                        Text("Article")
+                        Text(stringResource(R.string.article))
                     }
                 }
             )
@@ -192,7 +194,7 @@ fun SubstanceScreen(
                     ) {
                         Icon(imageVector = Icons.Default.GppBad, contentDescription = "Verified")
                         Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                        Text(text = "Info is not approved")
+                        Text(text = stringResource(R.string.info_is_not_approved))
                     }
                 }
             }
@@ -235,7 +237,7 @@ fun SubstanceScreen(
                 return@filter !isEveryDoseNull
             }
             if (substance.dosageRemark != null || roasWithDosesDefined.isNotEmpty()) {
-                SectionWithTitle(title = "Dosage") {
+                SectionWithTitle(title = stringResource(R.string.dosage)) {
                     Column(Modifier.padding(horizontal = horizontalPadding)) {
                         if (substance.dosageRemark != null) {
                             Text(text = substance.dosageRemark)
@@ -251,7 +253,7 @@ fun SubstanceScreen(
                                     style = MaterialTheme.typography.titleMedium
                                 )
                                 if (roa.roaDose == null) {
-                                    Text(text = "No dosage info")
+                                    Text(text = stringResource(R.string.no_dosage_info))
                                 } else {
                                     RoaDoseView(roaDose = roa.roaDose)
                                 }
@@ -271,7 +273,11 @@ fun SubstanceScreen(
                                 }
                                 val bio = roa.bioavailability
                                 if (bio != null) {
-                                    Text(text = "Bioavailability: ${bio.min?.toReadableString() ?: ".."}-${bio.max?.toReadableString() ?: ".."}%")
+                                    Text(text = stringResource(
+                                        R.string.bioavailability,
+                                        bio.min?.toReadableString() ?: "..",
+                                        bio.max?.toReadableString() ?: ".."
+                                    ))
                                 }
                                 if (roa.route == AdministrationRoute.SMOKED && substance.name != "Cannabis") {
                                     Spacer(modifier = Modifier.height(5.dp))
@@ -295,7 +301,7 @@ fun SubstanceScreen(
                                     modifier = Modifier.size(ButtonDefaults.IconSize)
                                 )
                                 Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                                Text("Volumetric dosing")
+                                Text(stringResource(R.string.volumetric_dosing))
                             }
                         }
                         HorizontalDivider()
@@ -306,14 +312,14 @@ fun SubstanceScreen(
                                 modifier = Modifier.size(ButtonDefaults.IconSize)
                             )
                             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                            Text("Dosage classification")
+                            Text(stringResource(R.string.dosage_classification))
                         }
 
                     }
                 }
             }
             if (substance.tolerance != null || substance.crossTolerances.isNotEmpty()) {
-                SectionWithTitle(title = "Tolerance") {
+                SectionWithTitle(title = stringResource(R.string.tolerance)) {
                     Column {
                         VerticalSpace()
                         ToleranceSection(
@@ -326,7 +332,7 @@ fun SubstanceScreen(
                 }
             }
             if (substance.toxicities.isNotEmpty()) {
-                SectionWithTitle(title = "Toxicity") {
+                SectionWithTitle(title = stringResource(R.string.toxicity)) {
                     Column {
                         VerticalSpace()
                         if (substance.toxicities.size == 1) {
@@ -351,12 +357,12 @@ fun SubstanceScreen(
                 return@filter !isEveryDurationNull
             }
             if (roasWithDurationsDefined.isNotEmpty()) {
-                SectionWithTitle(title = "Duration") {
+                SectionWithTitle(title = stringResource(R.string.duration)) {
                     Column(Modifier.padding(horizontal = horizontalPadding)) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text("Start:")
+                            Text(stringResource(R.string.start_time))
                             Spacer(modifier = Modifier.width(5.dp))
                             TimePickerButton(
                                 localDateTime = ingestionTime,
@@ -422,7 +428,7 @@ fun SubstanceScreen(
                                 }
                                 val roaDuration = roa.roaDuration
                                 if (roaDuration == null) {
-                                    Text(text = "No duration info")
+                                    Text(text = stringResource(R.string.no_duration_info))
                                 } else {
                                     Spacer(modifier = Modifier.height(3.dp))
                                     RoaDurationView(roaDuration = roaDuration)
@@ -445,7 +451,7 @@ fun SubstanceScreen(
             val interactions = substance.interactions
             if (interactions != null) {
                 if (interactions.dangerous.isNotEmpty() || interactions.unsafe.isNotEmpty() || interactions.uncertain.isNotEmpty()) {
-                    SectionWithTitle(title = "Interactions") {
+                    SectionWithTitle(stringResource(R.string.interactions)) {
                         InteractionsView(
                             interactions = substance.interactions,
                             substanceURL = substance.url,
@@ -454,7 +460,7 @@ fun SubstanceScreen(
                 }
             }
             if (substance.effectsSummary != null) {
-                SectionWithTitle(title = "Effects") {
+                SectionWithTitle(title = stringResource(R.string.effects)) {
                     Column {
                         Text(
                             text = substance.effectsSummary,
@@ -465,7 +471,7 @@ fun SubstanceScreen(
                 }
             }
             if (substance.generalRisks != null && substance.longtermRisks != null) {
-                SectionWithTitle(title = "Risks") {
+                SectionWithTitle(title = stringResource(R.string.risks)) {
                     Column {
                         Text(
                             text = substance.generalRisks,
@@ -474,7 +480,7 @@ fun SubstanceScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
-                SectionWithTitle(title = "Long-term") {
+                SectionWithTitle(title = stringResource(R.string.long_term)) {
                     Column {
                         Text(
                             text = substance.longtermRisks,
@@ -485,7 +491,7 @@ fun SubstanceScreen(
                 }
             }
             if (substance.saferUse.isNotEmpty()) {
-                SectionWithTitle(title = "Safer use") {
+                SectionWithTitle(title = stringResource(R.string.safer_use)) {
                     Column {
                         BulletPoints(
                             points = substance.saferUse,
@@ -496,7 +502,7 @@ fun SubstanceScreen(
                 }
             }
             if (substance.addictionPotential != null) {
-                SectionWithTitle(title = "Addiction potential") {
+                SectionWithTitle(title = stringResource(R.string.addiction_potential)) {
                     Column {
                         Text(
                             substance.addictionPotential,
@@ -509,12 +515,12 @@ fun SubstanceScreen(
             val firstRoa = substance.roas.firstOrNull()
             val useVolumetric = firstRoa?.roaDose?.shouldUseVolumetricDosing == true
             if (substance.isHallucinogen || substance.isStimulant || useVolumetric) {
-                SectionWithTitle(title = "See also") {
+                SectionWithTitle(title = stringResource(R.string.see_also)) {
                     Column {
                         if (substance.isHallucinogen) {
                             TextButton(onClick = navigateToSaferHallucinogensScreen) {
                                 Text(
-                                    text = "Safer hallucinogen use",
+                                    text = stringResource(R.string.safer_hallucinogen_use),
                                     modifier = Modifier.padding(horizontal = horizontalPadding)
                                 )
                             }
@@ -523,7 +529,7 @@ fun SubstanceScreen(
                         if (substance.isStimulant) {
                             TextButton(onClick = navigateToSaferStimulantsScreen) {
                                 Text(
-                                    text = "Safer stimulant use",
+                                    text = stringResource(R.string.safer_stimulant_use),
                                     modifier = Modifier.padding(horizontal = horizontalPadding)
                                 )
                             }

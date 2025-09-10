@@ -31,6 +31,6 @@ fun CardTitle(title: String) {
     Text(
         text = title,
         style = MaterialTheme.typography.titleMedium,
-        modifier = Modifier.padding(horizontal = horizontalPadding, vertical = 5.dp)
+        modifier = Modifier.padding(horizontal = horizontalPadding, vertical = 12.dp)
     )
 }
