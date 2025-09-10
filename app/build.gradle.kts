@@ -14,7 +14,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.isaakhanimann.journal"
+        applicationId = "com.huanli233.journal.open"
         minSdk = 26
         targetSdk = 36
         versionCode = 63
