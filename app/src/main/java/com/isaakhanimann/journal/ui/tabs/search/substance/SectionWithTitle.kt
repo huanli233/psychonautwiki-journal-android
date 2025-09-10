@@ -40,8 +40,8 @@ fun SectionWithTitle(title: String, content: @Composable () -> Unit) {
         Text(
             color = MaterialTheme.colorScheme.onSurface,
             text = title,
-            style = MaterialTheme.typography.titleMedium,
-            modifier =  Modifier.padding(horizontal = horizontalPadding, vertical = 8.dp)
+            style = MaterialTheme.typography.titleLarge,
+            modifier =  Modifier.padding(horizontal = horizontalPadding, vertical = 10.dp)
         )
         content()
     }

@@ -14,11 +14,11 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.isaakhanimann.journal"
+        applicationId = "com.huanli233.journal.open"
         minSdk = 26
         targetSdk = 36
-        versionCode = 62
-        versionName = "11.11"
+        versionCode = 63
+        versionName = "11.12"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

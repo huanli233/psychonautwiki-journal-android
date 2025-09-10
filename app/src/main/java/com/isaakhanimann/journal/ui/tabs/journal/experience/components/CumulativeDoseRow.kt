@@ -37,7 +37,7 @@ import com.isaakhanimann.journal.ui.tabs.journal.experience.models.CumulativeDos
 import com.isaakhanimann.journal.ui.tabs.journal.experience.models.CumulativeRouteAndDose
 
 @Composable
-fun CumulativeDoseRow(
+fun  CumulativeDoseRow(
     cumulativeDose: CumulativeDose,
     areDosageDotsHidden: Boolean,
     modifier: Modifier

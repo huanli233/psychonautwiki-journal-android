@@ -206,12 +206,12 @@ fun StatsScreen(
                             style = MaterialTheme.typography.bodySmall,
                             modifier = Modifier.padding(
                                 start = 10.dp,
-                                bottom = 10.dp
+                                bottom = 16.dp
                             )
                         )
                         BarChart(
                             buckets = statsModel.chartBuckets,
-                            startDateText = statsModel.startDateText
+                            startDateText = statsModel.startDateText,
                         )
                         HorizontalDivider()
                         LazyColumn {
@@ -231,7 +231,7 @@ fun StatsScreen(
                                             }
                                             .padding(
                                                 horizontal = horizontalPadding,
-                                                vertical = 5.dp
+                                                vertical = 8.dp
                                             )
                                     ) {
                                         Surface(

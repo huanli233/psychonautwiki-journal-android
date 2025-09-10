@@ -593,17 +593,16 @@ fun applyLanguage(tag: String) {
 
 @Composable
 fun SettingsButton(imageVector: ImageVector, text: String, onClick: () -> Unit) {
-    TextButton(
-        onClick = onClick,
-        modifier = Modifier.padding(horizontal = 2.dp)
+    Row(
+        modifier = Modifier.clickable { onClick() }.padding(horizontal = 12.dp, vertical = 15.dp)
     ) {
         Icon(
             imageVector,
             contentDescription = imageVector.name,
-            modifier = Modifier.size(ButtonDefaults.IconSize)
+            modifier = Modifier.size(ButtonDefaults.IconSize).align(Alignment.CenterVertically),
         )
         Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-        Text(text)
+        Text(text, Modifier.align(Alignment.CenterVertically), color = MaterialTheme.colorScheme.primary)
         Spacer(modifier = Modifier.weight(1f))
     }
 }

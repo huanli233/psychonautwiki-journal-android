@@ -162,7 +162,7 @@ fun BarChart(buckets: List<List<ColorCount>>, startDateText: String) {
         }
         Row(
             modifier = Modifier
-                .padding(horizontal = 5.dp, vertical = 5.dp)
+                .padding(horizontal = 5.dp, vertical = 8.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween

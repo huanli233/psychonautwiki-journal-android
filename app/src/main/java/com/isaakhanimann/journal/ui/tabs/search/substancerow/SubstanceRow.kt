@@ -61,7 +61,7 @@ fun SubstanceRow(
             .clickable {
                 onTap(substanceModel.name)
             }
-            .padding(horizontal = horizontalPadding, vertical = 3.dp),
+            .padding(horizontal = horizontalPadding, vertical = 8.dp),
     ) {
         Text(
             text = substanceModel.name,
