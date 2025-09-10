@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CustomDoseInfo(
+    var units: String? = null,
     val lightMin: Double? = null,
     val commonMin: Double? = null,
     val strongMin: Double? = null,

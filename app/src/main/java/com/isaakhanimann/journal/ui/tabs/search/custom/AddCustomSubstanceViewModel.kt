@@ -27,6 +27,9 @@ class AddCustomSubstanceViewModel @Inject constructor(
 
     fun addCustomSubstance(onDone: (customSubstanceName: String) -> Unit) {
         viewModelScope.launch {
+            roaInfos.forEach {
+                it.doseInfo?.units = units
+            }
             val customSubstance = CustomSubstance(
                 name = name,
                 units = units,

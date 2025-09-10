@@ -37,9 +37,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.isaakhanimann.journal.R
 import com.isaakhanimann.journal.data.room.experiences.entities.custom.CustomDoseInfo
 import com.isaakhanimann.journal.data.room.experiences.entities.custom.CustomDurationInfo
 import com.isaakhanimann.journal.data.room.experiences.entities.custom.CustomRoaInfo
@@ -75,7 +77,7 @@ fun AddOrEditCustomSubstanceContent(
         OutlinedTextField(
             value = name,
             onValueChange = onNameChange,
-            label = { Text("Name") },
+            label = { Text(stringResource(R.string.name)) },
             keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
             keyboardOptions = KeyboardOptions.Default.copy(
                 capitalization = KeyboardCapitalization.Words
@@ -88,7 +90,7 @@ fun AddOrEditCustomSubstanceContent(
         OutlinedTextField(
             value = units,
             onValueChange = onUnitsChange,
-            label = { Text("Default Units") },
+            label = { Text(stringResource(R.string.default_units)) },
             keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
@@ -116,7 +118,7 @@ fun AddOrEditCustomSubstanceContent(
         )
 
         Spacer(modifier = Modifier.height(16.dp))
-        Text("Routes of Administration", style = MaterialTheme.typography.titleMedium)
+        Text(stringResource(R.string.routes_of_administration), style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(8.dp))
 
         roaInfos.forEachIndexed { index, roaInfo ->
@@ -145,7 +147,7 @@ fun AddOrEditCustomSubstanceContent(
         ) {
             Icon(Icons.Default.Add, contentDescription = "Add Route")
             Spacer(modifier = Modifier.width(4.dp))
-            Text("Add Route of Administration")
+            Text(stringResource(R.string.add_route_of_administration))
         }
         Spacer(modifier = Modifier.height(16.dp))
     }
@@ -162,7 +164,7 @@ private fun RoaInfoEditor(
     Card(elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
         Column(modifier = Modifier.padding(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Route", style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
+                Text(stringResource(R.string.route), style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
                 OutlinedButton(onClick = { isRoaMenuExpanded = true }) {
                     Text(roaInfo.administrationRoute.name.lowercase().replaceFirstChar { it.uppercase() })
                     Icon(Icons.Default.ArrowDropDown, contentDescription = null)
@@ -187,7 +189,7 @@ private fun RoaInfoEditor(
             }
 
             Spacer(modifier = Modifier.height(12.dp))
-            Text("Dosage", style = MaterialTheme.typography.titleSmall)
+            Text(stringResource(R.string.dosage), style = MaterialTheme.typography.titleSmall)
             val doseInfo = roaInfo.doseInfo ?: CustomDoseInfo()
             Row {
                 DoseTextField("Light", doseInfo.lightMin) {
