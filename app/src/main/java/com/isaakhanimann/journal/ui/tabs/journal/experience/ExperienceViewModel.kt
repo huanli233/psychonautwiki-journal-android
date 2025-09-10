@@ -24,6 +24,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.isaakhanimann.journal.data.room.experiences.ExperienceRepository
 import com.isaakhanimann.journal.data.room.experiences.entities.AdaptiveColor
+import com.isaakhanimann.journal.data.room.experiences.entities.custom.toRoaDose
+import com.isaakhanimann.journal.data.room.experiences.entities.custom.toRoaDuration
 import com.isaakhanimann.journal.data.room.experiences.relations.IngestionWithCompanionAndCustomUnit
 import com.isaakhanimann.journal.data.substances.classes.Substance
 import com.isaakhanimann.journal.data.substances.classes.roa.RoaDose
@@ -218,17 +220,44 @@ class ExperienceViewModel @Inject constructor(
             ingestionsWithCompanions.sortedBy { it.ingestion.time }
         }
 
+    private val customSubstancesFlow = experienceRepo.getCustomSubstancesFlow()
+        .stateIn(
+            initialValue = emptyList(),
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000)
+        )
+
     private val ingestionsWithAssociatedDataFlow: Flow<List<IngestionWithAssociatedData>> =
-        sortedIngestionsWithCompanionsFlow.map { ingestionsWithComps ->
+        combine(sortedIngestionsWithCompanionsFlow, customSubstancesFlow) { ingestionsWithComps, customSubstances ->
+            val customSubstancesMap = customSubstances.associateBy { it.name }
+
             ingestionsWithComps.map { oneIngestionWithComp ->
                 val ingestion = oneIngestionWithComp.ingestion
-                val roa = substanceRepo.getSubstance(oneIngestionWithComp.ingestion.substanceName)
-                    ?.getRoa(ingestion.administrationRoute)
-                val roaDuration = roa?.roaDuration
+                val substanceName = ingestion.substanceName
+                val route = ingestion.administrationRoute
+
+                var roaDuration: RoaDuration? = null
+                var roaDose: RoaDose? = null
+
+                val pureSubstanceRoa = substanceRepo.getSubstance(substanceName)?.getRoa(route)
+
+                if (pureSubstanceRoa != null) {
+                    roaDuration = pureSubstanceRoa.roaDuration
+                    roaDose = pureSubstanceRoa.roaDose
+                } else {
+                    val customSubstance = customSubstancesMap[substanceName]
+                    val customRoaInfo = customSubstance?.roaInfos?.find { it.administrationRoute == route }
+
+                    if (customRoaInfo != null) {
+                        roaDuration = customRoaInfo.toRoaDuration()
+                        roaDose = customRoaInfo.toRoaDose()
+                    }
+                }
+
                 IngestionWithAssociatedData(
                     ingestionWithCompanionAndCustomUnit = oneIngestionWithComp,
                     roaDuration = roaDuration,
-                    roaDose = roa?.roaDose
+                    roaDose = roaDose
                 )
             }
         }
