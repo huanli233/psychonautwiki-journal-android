@@ -25,7 +25,7 @@ class CustomSubstanceManagementViewModel @Inject constructor(
     private val experienceRepo: ExperienceRepository
 ) : ViewModel() {
 
-    private val json = Json { prettyPrint = true }
+    private val json = Json { ignoreUnknownKeys = true; prettyPrint = true }
 
     val allSubstances = experienceRepo.getCustomSubstancesFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -67,7 +67,7 @@ class CustomSubstanceManagementViewModel @Inject constructor(
                 val substancesToExport = allSubstances.value.filter {
                     _selectedSubstances.value.contains(it.id)
                 }
-                val exportData = CustomSubstancesExport(customSubstances = substancesToExport)
+                val exportData = CustomSubstancesExport(customUnits = substancesToExport)
                 val jsonString = json.encodeToString(exportData)
 
                 context.contentResolver.openFileDescriptor(uri, "w")?.use {
@@ -94,7 +94,7 @@ class CustomSubstanceManagementViewModel @Inject constructor(
                 } ?: throw IllegalStateException("Could not read file")
 
                 val importData = json.decodeFromString<CustomSubstancesExport>(jsonString)
-                experienceRepo.importCustomSubstances(importData.customSubstances)
+                experienceRepo.importCustomSubstances(importData.customUnits)
                 onResult(true)
             } catch (e: Exception) {
                 onResult(false)
