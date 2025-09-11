@@ -27,6 +27,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.isaakhanimann.journal.data.room.experiences.ExperienceRepository
 import com.isaakhanimann.journal.data.room.experiences.entities.CustomUnit
+import com.isaakhanimann.journal.data.room.experiences.entities.custom.toRoaDose
 import com.isaakhanimann.journal.data.substances.classes.roa.DoseClass
 import com.isaakhanimann.journal.data.substances.classes.roa.RoaDose
 import com.isaakhanimann.journal.data.substances.repositories.SubstanceRepository
@@ -45,7 +46,7 @@ class ChooseDoseCustomUnitViewModel @Inject constructor(
 
     var customUnit: CustomUnit? by mutableStateOf(null)
     var doseRemark: String? by mutableStateOf(null)
-    var roaDose: RoaDose? = null
+    var roaDose: RoaDose? by mutableStateOf(null)
 
     init {
         val chooseDoseCustomUnitRoute = state.toRoute<ChooseDoseCustomUnitRoute>()
@@ -54,8 +55,16 @@ class ChooseDoseCustomUnitViewModel @Inject constructor(
             this@ChooseDoseCustomUnitViewModel.customUnit = customUnit
             if (customUnit != null) {
                 val substance = substanceRepo.getSubstance(customUnit.substanceName)
-                doseRemark = substance?.dosageRemark
-                roaDose = substance?.getRoa(customUnit.administrationRoute)?.roaDose
+                if (substance != null) {
+                    doseRemark = substance.dosageRemark
+                    roaDose = substance.getRoa(customUnit.administrationRoute)?.roaDose
+                } else {
+                    val customSubstance = experienceRepo.getCustomSubstance(customUnit.substanceName)
+                    if (customSubstance != null) {
+                        roaDose = customSubstance.roaInfos.find { it.administrationRoute == customUnit.administrationRoute }
+                            ?.toRoaDose()
+                    }
+                }
             }
         }
     }
