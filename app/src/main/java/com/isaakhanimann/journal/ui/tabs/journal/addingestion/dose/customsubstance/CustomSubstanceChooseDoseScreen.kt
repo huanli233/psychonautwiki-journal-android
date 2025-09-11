@@ -19,6 +19,7 @@
 package com.isaakhanimann.journal.ui.tabs.journal.addingestion.dose.customsubstance
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,13 +29,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.NavigateNext
+import androidx.compose.material.icons.filled.Expand
 import androidx.compose.material.icons.filled.QuestionMark
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.outlined.OpenInBrowser
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedCard
@@ -61,14 +65,23 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.isaakhanimann.journal.R
 import com.isaakhanimann.journal.data.substances.AdministrationRoute
+import com.isaakhanimann.journal.data.substances.classes.roa.DoseClass
+import com.isaakhanimann.journal.data.substances.classes.roa.RoaDose
+import com.isaakhanimann.journal.ui.DOSE_DISCLAIMER
+import com.isaakhanimann.journal.ui.tabs.journal.addingestion.dose.CurrentDoseClassInfo
+import com.isaakhanimann.journal.ui.tabs.journal.addingestion.dose.OptionalDosageUnitDisclaimer
 import com.isaakhanimann.journal.ui.tabs.journal.addingestion.dose.PurityCalculation
 import com.isaakhanimann.journal.ui.tabs.journal.addingestion.dose.StandardDeviationExplanation
 import com.isaakhanimann.journal.ui.tabs.journal.addingestion.dose.UnknownDoseDialog
+import com.isaakhanimann.journal.ui.tabs.search.substance.roa.dose.RoaDosePreviewProvider
+import com.isaakhanimann.journal.ui.tabs.search.substance.roa.dose.RoaDoseView
 import com.isaakhanimann.journal.ui.theme.horizontalPadding
 
 @Composable
@@ -83,6 +96,8 @@ fun CustomSubstanceChooseDoseScreen(
         navigateToCreateCustomUnit = navigateToCreateCustomUnit,
         substanceName = viewModel.substanceName,
         administrationRoute = viewModel.administrationRoute,
+        roaDose = viewModel.roaDose,
+        currentDoseClass = viewModel.currentDoseClass,
         doseText = viewModel.doseText,
         onChangeDoseText = viewModel::onDoseTextChange,
         estimatedDoseStandardDeviationText = viewModel.estimatedDoseDeviationText,
@@ -120,13 +135,17 @@ fun CustomSubstanceChooseDoseScreen(
 
 @Preview
 @Composable
-fun CustomChooseDosePreview() {
+fun CustomChooseDosePreview(
+    @PreviewParameter(RoaDosePreviewProvider::class) roaDose: RoaDose,
+) {
     CustomSubstanceChooseDoseScreen(
         navigateToSaferSniffingScreen = {},
         navigateToCreateCustomUnit = {},
         substanceName = "Example Substance",
         administrationRoute = AdministrationRoute.INSUFFLATED,
         doseText = "5",
+        roaDose = roaDose,
+        currentDoseClass = DoseClass.THRESHOLD,
         onChangeDoseText = {},
         estimatedDoseStandardDeviationText = "",
         onChangeEstimatedStandardDeviationText = {},
@@ -151,6 +170,8 @@ fun CustomSubstanceChooseDoseScreen(
     navigateToCreateCustomUnit: () -> Unit,
     substanceName: String,
     administrationRoute: AdministrationRoute,
+    roaDose: RoaDose?,
+    currentDoseClass: DoseClass?,
     doseText: String,
     onChangeDoseText: (String) -> Unit,
     estimatedDoseStandardDeviationText: String,
@@ -211,6 +232,25 @@ fun CustomSubstanceChooseDoseScreen(
                 modifier = Modifier.fillMaxWidth(),
             )
             Spacer(modifier = Modifier.height(4.dp))
+            if (roaDose != null) {
+                ElevatedCard(
+                    modifier = Modifier.padding(
+                        horizontal = horizontalPadding,
+                        vertical = 4.dp
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(
+                            horizontal = horizontalPadding,
+                            vertical = 10.dp
+                        )
+                    ) {
+                        Spacer(modifier = Modifier.height(5.dp))
+                        RoaDoseView(roaDose = roaDose)
+                        OptionalDosageUnitDisclaimer(substanceName)
+                    }
+                }
+            }
             ElevatedCard(
                 modifier = Modifier.padding(
                     horizontal = horizontalPadding,
@@ -225,6 +265,13 @@ fun CustomSubstanceChooseDoseScreen(
                 ) {
                     val focusManager = LocalFocusManager.current
                     val textStyle = MaterialTheme.typography.titleMedium
+                    if (roaDose != null) {
+                        AnimatedVisibility(visible = currentDoseClass != null) {
+                            if (currentDoseClass != null) {
+                                CurrentDoseClassInfo(currentDoseClass, roaDose)
+                            }
+                        }
+                    }
                     OutlinedTextField(
                         value = doseText,
                         onValueChange = {

@@ -26,7 +26,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.isaakhanimann.journal.data.room.experiences.ExperienceRepository
+import com.isaakhanimann.journal.data.room.experiences.entities.custom.toRoaDose
 import com.isaakhanimann.journal.data.substances.AdministrationRoute
+import com.isaakhanimann.journal.data.substances.classes.roa.DoseClass
+import com.isaakhanimann.journal.data.substances.classes.roa.RoaDose
 import com.isaakhanimann.journal.ui.main.navigation.graphs.ChooseCustomSubstanceDoseRoute
 import com.isaakhanimann.journal.ui.tabs.search.substance.roa.toReadableString
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -41,11 +44,13 @@ class CustomSubstanceChooseDoseViewModel @Inject constructor(
 ) : ViewModel() {
     var substanceName by mutableStateOf("")
     val administrationRoute: AdministrationRoute
+    var roaDose: RoaDose? by mutableStateOf(null)
     var units by mutableStateOf("mg")
     var isEstimate by mutableStateOf(false)
     var doseText by mutableStateOf("")
     var estimatedDoseDeviationText by mutableStateOf("")
     var purityText by mutableStateOf("100")
+    val currentDoseClass: DoseClass? get() = roaDose?.getDoseClass(ingestionDose = dose)
     private val purity: Double?
         get() {
             val p = purityText.toDoubleOrNull()
@@ -88,6 +93,9 @@ class CustomSubstanceChooseDoseViewModel @Inject constructor(
                     ?: return@launch
             substanceName = customSubstance.name
             units = customSubstance.units
+            customSubstance.roaInfos.find { it.administrationRoute == administrationRoute }?.let {
+                roaDose = it.toRoaDose()
+            }
         }
     }
 

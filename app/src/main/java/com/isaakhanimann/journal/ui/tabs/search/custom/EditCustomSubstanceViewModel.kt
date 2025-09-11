@@ -36,9 +36,6 @@ class EditCustomSubstanceViewModel @Inject constructor(
         val customSubstanceId = editCustomSubstanceRoute.customSubstanceId
         id = customSubstanceId
         viewModelScope.launch {
-            roaInfos.forEach {
-                it.doseInfo?.units = units
-            }
             val customSubstance =
                 experienceRepo.getCustomSubstanceFlow(customSubstanceId).firstOrNull() ?: return@launch
             name = customSubstance.name
@@ -50,6 +47,9 @@ class EditCustomSubstanceViewModel @Inject constructor(
 
     fun onDoneTap() {
         viewModelScope.launch {
+            roaInfos.forEach {
+                it.doseInfo?.units = units
+            }
             val customSubstance = CustomSubstance(
                 id,
                 name,
