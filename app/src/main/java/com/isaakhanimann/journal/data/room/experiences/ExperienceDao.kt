@@ -23,6 +23,7 @@ import com.isaakhanimann.journal.data.room.experiences.relations.ExperienceWithI
 import com.isaakhanimann.journal.data.room.experiences.relations.IngestionWithCompanion
 import com.isaakhanimann.journal.data.room.experiences.relations.IngestionWithCompanionAndCustomUnit
 import com.isaakhanimann.journal.data.room.experiences.relations.IngestionWithExperienceAndCustomUnit
+import com.isaakhanimann.journal.data.substances.AdministrationRoute
 import com.isaakhanimann.journal.ui.tabs.settings.JournalExport
 import kotlinx.coroutines.flow.Flow
 import java.time.Instant
@@ -347,23 +348,25 @@ interface ExperienceDao {
             )
             insert(newExperience)
             experienceSerializable.ingestions.forEach { ingestionSerializable ->
-                val newIngestion = Ingestion(
-                    substanceName = ingestionSerializable.substanceName,
-                    time = ingestionSerializable.time,
-                    endTime = ingestionSerializable.endTime,
-                    creationDate = ingestionSerializable.creationDate,
-                    administrationRoute = ingestionSerializable.administrationRoute,
-                    dose = ingestionSerializable.dose,
-                    isDoseAnEstimate = ingestionSerializable.isDoseAnEstimate,
-                    estimatedDoseStandardDeviation = ingestionSerializable.estimatedDoseStandardDeviation,
-                    units = ingestionSerializable.units,
-                    experienceId = experienceID,
-                    notes = ingestionSerializable.notes,
-                    stomachFullness = ingestionSerializable.stomachFullness,
-                    consumerName = ingestionSerializable.consumerName,
-                    customUnitId = ingestionSerializable.customUnitId
-                )
-                insert(newIngestion)
+                if (ingestionSerializable.substanceName != null) {
+                    val newIngestion = Ingestion(
+                        substanceName = ingestionSerializable.substanceName,
+                        time = ingestionSerializable.time,
+                        endTime = ingestionSerializable.endTime,
+                        creationDate = ingestionSerializable.creationDate,
+                        administrationRoute = ingestionSerializable.administrationRoute,
+                        dose = ingestionSerializable.dose,
+                        isDoseAnEstimate = ingestionSerializable.isDoseAnEstimate,
+                        estimatedDoseStandardDeviation = ingestionSerializable.estimatedDoseStandardDeviation,
+                        units = ingestionSerializable.units,
+                        experienceId = experienceID,
+                        notes = ingestionSerializable.notes,
+                        stomachFullness = ingestionSerializable.stomachFullness,
+                        consumerName = ingestionSerializable.consumerName,
+                        customUnitId = ingestionSerializable.customUnitId
+                    )
+                    insert(newIngestion)
+                }
             }
             experienceSerializable.timedNotes.forEach { timedNoteSerializable ->
                 val newTimedNote = TimedNote(
@@ -389,23 +392,25 @@ interface ExperienceDao {
         journalExport.substanceCompanions.forEach { insert(it) }
         journalExport.customSubstances.forEach { insert(it) }
         journalExport.customUnits.forEach {
-            insert(
-                CustomUnit(
-                    id = it.id,
-                    substanceName = it.substanceName,
-                    name = it.name,
-                    creationDate = it.creationDate,
-                    administrationRoute = it.administrationRoute,
-                    dose = it.dose,
-                    estimatedDoseStandardDeviation = it.estimatedDoseStandardDeviation,
-                    isEstimate = it.isEstimate,
-                    isArchived = it.isArchived,
-                    unit = it.unit,
-                    unitPlural = it.unitPlural,
-                    originalUnit = it.originalUnit,
-                    note = it.note
+            if (it.substanceName != null) {
+                insert(
+                    CustomUnit(
+                        id = it.id,
+                        substanceName = it.substanceName,
+                        name = it.name,
+                        creationDate = it.creationDate,
+                        administrationRoute = it.administrationRoute ?: AdministrationRoute.ORAL,
+                        dose = it.dose,
+                        estimatedDoseStandardDeviation = it.estimatedDoseStandardDeviation,
+                        isEstimate = it.isEstimate,
+                        isArchived = it.isArchived,
+                        unit = it.unit,
+                        unitPlural = it.unitPlural,
+                        originalUnit = it.originalUnit ?: "",
+                        note = it.note
+                    )
                 )
-            )
+            }
         }
     }
 

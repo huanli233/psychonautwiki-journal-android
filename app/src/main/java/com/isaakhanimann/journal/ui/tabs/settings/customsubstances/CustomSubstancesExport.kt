@@ -5,5 +5,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CustomSubstancesExport(
-    val customSubstances: List<CustomSubstance>
+    val customUnits: List<CustomSubstance>
 )

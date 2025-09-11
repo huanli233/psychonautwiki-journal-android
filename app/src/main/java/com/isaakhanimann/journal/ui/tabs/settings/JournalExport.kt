@@ -51,17 +51,17 @@ data class ExperienceSerializable(
 @Serializable
 data class CustomUnitSerializable (
     val id: Int = 0,
-    val substanceName: String,
+    val substanceName: String? = null,
     val name: String,
-    @Serializable(with= InstantSerializer::class) val creationDate: Instant = Instant.now(),
-    val administrationRoute: AdministrationRoute,
+    @Serializable(with = InstantSerializer::class) val creationDate: Instant = Instant.now(),
+    val administrationRoute: AdministrationRoute? = AdministrationRoute.ORAL,
     var dose: Double? = null,
     var estimatedDoseStandardDeviation: Double? = null,
-    var isEstimate: Boolean,
+    var isEstimate: Boolean = false,
     var isArchived: Boolean,
     var unit: String,
     var unitPlural: String?,
-    val originalUnit: String,
+    val originalUnit: String? = null,
     var note: String
 )
 
@@ -74,7 +74,7 @@ data class RatingSerializable(
 
 @Serializable
 data class IngestionSerializable(
-    val substanceName: String,
+    val substanceName: String? = null,
     @Serializable(with= InstantSerializer::class) var time: Instant,
     @Serializable(with= InstantSerializer::class) var endTime: Instant?,
     @Serializable(with= InstantSerializer::class) var creationDate: Instant? = Instant.now(),
