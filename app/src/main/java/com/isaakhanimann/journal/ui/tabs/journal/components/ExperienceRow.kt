@@ -150,7 +150,7 @@ fun ColorRectangle(ingestions: List<IngestionWithCompanionAndCustomUnit>) {
     if (ingestions.size >= 2) {
         val brush = remember(ingestions) {
             val colors =
-                ingestions.map { it.substanceCompanion!!.color.getComposeColor(isDarkTheme) }
+                ingestions.map { it.substanceCompanion?.color?.getComposeColor(isDarkTheme) ?: Color.Gray }
             Brush.verticalGradient(colors = colors)
         }
         Box(
@@ -167,9 +167,9 @@ fun ColorRectangle(ingestions: List<IngestionWithCompanionAndCustomUnit>) {
                 .fillMaxHeight()
                 .clip(RoundedCornerShape(cornerRadius))
                 .background(
-                    ingestions.first().substanceCompanion!!.color.getComposeColor(
+                    ingestions.first().substanceCompanion?.color?.getComposeColor(
                         isDarkTheme
-                    )
+                    ) ?: Color.Gray
                 ),
         ) {}
     } else {

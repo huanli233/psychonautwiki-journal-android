@@ -19,6 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.withContext
 import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -197,11 +198,24 @@ class ExperienceRepository @Inject constructor(private val experienceDao: Experi
     suspend fun importCustomSubstances(customSubstances: List<CustomSubstance>) =
         experienceDao.importCustomSubstances(customSubstances)
 
-    suspend fun delete(customSubstance: CustomSubstance) =
-        experienceDao.delete(customSubstance)
+    suspend fun delete(customSubstance: CustomSubstance) {
+        experienceDao.deleteCustomSubstanceAndRelatedIngestions(customSubstance)
+    }
 
-    suspend fun update(customSubstance: CustomSubstance) =
-        experienceDao.update(customSubstance)
+    suspend fun update(customSubstance: CustomSubstance) {
+        withContext(Dispatchers.IO) {
+            val originalSubstance = experienceDao.getCustomSubstanceById(customSubstance.id)
+
+            if (originalSubstance != null && originalSubstance.name != customSubstance.name) {
+                experienceDao.updateCustomSubstanceAndRelatedIngestions(
+                    originalName = originalSubstance.name,
+                    updatedSubstance = customSubstance
+                )
+            } else {
+                experienceDao.update(customSubstance)
+            }
+        }
+    }
 
     fun getSortedIngestionsWithSubstanceCompanionsFlow(limit: Int) =
         experienceDao.getSortedIngestionsWithSubstanceCompanionsFlow(limit)

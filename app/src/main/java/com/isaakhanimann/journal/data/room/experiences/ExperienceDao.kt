@@ -108,6 +108,31 @@ interface ExperienceDao {
     @Query("SELECT * FROM customsubstance WHERE id = :id")
     fun getCustomSubstanceFlow(id: Int): Flow<CustomSubstance?>
 
+    @Query("SELECT * FROM CustomSubstance WHERE id = :id")
+    suspend fun getCustomSubstanceById(id: Int): CustomSubstance?
+
+    @Query("UPDATE Ingestion SET substanceName = :newName WHERE substanceName = :oldName")
+    suspend fun updateIngestionSubstanceName(oldName: String, newName: String)
+
+    @Query("DELETE FROM Ingestion WHERE substanceName = :substanceName")
+    suspend fun deleteIngestionsByName(substanceName: String)
+
+    @Query("UPDATE SubstanceCompanion SET substanceName = :newName WHERE substanceName = :oldName")
+    suspend fun updateSubstanceCompanionName(oldName: String, newName: String)
+
+    @Transaction
+    suspend fun updateCustomSubstanceAndRelatedIngestions(originalName: String, updatedSubstance: CustomSubstance) {
+        updateIngestionSubstanceName(originalName, updatedSubstance.name)
+        updateSubstanceCompanionName(originalName, updatedSubstance.name)
+        update(updatedSubstance)
+    }
+
+    @Transaction
+    suspend fun deleteCustomSubstanceAndRelatedIngestions(customSubstance: CustomSubstance) {
+        deleteIngestionsByName(customSubstance.name)
+        delete(customSubstance)
+    }
+
     @Query("SELECT * FROM customsubstance WHERE name = :name")
     suspend fun getCustomSubstance(name: String): CustomSubstance?
 

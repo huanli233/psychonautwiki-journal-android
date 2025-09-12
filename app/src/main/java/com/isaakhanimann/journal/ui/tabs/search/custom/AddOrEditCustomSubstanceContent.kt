@@ -30,6 +30,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -235,9 +236,21 @@ private fun RoaInfoEditor(
 
 @Composable
 private fun RowScope.DoseTextField(label: String, value: Double?, onValueChange: (Double?) -> Unit) {
+    var text by remember { mutableStateOf(value?.toString() ?: "") }
+
+    LaunchedEffect(value) {
+        val currentValue = text.toDoubleOrNull()
+        if (value != currentValue) {
+            text = value?.toString() ?: ""
+        }
+    }
+
     OutlinedTextField(
-        value = value?.toString() ?: "",
-        onValueChange = { onValueChange(it.toDoubleOrNull()) },
+        value = text,
+        onValueChange = { newText ->
+            text = newText
+            onValueChange(newText.toDoubleOrNull())
+        },
         label = { Text(label) },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         modifier = Modifier
@@ -252,12 +265,29 @@ private fun DurationRangeEditor(label: String, value: SerializableDurationRange?
     var isUnitsMenuExpanded by remember { mutableStateOf(false) }
     val currentRange = value ?: SerializableDurationRange(null, null, null)
 
+    var minText by remember { mutableStateOf(currentRange.min?.toString() ?: "") }
+    LaunchedEffect(currentRange.min) {
+        val currentValue = minText.toFloatOrNull()
+        if (currentRange.min != currentValue) {
+            minText = currentRange.min?.toString() ?: ""
+        }
+    }
+
+    var maxText by remember { mutableStateOf(currentRange.max?.toString() ?: "") }
+    LaunchedEffect(currentRange.max) {
+        val currentValue = maxText.toFloatOrNull()
+        if (currentRange.max != currentValue) {
+            maxText = currentRange.max?.toString() ?: ""
+        }
+    }
+
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 4.dp)) {
         Text(label, modifier = Modifier.width(80.dp))
         OutlinedTextField(
-            value = currentRange.min?.toString() ?: "",
-            onValueChange = { min ->
-                onValueChange(currentRange.copy(min = min.toFloatOrNull()))
+            value = minText,
+            onValueChange = { newText ->
+                minText = newText
+                onValueChange(currentRange.copy(min = newText.toFloatOrNull()))
             },
             label = { Text("Min") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -266,9 +296,10 @@ private fun DurationRangeEditor(label: String, value: SerializableDurationRange?
         )
         Spacer(modifier = Modifier.width(8.dp))
         OutlinedTextField(
-            value = currentRange.max?.toString() ?: "",
-            onValueChange = { max ->
-                onValueChange(currentRange.copy(max = max.toFloatOrNull()))
+            value = maxText,
+            onValueChange = { newText ->
+                maxText = newText
+                onValueChange(currentRange.copy(max = newText.toFloatOrNull()))
             },
             label = { Text("Max") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -285,6 +316,13 @@ private fun DurationRangeEditor(label: String, value: SerializableDurationRange?
                 expanded = isUnitsMenuExpanded,
                 onDismissRequest = { isUnitsMenuExpanded = false }
             ) {
+                DropdownMenuItem(
+                    text = { Text("disabled") },
+                    onClick = {
+                        onValueChange(currentRange.copy(units = null))
+                        isUnitsMenuExpanded = false
+                    }
+                )
                 SerializableDurationUnits.entries.forEach { unit ->
                     DropdownMenuItem(
                         text = { Text(unit.text) },
