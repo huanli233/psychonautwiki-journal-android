@@ -11,7 +11,7 @@ This is an open source fork that maintains development after the project closed.
 
 ![A presentation of the App](https://github.com/huanli233/psychonautwiki-journal-android/blob/main/metadata/en-US/images/Google%20Pixel%204%20XL%20Presentation.png?raw=true)
 
-Download the latest version from [GitHub releases](https://github.com/isaakhanimann/psychonautwiki-journal-android/releases/latest).
+Download the latest version from [GitHub releases](https://github.com/huanli233/psychonautwiki-journal-android/releases/latest).
 
 ## License
 
