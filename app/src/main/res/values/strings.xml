@@ -298,4 +298,101 @@
     <string name="faq_a4_timeline_independence">Because the information on tolerance and cross tolerance does not yet allow to do this reliably.</string>
     <string name="faq_q5_dose_dots">What do the dots next to the dose of the ingestion mean?</string>
     <string name="faq_a5_dose_dots">0 dots means that the dose is less than threshold, 1: light, 2: common, 3: strong, 4: heavy. More than 4 dots means that the heavy dose is subtracted and the remainder is again classified in terms of light, common and strong.</string>
+
+    <string name="description">Description</string>
+    <string name="add_route">Add Route</string>
+    <string name="remove_route">Remove Route</string>
+    <string name="dose_light">Light</string>
+    <string name="dose_common">Common</string>
+    <string name="dose_strong">Strong</string>
+    <string name="dose_heavy">Heavy</string>
+    <string name="duration_onset">Onset</string>
+    <string name="duration_comeup">Comeup</string>
+    <string name="duration_peak">Peak</string>
+    <string name="duration_offset">Offset</string>
+    <string name="duration_total">Total</string>
+    <string name="duration_afterglow">Afterglow</string>
+    <string name="min">Min</string>
+    <string name="max">Max</string>
+    <string name="units_placeholder">Units</string>
+    <string name="disabled">disabled</string>
+
+    <string name="substance_unit_title">%1$s unit</string>
+    <string name="delete_custom_unit_cd">Delete custom unit</string>
+    <string name="delete_custom_unit_dialog_title">Delete custom unit?</string>
+    <string name="delete_custom_unit_dialog_text">This will affect all ingestions that are using it. Consider archiving it instead.</string>
+    <string name="ingestion_singular">ingestion</string>
+    <string name="ingestion_plural">ingestions</string>
+    <string name="ingestions_affected_by_edit">%1$s are affected by this edit</string>
+    <string name="no_ingestions_using_unit">No ingestions are using this unit yet</string>
+
+    <string name="cannabis_info_joint">When smoking a joint about 23% of the THC in the bud is inhaled. So if you smoke a joint with 300mg of a bud that has 20% THC then you inhale 300mg * 20/100 * 23/100 = 13.8mg THC.</string>
+    <string name="cannabis_info_bong">When smoking with a bong about 40% of the THC in the bud is inhaled. So if you smoke 300mg of a bud that has 20% THC then you inhale 300mg * 20/100 * 40/100 = 24mg THC.</string>
+    <string name="cannabis_info_vaporizer">When smoking with a vaporizer about 70% of the THC in the bud is inhaled. So if you smoke 300mg of a bud that has 20% THC then you inhale 300mg * 20/100 * 70/100 = 42mg THC.</string>
+    <string name="psilocybin_info_dried">Dried Psilocybe cubensis contain around 1% of Psilocybin.</string>
+    <string name="psilocybin_info_fresh">Fresh Psilocybe cubensis contain around 0.1% of Psilocybin.</string>
+    <string name="psilocybin_info_research">Research the strain of mushroom you have to be able to estimate the amount of Psilocybin it contains.</string>
+    <string name="alcohol_info">1 ml of Ethanol is 0.8g. So if you are e.g. consuming 200ml of a spirit with 40% of Alcohol you are consuming 200ml * 40/100 * 0.8 = 64g Ethanol.</string>
+
+    <string name="prompt_cannabis_name">e.g. Joint weed 20%, Bong weed 15%, Vaporizer</string>
+    <string name="prompt_cannabis_unit">mg, joint, hit</string>
+    <string name="prompt_cannabis_unit_plural">mg, joints, hits</string>
+    <string name="prompt_mushrooms_name">Mushroom strain</string>
+    <string name="prompt_mushrooms_unit">g</string>
+    <string name="prompt_mushrooms_unit_plural">g</string>
+    <string name="prompt_alcohol_name">e.g. beer, wine, spirit</string>
+    <string name="prompt_alcohol_unit">e.g. ml, cup</string>
+    <string name="prompt_alcohol_unit_plural">ml, cups</string>
+    <string name="prompt_caffeine_name">e.g. coffee, tea, energy drink</string>
+    <string name="prompt_caffeine_unit">e.g. cup, can</string>
+    <string name="prompt_caffeine_unit_plural">cups, cans</string>
+    <string name="prompt_oral_name">e.g. Blue rocket, 85% powder</string>
+    <string name="prompt_oral_unit">e.g. pill, capsule, mg</string>
+    <string name="prompt_oral_unit_plural">e.g. pills, capsules, mg</string>
+    <string name="prompt_smoked_name">e.g. 85% powder</string>
+    <string name="prompt_smoked_unit">e.g. mg, hit</string>
+    <string name="prompt_smoked_unit_plural">e.g. mg, hits</string>
+    <string name="prompt_insufflated_name">e.g. Nasal solution, Blue dispenser</string>
+    <string name="prompt_insufflated_unit">e.g. spray, spoon, scoop, line</string>
+    <string name="prompt_insufflated_unit_plural">e.g. sprays, spoons, scoops, lines</string>
+    <string name="prompt_buccal_name">e.g. Brand name</string>
+    <string name="prompt_buccal_unit">e.g. pouch</string>
+    <string name="prompt_buccal_unit_plural">pouches</string>
+    <string name="prompt_transdermal_name">e.g. brand name</string>
+    <string name="prompt_transdermal_unit">e.g. patch</string>
+    <string name="prompt_transdermal_unit_plural">patches</string>
+    <string name="prompt_default_name">e.g. 85% powder, blue rocket</string>
+    <string name="prompt_default_unit">e.g. pill, spray, spoon</string>
+    <string name="prompt_default_unit_plural">e.g. pills, sprays, spoons</string>
+
+    <string name="unit_singular">Unit singular</string>
+    <string name="unit_plural">Unit plural</string>
+    <string name="note">Note</string>
+    <string name="dose_per_unit">Dose per %1$s</string>
+    <string name="is_estimate_cd">Is an estimate</string>
+    <string name="estimated_standard_deviation_per_unit">Estimated standard deviation per %1$s</string>
+    <string name="ingestion_sample_preview">Ingestion sample preview:</string>
+    <string name="archive_this_unit_cd">Archive this unit</string>
+    <string name="archive">Archive</string>
+    <string name="archive_description">Archived custom units don\'t show up when adding ingestions</string>
+
+    <string name="done_cd">Done</string>
+
+    <string-array name="cannabis_info">
+        <item>Joint: 0.2-1g</item>
+        <item>Bong: 0.1-0.5g</item>
+        <item>Vaporizer: 0.1-0.3g</item>
+    </string-array>
+    <string-array name="psilocybin_info">
+        <item>The dosages refer to dried psilocybin mushrooms.</item>
+        <item>Fresh mushrooms are about 90% water, so the dose is 10x higher.</item>
+        <item>Research suggests that 1% of the dried weight is psilocybin.</item>
+    </string-array>
+    <string-array name="alcohol_info">
+        <item>1 standard unit in the US is 14g, in the UK 8g of alcohol.</item>
+    </string-array>
+    <string name="unit">unit</string>
+    <string name="edit_custom_unit">Edit custom unit</string>
+    <string name="archive_title">Archive</string>
+    <string name="clear_search">Clear search</string>
 </resources>

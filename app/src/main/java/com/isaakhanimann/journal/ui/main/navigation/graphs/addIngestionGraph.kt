@@ -102,7 +102,10 @@ fun NavGraphBuilder.addIngestionGraph(navController: NavController) {
                         popUpTo(AddIngestionSearchRoute)
                     }
                 },
-                initialName = route.searchText
+                initialName = route.searchText,
+                navigateBack = {
+                    navController.navigateUp()
+                }
             )
         }
         composableWithTransitions<CheckInteractionsRoute> { backStackEntry ->
@@ -259,6 +262,9 @@ fun NavGraphBuilder.addIngestionGraph(navController: NavController) {
                         popUpTo(AddIngestionSearchRoute)
                     }
                 },
+                navigateBack = {
+                    navController.navigateUp()
+                }
             )
         }
     }

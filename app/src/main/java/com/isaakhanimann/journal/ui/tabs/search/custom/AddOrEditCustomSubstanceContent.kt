@@ -5,9 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -16,18 +14,21 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -49,7 +50,6 @@ import com.isaakhanimann.journal.data.room.experiences.entities.custom.CustomRoa
 import com.isaakhanimann.journal.data.room.experiences.entities.custom.SerializableDurationRange
 import com.isaakhanimann.journal.data.room.experiences.entities.custom.SerializableDurationUnits
 import com.isaakhanimann.journal.data.substances.AdministrationRoute
-import com.isaakhanimann.journal.ui.theme.horizontalPadding
 
 @Composable
 fun AddOrEditCustomSubstanceContent(
@@ -70,68 +70,59 @@ fun AddOrEditCustomSubstanceContent(
     Column(
         modifier = Modifier
             .padding(padding)
-            .padding(horizontal = horizontalPadding)
-            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp)
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = name,
-            onValueChange = onNameChange,
-            label = { Text(stringResource(R.string.name)) },
-            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-            keyboardOptions = KeyboardOptions.Default.copy(
-                capitalization = KeyboardCapitalization.Words
-            ),
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = units,
-            onValueChange = onUnitsChange,
-            label = { Text(stringResource(R.string.default_units)) },
-            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth()
-        )
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            OutlinedButton(onClick = { onUnitsChange("µg") }) { Text(text = "µg") }
-            OutlinedButton(onClick = { onUnitsChange("mg") }) { Text(text = "mg") }
-            OutlinedButton(onClick = { onUnitsChange("g") }) { Text(text = "g") }
-            OutlinedButton(onClick = { onUnitsChange("mL") }) { Text(text = "mL") }
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = description,
-            onValueChange = onDescriptionChange,
-            label = { Text("Description") },
-            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-            keyboardOptions = KeyboardOptions.Default.copy(
-                capitalization = KeyboardCapitalization.Sentences
-            ),
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(stringResource(R.string.routes_of_administration), style = MaterialTheme.typography.titleMedium)
-        Spacer(modifier = Modifier.height(8.dp))
-
-        roaInfos.forEachIndexed { index, roaInfo ->
-            RoaInfoEditor(
-                roaInfo = roaInfo,
-                onUpdate = { onUpdateRoa(index, it) },
-                onRemove = { onRemoveRoa(roaInfo) }
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            OutlinedTextField(
+                value = name,
+                onValueChange = onNameChange,
+                label = { Text(stringResource(R.string.name)) },
+                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.Words),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
             )
-            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedTextField(
+                value = units,
+                onValueChange = onUnitsChange,
+                label = { Text(stringResource(R.string.default_units)) },
+                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                SuggestionChip(onClick = { onUnitsChange("µg") }, label = { Text("µg") })
+                SuggestionChip(onClick = { onUnitsChange("mg") }, label = { Text("mg") })
+                SuggestionChip(onClick = { onUnitsChange("g") }, label = { Text("g") })
+                SuggestionChip(onClick = { onUnitsChange("mL") }, label = { Text("mL") })
+            }
+
+            OutlinedTextField(
+                value = description,
+                onValueChange = onDescriptionChange,
+                label = { Text(stringResource(R.string.description)) },
+                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.Sentences),
+                modifier = Modifier.fillMaxWidth()
+            )
         }
 
-        Button(
+
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(stringResource(R.string.routes_of_administration), style = MaterialTheme.typography.titleLarge)
+            roaInfos.forEachIndexed { index, roaInfo ->
+                RoaInfoEditor(
+                    roaInfo = roaInfo,
+                    onUpdate = { onUpdateRoa(index, it) },
+                    onRemove = { onRemoveRoa(roaInfo) }
+                )
+            }
+        }
+
+        FilledTonalButton(
             onClick = {
                 val defaultRoa = AdministrationRoute.entries.firstOrNull { route ->
                     roaInfos.none { it.administrationRoute == route }
@@ -146,14 +137,13 @@ fun AddOrEditCustomSubstanceContent(
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Add Route")
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(stringResource(R.string.add_route_of_administration))
+            Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_route))
+            Text(stringResource(R.string.add_route_of_administration), modifier = Modifier.padding(start = 8.dp))
         }
-        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun RoaInfoEditor(
     roaInfo: CustomRoaInfo,
@@ -162,73 +152,67 @@ private fun RoaInfoEditor(
 ) {
     var isRoaMenuExpanded by remember { mutableStateOf(false) }
 
-    Card(elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(stringResource(R.string.route), style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
-                OutlinedButton(onClick = { isRoaMenuExpanded = true }) {
-                    Text(roaInfo.administrationRoute.name.lowercase().replaceFirstChar { it.uppercase() })
-                    Icon(Icons.Default.ArrowDropDown, contentDescription = null)
-                }
-                DropdownMenu(
+    Card(
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
+    ) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                ExposedDropdownMenuBox(
                     expanded = isRoaMenuExpanded,
-                    onDismissRequest = { isRoaMenuExpanded = false }
+                    onExpandedChange = { isRoaMenuExpanded = !isRoaMenuExpanded },
+                    modifier = Modifier.weight(1f)
                 ) {
-                    AdministrationRoute.entries.forEach { route ->
-                        DropdownMenuItem(
-                            text = { Text(route.name.lowercase().replaceFirstChar { it.uppercase() }) },
-                            onClick = {
-                                onUpdate(roaInfo.copy(administrationRoute = route))
-                                isRoaMenuExpanded = false
-                            }
-                        )
+                    OutlinedTextField(
+                        value = roaInfo.administrationRoute.name.lowercase().replaceFirstChar { it.uppercase() },
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text(stringResource(R.string.route)) },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isRoaMenuExpanded) },
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                    )
+                    ExposedDropdownMenu(
+                        expanded = isRoaMenuExpanded,
+                        onDismissRequest = { isRoaMenuExpanded = false }
+                    ) {
+                        AdministrationRoute.entries.forEach { route ->
+                            DropdownMenuItem(
+                                text = { Text(route.name.lowercase().replaceFirstChar { it.uppercase() }) },
+                                onClick = {
+                                    onUpdate(roaInfo.copy(administrationRoute = route))
+                                    isRoaMenuExpanded = false
+                                }
+                            )
+                        }
                     }
                 }
                 IconButton(onClick = onRemove) {
-                    Icon(Icons.Default.Delete, contentDescription = "Remove Route")
+                    Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.remove_route))
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(stringResource(R.string.dosage), style = MaterialTheme.typography.titleSmall)
-            val doseInfo = roaInfo.doseInfo ?: CustomDoseInfo()
-            Row {
-                DoseTextField("Light", doseInfo.lightMin) {
-                    onUpdate(roaInfo.copy(doseInfo = doseInfo.copy(lightMin = it)))
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(stringResource(R.string.dosage), style = MaterialTheme.typography.titleMedium)
+                val doseInfo = roaInfo.doseInfo ?: CustomDoseInfo()
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    DoseTextField(stringResource(R.string.dose_light), doseInfo.lightMin) { onUpdate(roaInfo.copy(doseInfo = doseInfo.copy(lightMin = it))) }
+                    DoseTextField(stringResource(R.string.dose_common), doseInfo.commonMin) { onUpdate(roaInfo.copy(doseInfo = doseInfo.copy(commonMin = it))) }
                 }
-                DoseTextField("Common", doseInfo.commonMin) {
-                    onUpdate(roaInfo.copy(doseInfo = doseInfo.copy(commonMin = it)))
-                }
-            }
-            Row {
-                DoseTextField("Strong", doseInfo.strongMin) {
-                    onUpdate(roaInfo.copy(doseInfo = doseInfo.copy(strongMin = it)))
-                }
-                DoseTextField("Heavy", doseInfo.heavyMin) {
-                    onUpdate(roaInfo.copy(doseInfo = doseInfo.copy(heavyMin = it)))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    DoseTextField(stringResource(R.string.dose_strong), doseInfo.strongMin) { onUpdate(roaInfo.copy(doseInfo = doseInfo.copy(strongMin = it))) }
+                    DoseTextField(stringResource(R.string.dose_heavy), doseInfo.heavyMin) { onUpdate(roaInfo.copy(doseInfo = doseInfo.copy(heavyMin = it))) }
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
-            Text("Duration", style = MaterialTheme.typography.titleSmall)
-            val durationInfo = roaInfo.durationInfo ?: CustomDurationInfo()
-            DurationRangeEditor("Onset", durationInfo.onset) {
-                onUpdate(roaInfo.copy(durationInfo = durationInfo.copy(onset = it)))
-            }
-            DurationRangeEditor("Comeup", durationInfo.comeup) {
-                onUpdate(roaInfo.copy(durationInfo = durationInfo.copy(comeup = it)))
-            }
-            DurationRangeEditor("Peak", durationInfo.peak) {
-                onUpdate(roaInfo.copy(durationInfo = durationInfo.copy(peak = it)))
-            }
-            DurationRangeEditor("Offset", durationInfo.offset) {
-                onUpdate(roaInfo.copy(durationInfo = durationInfo.copy(offset = it)))
-            }
-            DurationRangeEditor("Total", durationInfo.total) {
-                onUpdate(roaInfo.copy(durationInfo = durationInfo.copy(total = it)))
-            }
-            DurationRangeEditor("Afterglow", durationInfo.afterglow) {
-                onUpdate(roaInfo.copy(durationInfo = durationInfo.copy(afterglow = it)))
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(stringResource(R.string.duration), style = MaterialTheme.typography.titleMedium)
+                val durationInfo = roaInfo.durationInfo ?: CustomDurationInfo()
+                DurationRangeEditor(stringResource(R.string.duration_onset), durationInfo.onset) { onUpdate(roaInfo.copy(durationInfo = durationInfo.copy(onset = it))) }
+                DurationRangeEditor(stringResource(R.string.duration_comeup), durationInfo.comeup) { onUpdate(roaInfo.copy(durationInfo = durationInfo.copy(comeup = it))) }
+                DurationRangeEditor(stringResource(R.string.duration_peak), durationInfo.peak) { onUpdate(roaInfo.copy(durationInfo = durationInfo.copy(peak = it))) }
+                DurationRangeEditor(stringResource(R.string.duration_offset), durationInfo.offset) { onUpdate(roaInfo.copy(durationInfo = durationInfo.copy(offset = it))) }
+                DurationRangeEditor(stringResource(R.string.duration_total), durationInfo.total) { onUpdate(roaInfo.copy(durationInfo = durationInfo.copy(total = it))) }
+                DurationRangeEditor(stringResource(R.string.duration_afterglow), durationInfo.afterglow) { onUpdate(roaInfo.copy(durationInfo = durationInfo.copy(afterglow = it))) }
             }
         }
     }
@@ -237,29 +221,25 @@ private fun RoaInfoEditor(
 @Composable
 private fun RowScope.DoseTextField(label: String, value: Double?, onValueChange: (Double?) -> Unit) {
     var text by remember { mutableStateOf(value?.toString() ?: "") }
-
     LaunchedEffect(value) {
-        val currentValue = text.toDoubleOrNull()
-        if (value != currentValue) {
+        if (value != text.toDoubleOrNull()) {
             text = value?.toString() ?: ""
         }
     }
-
     OutlinedTextField(
         value = text,
         onValueChange = { newText ->
             text = newText
-            onValueChange(newText.toDoubleOrNull())
+            onValueChange(newText.replace(',', '.').toDoubleOrNull())
         },
         label = { Text(label) },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        modifier = Modifier
-            .weight(1f)
-            .padding(4.dp),
+        modifier = Modifier.weight(1f),
         singleLine = true
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DurationRangeEditor(label: String, value: SerializableDurationRange?, onValueChange: (SerializableDurationRange?) -> Unit) {
     var isUnitsMenuExpanded by remember { mutableStateOf(false) }
@@ -267,57 +247,55 @@ private fun DurationRangeEditor(label: String, value: SerializableDurationRange?
 
     var minText by remember { mutableStateOf(currentRange.min?.toString() ?: "") }
     LaunchedEffect(currentRange.min) {
-        val currentValue = minText.toFloatOrNull()
-        if (currentRange.min != currentValue) {
+        if (currentRange.min != minText.toFloatOrNull()) {
             minText = currentRange.min?.toString() ?: ""
         }
     }
 
     var maxText by remember { mutableStateOf(currentRange.max?.toString() ?: "") }
     LaunchedEffect(currentRange.max) {
-        val currentValue = maxText.toFloatOrNull()
-        if (currentRange.max != currentValue) {
+        if (currentRange.max != maxText.toFloatOrNull()) {
             maxText = currentRange.max?.toString() ?: ""
         }
     }
 
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 4.dp)) {
-        Text(label, modifier = Modifier.width(80.dp))
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(vertical = 2.dp)) {
+        Text(label, modifier = Modifier.width(80.dp), style = MaterialTheme.typography.bodyMedium)
         OutlinedTextField(
             value = minText,
             onValueChange = { newText ->
                 minText = newText
-                onValueChange(currentRange.copy(min = newText.toFloatOrNull()))
+                onValueChange(currentRange.copy(min = newText.replace(',', '.').toFloatOrNull()))
             },
-            label = { Text("Min") },
+            label = { Text(stringResource(R.string.min)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.weight(1f),
             singleLine = true
         )
-        Spacer(modifier = Modifier.width(8.dp))
         OutlinedTextField(
             value = maxText,
             onValueChange = { newText ->
                 maxText = newText
-                onValueChange(currentRange.copy(max = newText.toFloatOrNull()))
+                onValueChange(currentRange.copy(max = newText.replace(',', '.').toFloatOrNull()))
             },
-            label = { Text("Max") },
+            label = { Text(stringResource(R.string.max)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.weight(1f),
             singleLine = true
         )
-        Spacer(modifier = Modifier.width(8.dp))
-        Column {
-            OutlinedButton(onClick = { isUnitsMenuExpanded = true }) {
-                Text(currentRange.units?.text ?: "Units")
-                Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+        ExposedDropdownMenuBox(
+            expanded = isUnitsMenuExpanded,
+            onExpandedChange = { isUnitsMenuExpanded = !isUnitsMenuExpanded }
+        ) {
+            OutlinedButton(onClick = { isUnitsMenuExpanded = true }, modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable)) {
+                Text(currentRange.units?.text ?: stringResource(R.string.units_placeholder))
             }
-            DropdownMenu(
+            ExposedDropdownMenu(
                 expanded = isUnitsMenuExpanded,
                 onDismissRequest = { isUnitsMenuExpanded = false }
             ) {
                 DropdownMenuItem(
-                    text = { Text("disabled") },
+                    text = { Text(stringResource(R.string.disabled)) },
                     onClick = {
                         onValueChange(currentRange.copy(units = null))
                         isUnitsMenuExpanded = false

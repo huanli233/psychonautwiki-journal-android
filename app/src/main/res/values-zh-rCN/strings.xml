@@ -286,4 +286,114 @@
     <string name="faq_q5_dose_dots">摄入剂量旁边的点代表什么？</string>
     <string name="faq_a5_dose_dots">0个点表示剂量低于阈值，1：轻微，2：普通，3：强烈，4：高。超过4个点意味着减去高剂量后，剩余部分再次按照轻微、普通和强烈的标准进行分类。</string>
 
+    <string name="description">描述</string>
+    <string name="add_route">添加途径</string>
+    <string name="remove_route">移除途径</string>
+    <string name="dose_light">轻</string>
+    <string name="dose_common">普通</string>
+    <string name="dose_strong">强</string>
+    <string name="dose_heavy">重</string>
+    <string name="duration_onset">起效</string>
+    <string name="duration_comeup">上升</string>
+    <string name="duration_peak">顶峰</string>
+    <string name="duration_offset">消退</string>
+    <string name="duration_total">总计</string>
+    <string name="duration_afterglow">余晖</string>
+    <string name="min">最小</string>
+    <string name="max">最大</string>
+    <string name="units_placeholder">单位</string>
+    <string name="disabled">禁用</string>
+
+    <string name="substance_unit_title">%1$s 单位</string>
+    <string name="delete_custom_unit_cd">删除自定义单位</string>
+    <string name="delete_custom_unit_dialog_title">删除自定义单位？</string>
+    <string name="delete_custom_unit_dialog_text">这会影响所有使用它的摄入记录。请考虑改为将其存档。</string>
+    <string name="ingestion_singular">摄入记录</string>
+    <string name="ingestion_plural">摄入记录</string>
+    <string name="ingestions_affected_by_edit">%1$s 受此编辑影响</string>
+    <string name="no_ingestions_using_unit">尚无摄入记录使用此单位</string>
+
+    <string name="cannabis_info_joint">当通过卷烟吸食时，约23%的THC被吸入。因此，如果您吸食一支含有300毫克THC含量为20%的大麻的卷烟，您将吸入 300mg * 20/100 * 23/100 = 13.8mg THC。</string>
+    <string name="cannabis_info_bong">当使用水烟筒吸食时，约40%的THC被吸入。因此，如果您吸食300毫克THC含量为20%的大麻，您将吸入 300mg * 20/100 * 40/100 = 24mg THC。</string>
+    <string name="cannabis_info_vaporizer">当使用雾化器吸食时，约70%的THC被吸入。因此，如果您吸食300毫克THC含量为20%的大麻，您将吸入 300mg * 20/100 * 70/100 = 42mg THC。</string>
+    <string name="psilocybin_info_dried">干燥的古巴光盖伞约含有1%的赛洛西宾。</string>
+    <string name="psilocybin_info_fresh">新鲜的古巴光盖伞约含有0.1%的赛洛西宾。</string>
+    <string name="psilocybin_info_research">请研究您所拥有的蘑菇品种，以便估算其赛洛西宾含量。</string>
+    <string name="alcohol_info">1毫升乙醇为0.8克。因此，如果您饮用200毫升酒精含量为40%的烈酒，您将摄入 200ml * 40/100 * 0.8 = 64克 乙醇。</string>
+
+    <string name="prompt_cannabis_name">例如：卷烟（THC 20%），水烟筒（THC 15%），雾化器</string>
+    <string name="prompt_cannabis_unit">毫克，支，口</string>
+    <string name="prompt_cannabis_unit_plural">毫克，支，口</string>
+    <string name="prompt_mushrooms_name">蘑菇品种</string>
+    <string name="prompt_mushrooms_unit">克</string>
+    <string name="prompt_mushrooms_unit_plural">克</string>
+    <string name="prompt_alcohol_name">例如：啤酒，葡萄酒，烈酒</string>
+    <string name="prompt_alcohol_unit">例如：毫升，杯</string>
+    <string name="prompt_alcohol_unit_plural">毫升，杯</string>
+    <string name="prompt_caffeine_name">例如：咖啡，茶，能量饮料</string>
+    <string name="prompt_caffeine_unit">例如：杯，罐</string>
+    <string name="prompt_caffeine_unit_plural">杯，罐</string>
+    <string name="prompt_oral_name">例如：蓝色火箭，85%粉末</string>
+    <string name="prompt_oral_unit">例如：片，胶囊，毫克</string>
+    <string name="prompt_oral_unit_plural">例如：片，胶囊，毫克</string>
+    <string name="prompt_smoked_name">例如：85%粉末</string>
+    <string name="prompt_smoked_unit">例如：毫克，口</string>
+    <string name="prompt_smoked_unit_plural">例如：毫克，口</string>
+    <string name="prompt_insufflated_name">例如：鼻用溶液，蓝色分配器</string>
+    <string name="prompt_insufflated_unit">例如：喷，勺，撮，条</string>
+    <string name="prompt_insufflated_unit_plural">例如：喷，勺，撮，条</string>
+    <string name="prompt_buccal_name">例如：品牌名称</string>
+    <string name="prompt_buccal_unit">例如：袋</string>
+    <string name="prompt_buccal_unit_plural">袋</string>
+    <string name="prompt_transdermal_name">例如：品牌名称</string>
+    <string name="prompt_transdermal_unit">例如：贴片</string>
+    <string name="prompt_transdermal_unit_plural">贴片</string>
+    <string name="prompt_default_name">例如：85%粉末，蓝色火箭</string>
+    <string name="prompt_default_unit">例如：片，喷，勺</string>
+    <string name="prompt_default_unit_plural">例如：片，喷，勺</string>
+
+    <string name="name">名称</string>
+    <string name="unit_singular">单位（单数）</string>
+    <string name="unit_plural">单位（复数）</string>
+    <string name="note">备注</string>
+    <string name="dose_per_unit">每 %1$s 的剂量</string>
+    <string name="is_estimate_cd">是估算值</string>
+    <string name="estimated_standard_deviation_per_unit">每 %1$s 的估算标准差</string>
+    <string name="ingestion_sample_preview">摄入示例预览：</string>
+    <string name="archive_this_unit_cd">存档此单位</string>
+    <string name="archive">存档</string>
+    <string name="archive_description">添加摄入记录时不会显示已存档的自定义单位</string>
+
+    <string name="done_cd">完成</string>
+
+    <string name="route">路径</string>
+    <string name="routes_of_administration">给药途径</string>
+    <string name="add_route_of_administration">添加给药途径</string>
+    <string name="no_matching_substance_with_the_tag_found">未找到带有“%1$s”标签的匹配物质</string>
+    <string name="no_matching_substance_with_tags_found">未找到带有“%1$s”标签的匹配物质</string>
+    <string name="default_units">默认单位</string>
+    <string name="suggestions">建议</string>
+    <string name="dose_is_known">剂量已知</string>
+    <string name="part_of_unknown_experience">未知体验的一部分</string>
+    <string name="add_ingestion_at_same_time">同时添加摄入记录</string>
+    <string name="navigate_back">返回</string>
+    <string name="dose_unknown">总剂量未知</string>
+
+    <string-array name="cannabis_info">
+        <item>手卷烟: 0.2-1克</item>
+        <item>水烟筒: 0.1-0.5克</item>
+        <item>雾化器: 0.1-0.3克</item>
+    </string-array>
+    <string-array name="psilocybin_info">
+        <item>剂量指的是干燥的裸盖菇。</item>
+        <item>新鲜蘑菇约含90%水分，因此剂量需乘以10倍。</item>
+        <item>研究表明，干燥重量的1%是裸盖菇素。</item>
+    </string-array>
+    <string-array name="alcohol_info">
+        <item>在美国，1个标准单位是14克酒精；在英国是8克。</item>
+    </string-array>
+    <string name="unit">单位</string>
+    <string name="archive_title">存档</string>
+    <string name="clear_search">清除搜索</string>
+    <string name="edit_custom_unit">编辑自定义单位</string>
 </resources>

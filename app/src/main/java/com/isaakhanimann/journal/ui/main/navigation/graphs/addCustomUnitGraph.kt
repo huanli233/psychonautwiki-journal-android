@@ -78,6 +78,9 @@ fun NavGraphBuilder.addCustomUnitGraph(navController: NavController) {
                         inclusive = true
                     )
                 },
+                navigateBack = {
+                    navController.navigateUp()
+                }
             )
         }
     }

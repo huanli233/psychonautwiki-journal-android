@@ -1,21 +1,3 @@
-/*
- * Copyright (c) 2024. Isaak Hanimann.
- * This file is part of PsychonautWiki Journal.
- *
- * PsychonautWiki Journal is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at
- * your option) any later version.
- *
- * PsychonautWiki Journal is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with PsychonautWiki Journal.  If not, see https://www.gnu.org/licenses/gpl-3.0.en.html.
- */
-
 package com.isaakhanimann.journal.ui.tabs.settings.customunits.add
 
 import androidx.compose.animation.AnimatedVisibility
@@ -23,35 +5,45 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
+import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -59,6 +51,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.isaakhanimann.journal.R
 import com.isaakhanimann.journal.data.room.experiences.entities.CustomUnit
 import com.isaakhanimann.journal.data.room.experiences.entities.Ingestion
 import com.isaakhanimann.journal.data.room.experiences.entities.PluralizableUnit
@@ -74,22 +67,22 @@ import com.isaakhanimann.journal.ui.tabs.journal.experience.models.IngestionElem
 import com.isaakhanimann.journal.ui.tabs.journal.experience.rating.FloatingDoneButton
 import com.isaakhanimann.journal.ui.tabs.search.substance.roa.dose.RoaDosePreviewProvider
 import com.isaakhanimann.journal.ui.tabs.search.substance.roa.dose.RoaDoseView
-import com.isaakhanimann.journal.ui.theme.horizontalPadding
 import com.isaakhanimann.journal.ui.utils.getShortTimeWithWeekdayText
 import java.time.Instant
 
+// Main Screen Composable
 @Composable
 fun FinishAddCustomUnitScreen(
     dismissAddCustomUnit: (customUnitId: Int) -> Unit,
+    navigateBack: () -> Unit,
     viewModel: FinishAddCustomUnitViewModel = hiltViewModel()
 ) {
     FinishAddCustomUnitScreenContent(
         substanceName = viewModel.substanceName,
         administrationRoute = viewModel.administrationRoute,
         roaDose = viewModel.roaDose,
-        dismiss = {
-            viewModel.createSaveAndDismissAfter(dismiss = dismissAddCustomUnit)
-        },
+        dismiss = { viewModel.createSaveAndDismissAfter(dismiss = dismissAddCustomUnit) },
+        navigateBack = navigateBack,
         name = viewModel.name,
         onChangeOfName = viewModel::onChangeOfName,
         doseText = viewModel.doseText,
@@ -113,38 +106,6 @@ fun FinishAddCustomUnitScreen(
     )
 }
 
-@Preview
-@Composable
-private fun FinishAddCustomUnitScreenPreview(
-    @PreviewParameter(RoaDosePreviewProvider::class) roaDose: RoaDose,
-) {
-    FinishAddCustomUnitScreenContent(
-        substanceName = "Example",
-        administrationRoute = AdministrationRoute.ORAL,
-        roaDose = roaDose,
-        dismiss = {},
-        name = "Pink rocket",
-        onChangeOfName = {},
-        doseText = "10",
-        onChangeDoseText = {},
-        estimatedDoseStandardDeviationText = "",
-        onChangeEstimatedDoseDeviationText = {},
-        isEstimate = true,
-        onChangeIsEstimate = {},
-        currentDoseClass = DoseClass.LIGHT,
-        isUnitsFieldShown = false,
-        unit = "pill",
-        onChangeOfUnits = {},
-        unitPlural = "pills",
-        onChangeOfUnitPlural = {},
-        originalUnit = "mg",
-        onChangeOfOriginalUnit = {},
-        note = "",
-        onChangeOfNote = {},
-        isArchived = false,
-        onChangeOfIsArchived = {}
-    )
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -153,6 +114,7 @@ private fun FinishAddCustomUnitScreenContent(
     administrationRoute: AdministrationRoute,
     roaDose: RoaDose?,
     dismiss: () -> Unit,
+    navigateBack: () -> Unit,
     name: String,
     onChangeOfName: (String) -> Unit,
     doseText: String,
@@ -175,7 +137,16 @@ private fun FinishAddCustomUnitScreenContent(
     onChangeOfIsArchived: (Boolean) -> Unit,
 ) {
     Scaffold(
-        topBar = { TopAppBar(title = { Text("$substanceName unit") }) },
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.substance_unit_title, substanceName)) },
+                navigationIcon = {
+                    IconButton(onClick = navigateBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.navigate_back))
+                    }
+                }
+            )
+        },
         floatingActionButton = {
             FloatingDoneButton(
                 onDone = dismiss,
@@ -213,6 +184,7 @@ private fun FinishAddCustomUnitScreenContent(
     }
 }
 
+// Shared Content Composable
 @Composable
 fun EditCustomUnitSections(
     padding: PaddingValues,
@@ -244,259 +216,98 @@ fun EditCustomUnitSections(
     Column(
         modifier = Modifier
             .padding(padding)
-            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp)
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Spacer(modifier = Modifier.height(4.dp))
-        val textStyle = MaterialTheme.typography.titleMedium
         val focusRequesterName = remember { FocusRequester() }
-        val focusRequesterUnit = remember { FocusRequester() }
-        val focusRequesterNote = remember { FocusRequester() }
-        val focusRequesterDose = remember { FocusRequester() }
         val focusManager = LocalFocusManager.current
         LaunchedEffect(Unit) {
             focusRequesterName.requestFocus()
         }
-        AnimatedVisibility(visible = numberOfIngestionsWithThisCustomUnit != null) {
-            if (numberOfIngestionsWithThisCustomUnit != null) {
-                ElevatedCard(
-                    modifier = Modifier
-                        .padding(
-                            horizontal = horizontalPadding,
-                        )
-                        .padding(bottom = 4.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(
-                            horizontal = horizontalPadding,
-                            vertical = 10.dp
-                        ),
-                        verticalArrangement = Arrangement.spacedBy(5.dp)
-                    ) {
-                        if (numberOfIngestionsWithThisCustomUnit > 0) {
-                            val pluralizableUnit =
-                                PluralizableUnit(singular = "ingestion", plural = "ingestions")
-                            Text(
-                                "${
-                                    numberOfIngestionsWithThisCustomUnit.toStringWith(
-                                        pluralizableUnit
-                                    )
-                                } are affected by this edit"
-                            )
-                        } else {
-                            Text("No ingestions are using this unit yet")
-                        }
-                    }
+
+        if (numberOfIngestionsWithThisCustomUnit != null) {
+            InfoCard {
+                val pluralizableUnit = PluralizableUnit(
+                    singular = stringResource(R.string.ingestion_singular),
+                    plural = stringResource(R.string.ingestion_plural)
+                )
+                val text = if (numberOfIngestionsWithThisCustomUnit > 0) {
+                    stringResource(
+                        R.string.ingestions_affected_by_edit,
+                        numberOfIngestionsWithThisCustomUnit.toStringWith(pluralizableUnit)
+                    )
+                } else {
+                    stringResource(R.string.no_ingestions_using_unit)
+                }
+                Text(text)
+            }
+        }
+
+        // Substance-specific info cards
+        val substanceInfoResId = when (substanceName) {
+            "Cannabis" -> if (administrationRoute == AdministrationRoute.SMOKED) R.array.cannabis_info else null
+            "Psilocybin mushrooms" -> R.array.psilocybin_info
+            "Alcohol" -> R.array.alcohol_info
+            else -> null
+        }
+        if (substanceInfoResId != null) {
+            InfoCard {
+                stringArrayResource(id = substanceInfoResId).forEach {
+                    Text(it, style = MaterialTheme.typography.bodyMedium)
                 }
             }
         }
-        if (substanceName == "Cannabis" && administrationRoute == AdministrationRoute.SMOKED) {
-            ElevatedCard(
-                modifier = Modifier
-                    .padding(
-                        horizontal = horizontalPadding,
-                    )
-                    .padding(bottom = 4.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(
-                        horizontal = horizontalPadding,
-                        vertical = 10.dp
-                    ),
-                    verticalArrangement = Arrangement.spacedBy(5.dp)
-                ) {
-                    Text("When smoking a joint about 23% of the THC in the bud is inhaled. So if you smoke a joint with 300mg of a bud that has 20% THC then you inhale 300mg * 20/100 * 23/100 = 13.8mg THC.")
-                    Text("When smoking with a bong about 40% of the THC in the bud is inhaled. So if you smoke 300mg of a bud that has 20% THC then you inhale 300mg * 20/100 * 40/100 = 24mg THC.")
-                    Text("When smoking with a vaporizer about 70% of the THC in the bud is inhaled. So if you smoke 300mg of a bud that has 20% THC then you inhale 300mg * 20/100 * 70/100 = 42mg THC.")
-                }
-            }
-        } else if (substanceName == "Psilocybin mushrooms") {
-            ElevatedCard(
-                modifier = Modifier.padding(
-                    horizontal = horizontalPadding,
-                    vertical = 4.dp
-                )
-            ) {
-                Column(
-                    modifier = Modifier.padding(
-                        horizontal = horizontalPadding,
-                        vertical = 10.dp
-                    ),
-                    verticalArrangement = Arrangement.spacedBy(5.dp)
-                ) {
-                    Text("Dried Psilocybe cubensis contain around 1% of Psilocybin.")
-                    Text("Fresh Psilocybe cubensis contain around 0.1% of Psilocybin.")
-                    Text("Research the strain of mushroom you have to be able to estimate the amount of Psilocybin it contains.")
-                }
-            }
-        } else if (substanceName == "Alcohol") {
-            ElevatedCard(
-                modifier = Modifier.padding(
-                    horizontal = horizontalPadding,
-                    vertical = 4.dp
-                )
-            ) {
-                Column(
-                    modifier = Modifier.padding(
-                        horizontal = horizontalPadding,
-                        vertical = 10.dp
-                    )
-                ) {
-                    Text("1 ml of Ethanol is 0.8g. So if you are e.g. consuming 200ml of a spirit with 40% of Alcohol you are consuming 200ml * 40/100 * 0.8 = 64g Ethanol.")
-                }
-            }
-        }
-        ElevatedCard(modifier = Modifier.padding(horizontal = horizontalPadding, vertical = 4.dp)) {
-            val prompt = when (substanceName) {
-                "Cannabis" -> Prompt(
-                    name = "e.g. Joint weed 20%, Bong weed 15%, Vaporizer",
-                    unit = "mg, joint, hit",
-                    unitPlural = "mg, joints, hits"
-                )
 
-                "Psilocybin mushrooms" ->
-                    Prompt(name = "Mushroom strain", unit = "g", unitPlural = "g")
-
-                "Alcohol" ->
-                    Prompt(
-                        name = "e.g. beer, wine, spirit",
-                        unit = "e.g. ml, cup",
-                        unitPlural = "ml, cups"
-                    )
-
-                "Caffeine" ->
-                    Prompt(
-                        name = "e.g. coffee, tea, energy drink",
-                        unit = "e.g. cup, can",
-                        unitPlural = "cups, cans"
-                    )
-
-                else ->
-                    when (administrationRoute) {
-                        AdministrationRoute.ORAL ->
-                            Prompt(
-                                name = "e.g. Blue rocket, 85% powder",
-                                unit = "e.g. pill, capsule, mg",
-                                unitPlural = "e.g. pills, capsules, mg"
-                            )
-
-                        AdministrationRoute.SMOKED ->
-                            Prompt(
-                                name = "e.g. 85% powder",
-                                unit = "e.g. mg, hit",
-                                unitPlural = "e.g. mg, hits"
-                            )
-
-                        AdministrationRoute.INSUFFLATED ->
-                            Prompt(
-                                name = "e.g. Nasal solution, Blue dispenser",
-                                unit = "e.g. spray, spoon, scoop, line",
-                                unitPlural = "e.g. sprays, spoons, scoops, lines"
-                            )
-
-                        AdministrationRoute.BUCCAL ->
-                            Prompt(
-                                name = "e.g. Brand name",
-                                unit = "e.g. pouch",
-                                unitPlural = "pouches"
-                            )
-
-                        AdministrationRoute.TRANSDERMAL ->
-                            Prompt(
-                                name = "e.g. brand name",
-                                unit = "e.g. patch",
-                                unitPlural = "patches"
-                            )
-
-                        else ->
-                            Prompt(
-                                name = "e.g. 85% powder, blue rocket",
-                                unit = "e.g. pill, spray, spoon",
-                                unitPlural = "e.g. pills, sprays, spoons"
-                            )
-                    }
-            }
+        // Main input card
+        Card(modifier = Modifier.fillMaxWidth()) {
             Column(
-                modifier = Modifier.padding(
-                    horizontal = horizontalPadding,
-                    vertical = 10.dp
-                )
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                val prompt = getPromptFor(substanceName, administrationRoute)
                 OutlinedTextField(
                     value = name,
                     onValueChange = onChangeOfName,
-                    textStyle = textStyle,
-                    singleLine = true,
-                    label = { Text(text = "Name") },
-                    placeholder = {
-                        Text(prompt.name)
-                    },
-                    keyboardActions = KeyboardActions(onNext = { focusRequesterUnit.requestFocus() }),
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Next,
-                        capitalization = KeyboardCapitalization.Words
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequesterName)
-
+                    label = { Text(stringResource(R.string.name)) },
+                    placeholder = { Text(prompt.name.toString()) },
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next, capitalization = KeyboardCapitalization.Words),
+                    modifier = Modifier.fillMaxWidth().focusRequester(focusRequesterName),
+                    singleLine = true
                 )
                 OutlinedTextField(
                     value = unit,
                     onValueChange = onChangeOfUnits,
-                    textStyle = textStyle,
-                    singleLine = true,
-                    label = { Text(text = "Unit singular") },
-                    placeholder = {
-                        Text(prompt.unit)
-                    },
-                    keyboardActions = KeyboardActions(onNext = { focusRequesterNote.requestFocus() }),
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Next,
-                        capitalization = KeyboardCapitalization.None
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequesterUnit)
+                    label = { Text(stringResource(R.string.unit_singular)) },
+                    placeholder = { Text(prompt.unit.toString()) },
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
                 )
                 OutlinedTextField(
                     value = unitPlural,
                     onValueChange = onChangeOfUnitPlural,
-                    textStyle = textStyle,
-                    singleLine = true,
-                    label = { Text(text = "Unit plural") },
-                    placeholder = {
-                        Text(prompt.unitPlural)
-                    },
-                    keyboardActions = KeyboardActions(onNext = { focusRequesterNote.requestFocus() }),
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Next,
-                        capitalization = KeyboardCapitalization.None
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequesterUnit)
+                    label = { Text(stringResource(R.string.unit_plural)) },
+                    placeholder = { Text(prompt.unitPlural.toString()) },
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
                 )
                 OutlinedTextField(
                     value = note,
                     onValueChange = onChangeOfNote,
-                    label = { Text(text = "Note") },
-                    keyboardActions = KeyboardActions(onNext = { focusRequesterDose.requestFocus() }),
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Next,
-                        capitalization = KeyboardCapitalization.Sentences
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequesterNote)
+                    label = { Text(stringResource(R.string.note)) },
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next, capitalization = KeyboardCapitalization.Sentences),
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         }
-        ElevatedCard(modifier = Modifier.padding(horizontal = horizontalPadding, vertical = 4.dp)) {
+
+        // Dose calculation card
+        Card(modifier = Modifier.fillMaxWidth()) {
             Column(
-                modifier = Modifier.padding(
-                    horizontal = horizontalPadding,
-                    vertical = 10.dp
-                )
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 if (roaDose != null) {
                     RoaDoseView(roaDose = roaDose)
@@ -508,100 +319,48 @@ fun EditCustomUnitSections(
                 }
                 OutlinedTextField(
                     value = doseText,
-                    onValueChange = {
-                        onChangeDoseText(
-                            it.replace(
-                                oldChar = ',',
-                                newChar = '.'
-                            )
-                        )
-                    },
-                    textStyle = textStyle,
-                    label = { Text("Dose per $unit", style = textStyle) },
-                    trailingIcon = {
-                        Text(
-                            text = originalUnit,
-                            style = textStyle,
-                            modifier = Modifier.padding(horizontal = horizontalPadding)
-                        )
-                    },
-                    keyboardActions = KeyboardActions(onDone = {
-                        focusManager.clearFocus()
-                    }),
+                    onValueChange = { onChangeDoseText(it.replace(',', '.')) },
+                    label = { Text(stringResource(R.string.dose_per_unit, unit.ifBlank { stringResource(R.string.unit) })) },
+                    trailingIcon = { Text(originalUnit) },
+                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
                     isError = doseText.toDoubleOrNull() == null,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequesterDose)
+                    modifier = Modifier.fillMaxWidth()
                 )
                 if (isShowingUnitsField) {
                     OutlinedTextField(
                         value = originalUnit,
                         onValueChange = onChangeOfOriginalUnit,
-                        label = { Text("Units") },
+                        label = { Text(stringResource(R.string.units)) },
                         keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        OutlinedButton(onClick = { onChangeOfOriginalUnit("µg") }) {
-                            Text(text = "µg")
-                        }
-                        OutlinedButton(onClick = { onChangeOfOriginalUnit("mg") }) {
-                            Text(text = "mg")
-                        }
-                        OutlinedButton(onClick = { onChangeOfOriginalUnit("g") }) {
-                            Text(text = "g")
-                        }
-                        OutlinedButton(onClick = { onChangeOfOriginalUnit("mL") }) {
-                            Text(text = "mL")
-                        }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        SuggestionChip(onClick = { onChangeOfOriginalUnit("µg") }, label = { Text("µg") })
+                        SuggestionChip(onClick = { onChangeOfOriginalUnit("mg") }, label = { Text("mg") })
+                        SuggestionChip(onClick = { onChangeOfOriginalUnit("g") }, label = { Text("g") })
+                        SuggestionChip(onClick = { onChangeOfOriginalUnit("mL") }, label = { Text("mL") })
                     }
                 }
+
                 Row(
+                    modifier = Modifier.toggleable(value = isEstimate, onValueChange = onChangeIsEstimate, role = Role.Switch),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Switch(
-                        checked = isEstimate,
-                        onCheckedChange = onChangeIsEstimate,
-                        modifier = Modifier.semantics { contentDescription = "Is an estimate" })
-                    Text("Estimate", style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.estimate), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+                    Switch(checked = isEstimate, onCheckedChange = null)
                 }
                 AnimatedVisibility(visible = isEstimate) {
                     Column {
                         OutlinedTextField(
                             value = estimatedDoseStandardDeviationText,
-                            onValueChange = {
-                                onChangeEstimatedDoseStandardDeviationText(
-                                    it.replace(
-                                        oldChar = ',',
-                                        newChar = '.'
-                                    )
-                                )
-                            },
-                            textStyle = textStyle,
-                            label = {
-                                Text(
-                                    "Estimated standard deviation per $unit",
-                                    style = textStyle
-                                )
-                            },
-                            trailingIcon = {
-                                Text(
-                                    text = originalUnit,
-                                    style = textStyle,
-                                    modifier = Modifier.padding(horizontal = horizontalPadding)
-                                )
-                            },
-                            keyboardActions = KeyboardActions(onDone = {
-                                focusManager.clearFocus()
-                            }),
+                            onValueChange = { onChangeEstimatedDoseStandardDeviationText(it.replace(',', '.')) },
+                            label = { Text(stringResource(R.string.estimated_standard_deviation_per_unit, unit.ifBlank { stringResource(R.string.unit) })) },
+                            trailingIcon = { Text(originalUnit) },
+                            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
                             isError = estimatedDoseStandardDeviationText.toDoubleOrNull() == null,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             singleLine = true,
@@ -609,116 +368,124 @@ fun EditCustomUnitSections(
                         )
                         val mean = doseText.toDoubleOrNull()
                         val standardDeviation = estimatedDoseStandardDeviationText.toDoubleOrNull()
-                        val isExplanationShown = mean != null && standardDeviation != null
-                        AnimatedVisibility(isExplanationShown) {
-                            if (mean != null && standardDeviation != null) {
-                                StandardDeviationExplanation(
-                                    mean = mean,
-                                    standardDeviation = standardDeviation,
-                                    unit = originalUnit
-                                )
-                            }
+                        if (mean != null && standardDeviation != null) {
+                            StandardDeviationExplanation(mean = mean, standardDeviation = standardDeviation, unit = originalUnit)
                         }
                     }
                 }
             }
         }
+
+        // Preview Card
         if (name.isNotBlank() && unit.isNotBlank()) {
-            ElevatedCard(
-                modifier = Modifier
-                    .padding(horizontal = horizontalPadding, vertical = 4.dp)
-                    .fillMaxWidth()
-            ) {
-                Column(
-                    modifier = Modifier.padding(vertical = 10.dp),
-                    verticalArrangement = Arrangement.spacedBy(5.dp)
-                ) {
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
-                        "Ingestion sample preview:",
+                        stringResource(R.string.ingestion_sample_preview),
                         style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(horizontal = horizontalPadding)
+                        modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp)
                     )
-                    HorizontalDivider()
+                    HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
                     val customUnit = CustomUnit(
-                        id = 123,
-                        substanceName = substanceName,
-                        name = name,
-                        administrationRoute = administrationRoute,
-                        unit = unit,
-                        unitPlural = unitPlural,
-                        originalUnit = originalUnit,
-                        dose = doseText.toDoubleOrNull(),
+                        id = 123, substanceName = substanceName, name = name, administrationRoute = administrationRoute,
+                        unit = unit, unitPlural = unitPlural, originalUnit = originalUnit, dose = doseText.toDoubleOrNull(),
                         estimatedDoseStandardDeviation = estimatedDoseStandardDeviationText.toDoubleOrNull(),
-                        isEstimate = isEstimate,
-                        isArchived = isArchived,
-                        note = "",
-                    )
-                    val ingestionElement = IngestionElement(
-                        ingestionWithCompanionAndCustomUnit = IngestionWithCompanionAndCustomUnit(
-                            ingestion = Ingestion(
-                                substanceName = substanceName,
-                                notes = null,
-                                experienceId = 1,
-                                consumerName = null,
-                                stomachFullness = null,
-                                dose = 3.0,
-                                isDoseAnEstimate = false,
-                                time = Instant.now(),
-                                endTime = null,
-                                customUnitId = customUnit.id,
-                                administrationRoute = administrationRoute,
-                                estimatedDoseStandardDeviation = null,
-                                units = unit,
-                            ),
-                            substanceCompanion = null,
-                            customUnit = customUnit
-                        ),
-                        roaDuration = null,
-                        numDots = null
+                        isEstimate = isEstimate, isArchived = isArchived, note = ""
                     )
                     IngestionRow(
-                        ingestionElement = ingestionElement,
+                        ingestionElement = IngestionElement(
+                            ingestionWithCompanionAndCustomUnit = IngestionWithCompanionAndCustomUnit(
+                                ingestion = Ingestion(
+                                    substanceName = substanceName,
+                                    dose = 3.0,
+                                    time = Instant.now(),
+                                    customUnitId = customUnit.id,
+                                    administrationRoute = administrationRoute,
+                                    units = unit,
+                                    experienceId = 1,
+                                    notes = null,
+                                    consumerName = null,
+                                    stomachFullness = null,
+                                    isDoseAnEstimate = false,
+                                    endTime = null,
+                                    estimatedDoseStandardDeviation = null
+                                ),
+                                substanceCompanion = null, customUnit = customUnit
+                            ), roaDuration = null, numDots = null
+                        ),
                         areDosageDotsHidden = true,
-                        modifier = Modifier.padding(horizontal = horizontalPadding)
                     ) {
-                        val timeString = Instant.now().getShortTimeWithWeekdayText()
                         Text(
-                            text = timeString,
-                            style = MaterialTheme.typography.titleSmall
+                            text = Instant.now().getShortTimeWithWeekdayText(),
+                            style = MaterialTheme.typography.labelMedium
                         )
                     }
                 }
             }
         }
-        ElevatedCard(
-            modifier = Modifier
-                .padding(horizontal = horizontalPadding, vertical = 4.dp)
-                .fillMaxWidth()
+
+        // Archive Card
+        ListItem(
+            headlineContent = { Text(stringResource(R.string.archive), style = MaterialTheme.typography.titleMedium) },
+            supportingContent = { Text(stringResource(R.string.archive_description)) },
+            trailingContent = { Switch(checked = isArchived, onCheckedChange = onChangeOfIsArchived) },
+            modifier = Modifier.toggleable(value = isArchived, onValueChange = onChangeOfIsArchived, role = Role.Switch)
+        )
+    }
+}
+
+// Helper composable for info cards
+@Composable
+private fun InfoCard(content: @Composable () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.Top
         ) {
-            Column(
-                modifier = Modifier.padding(
-                    horizontal = horizontalPadding,
-                    vertical = 10.dp
-                )
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                ) {
-                    Switch(
-                        checked = isArchived,
-                        onCheckedChange = onChangeOfIsArchived,
-                        modifier = Modifier.semantics { contentDescription = "Archive this unit" })
-                    Text("Archive", style = MaterialTheme.typography.titleMedium)
-                }
-                Text("Archived custom units don't show up when adding ingestions")
+            Icon(Icons.Default.Info, contentDescription = null, tint = MaterialTheme.colorScheme.onTertiaryContainer)
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                content()
             }
         }
     }
 }
 
-data class Prompt(
-    val name: String,
-    val unit: String,
-    val unitPlural: String
-)
+// Helper function to get prompts
+@Composable
+private fun getPromptFor(substanceName: String, route: AdministrationRoute): Prompt {
+    return when (substanceName) {
+        "Cannabis" -> Prompt(R.string.prompt_cannabis_name, R.string.prompt_cannabis_unit, R.string.prompt_cannabis_unit_plural)
+        "Psilocybin mushrooms" -> Prompt(R.string.prompt_mushrooms_name, R.string.prompt_mushrooms_unit, R.string.prompt_mushrooms_unit_plural)
+        "Alcohol" -> Prompt(R.string.prompt_alcohol_name, R.string.prompt_alcohol_unit, R.string.prompt_alcohol_unit_plural)
+        "Caffeine" -> Prompt(R.string.prompt_caffeine_name, R.string.prompt_caffeine_unit, R.string.prompt_caffeine_unit_plural)
+        else -> when (route) {
+            AdministrationRoute.ORAL -> Prompt(R.string.prompt_oral_name, R.string.prompt_oral_unit, R.string.prompt_oral_unit_plural)
+            AdministrationRoute.SMOKED -> Prompt(R.string.prompt_smoked_name, R.string.prompt_smoked_unit, R.string.prompt_smoked_unit_plural)
+            AdministrationRoute.INSUFFLATED -> Prompt(R.string.prompt_insufflated_name, R.string.prompt_insufflated_unit, R.string.prompt_insufflated_unit_plural)
+            AdministrationRoute.BUCCAL -> Prompt(R.string.prompt_buccal_name, R.string.prompt_buccal_unit, R.string.prompt_buccal_unit_plural)
+            AdministrationRoute.TRANSDERMAL -> Prompt(R.string.prompt_transdermal_name, R.string.prompt_transdermal_unit, R.string.prompt_transdermal_unit_plural)
+            else -> Prompt(R.string.prompt_default_name, R.string.prompt_default_unit, R.string.prompt_default_unit_plural)
+        }
+    }.let { resIds ->
+        Prompt(resIds.name, resIds.unit, resIds.unitPlural)
+    }
+}
+
+data class Prompt(val name: Int, val unit: Int, val unitPlural: Int)
+private data class PromptStrings(val name: String, val unit: String, val unitPlural: String)
+
+// Previews
+@Preview @Composable private fun FinishAddCustomUnitScreenPreview(@PreviewParameter(RoaDosePreviewProvider::class) roaDose: RoaDose) {
+    FinishAddCustomUnitScreenContent(
+        substanceName = "Example", administrationRoute = AdministrationRoute.ORAL, roaDose = roaDose,
+        dismiss = {}, navigateBack = {}, name = "Pink rocket", onChangeOfName = {}, doseText = "10", onChangeDoseText = {},
+        estimatedDoseStandardDeviationText = "", onChangeEstimatedDoseDeviationText = {}, isEstimate = true,
+        onChangeIsEstimate = {}, currentDoseClass = DoseClass.LIGHT, isUnitsFieldShown = false, unit = "pill",
+        onChangeOfUnits = {}, unitPlural = "pills", onChangeOfUnitPlural = {}, originalUnit = "mg",
+        onChangeOfOriginalUnit = {}, note = "", onChangeOfNote = {}, isArchived = false, onChangeOfIsArchived = {}
+    )
+}
