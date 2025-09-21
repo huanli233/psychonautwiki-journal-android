@@ -1,21 +1,3 @@
-/*
- * Copyright (c) 2022-2023. Isaak Hanimann.
- * This file is part of PsychonautWiki Journal.
- *
- * PsychonautWiki Journal is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at
- * your option) any later version.
- *
- * PsychonautWiki Journal is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with PsychonautWiki Journal.  If not, see https://www.gnu.org/licenses/gpl-3.0.en.html.
- */
-
 package com.isaakhanimann.journal.ui.tabs.journal
 
 import androidx.compose.animation.AnimatedVisibility
@@ -28,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -41,7 +24,6 @@ import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.icons.outlined.Timer
-import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -49,10 +31,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -62,19 +47,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.isaakhanimann.journal.R
 import com.isaakhanimann.journal.data.room.experiences.relations.ExperienceWithIngestionsCompanionsAndRatings
 import com.isaakhanimann.journal.ui.tabs.journal.components.ExperienceRow
 import com.isaakhanimann.journal.ui.tabs.stats.EmptyScreenDisclaimer
 import com.isaakhanimann.journal.ui.theme.JournalTheme
-import com.isaakhanimann.journal.ui.theme.horizontalPadding
 import kotlinx.coroutines.launch
 
 @Composable
@@ -107,31 +93,6 @@ fun JournalScreen(
     )
 }
 
-@Preview
-@Composable
-fun ExperiencesScreenPreview(
-    @PreviewParameter(
-        JournalScreenPreviewProvider::class,
-    ) experiences: List<ExperienceWithIngestionsCompanionsAndRatings>,
-) {
-    JournalTheme {
-        JournalScreen(
-            navigateToExperiencePopNothing = {},
-            navigateToAddIngestion = {},
-            navigateToCalendar = {},
-            isFavoriteEnabled = false,
-            onChangeIsFavorite = {},
-            isTimeRelativeToNow = true,
-            onChangeIsRelative = {},
-            searchText = "",
-            onChangeSearchText = {},
-            isSearchEnabled = true,
-            onChangeIsSearchEnabled = {},
-            experiences = experiences,
-        )
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun JournalScreen(
@@ -148,10 +109,13 @@ fun JournalScreen(
     onChangeIsSearchEnabled: (Boolean) -> Unit,
     experiences: List<ExperienceWithIngestionsCompanionsAndRatings>,
 ) {
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(com.isaakhanimann.journal.R.string.journal)) },
+                title = { Text(stringResource(R.string.journal)) },
                 actions = {
                     IconToggleButton(
                         checked = isTimeRelativeToNow,
@@ -189,114 +153,77 @@ fun JournalScreen(
                             contentDescription = stringResource(R.string.navigate_to_calendar)
                         )
                     }
-                }
+                },
+                scrollBehavior = scrollBehavior
             )
         },
         floatingActionButton = {
             if (!isSearchEnabled) {
                 ExtendedFloatingActionButton(
                     onClick = navigateToAddIngestion,
-                    icon = {
-                        Icon(
-                            Icons.Filled.Add,
-                            contentDescription = stringResource(R.string.add)
-                        )
-                    },
+                    icon = { Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.add)) },
                     text = { Text(stringResource(R.string.ingestion)) },
                 )
             }
         },
     ) { padding ->
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.Top
-            ) {
-                AnimatedVisibility(visible = isSearchEnabled) {
-                    Column {
-                        val focusManager = LocalFocusManager.current
-                        TextField(
-                            value = searchText,
-                            onValueChange = onChangeSearchText,
-                            leadingIcon = {
-                                Icon(
-                                    Icons.Default.Search,
-                                    contentDescription = stringResource(R.string.search),
-                                )
-                            },
-                            trailingIcon = {
-                                if (searchText != "") {
-                                    IconButton(
-                                        onClick = {
-                                            onChangeSearchText("")
-                                        }
-                                    ) {
-                                        Icon(
-                                            Icons.Default.Close,
-                                            contentDescription = stringResource(R.string.close),
-                                        )
-                                    }
-                                }
-                            },
-                            label = { Text(text = stringResource(R.string.search_experiences)) },
-                            modifier = Modifier.fillMaxWidth(),
-                            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Text,
-                                capitalization = KeyboardCapitalization.Sentences
-                            ),
-                            singleLine = true
-                        )
-                        if (experiences.isEmpty() && isSearchEnabled && searchText.isNotEmpty()) {
-                            if (isFavoriteEnabled) {
-                                Column(modifier = Modifier.padding(horizontalPadding)) {
-                                    Text(
-                                        text = stringResource(R.string.no_results),
-                                        style = MaterialTheme.typography.titleMedium
-                                    )
-                                    Text(
-                                        text = stringResource(R.string.no_favorite_experience_titles_match_your_search),
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
-                                }
-                            } else {
-                                Column(modifier = Modifier.padding(horizontalPadding)) {
-                                    Text(
-                                        text = stringResource(R.string.no_results),
-                                        style = MaterialTheme.typography.titleMedium
-                                    )
-                                    Text(
-                                        text = stringResource(R.string.no_experience_titles_match_your_search),
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
-                                }
+        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+            AnimatedVisibility(visible = isSearchEnabled) {
+                val focusManager = LocalFocusManager.current
+                OutlinedTextField(
+                    value = searchText,
+                    onValueChange = onChangeSearchText,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                    shape = CircleShape,
+                    placeholder = { Text(text = stringResource(R.string.search_experiences)) },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search)) },
+                    trailingIcon = {
+                        if (searchText.isNotEmpty()) {
+                            IconButton(onClick = { onChangeSearchText("") }) {
+                                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close))
                             }
+                        }
+                    },
+                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        capitalization = KeyboardCapitalization.Sentences
+                    ),
+                    singleLine = true
+                )
+            }
+
+            if (experiences.isEmpty()) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)
+                ) {
+                    when {
+                        isSearchEnabled && searchText.isNotEmpty() -> {
+                            val title = stringResource(R.string.no_results)
+                            val description = if(isFavoriteEnabled) stringResource(R.string.no_favorite_experience_titles_match_your_search)
+                            else stringResource(R.string.no_experience_titles_match_your_search)
+                            EmptyScreenDisclaimer(title = title, description = description)
+                        }
+                        !isSearchEnabled && isFavoriteEnabled -> {
+                            EmptyScreenDisclaimer(
+                                title = stringResource(R.string.no_favorites),
+                                description = stringResource(R.string.no_favorites_description)
+                            )
+                        }
+                        !isSearchEnabled && !isFavoriteEnabled -> {
+                            EmptyScreenDisclaimer(
+                                title = stringResource(R.string.no_experiences_yet),
+                                description = stringResource(R.string.add_your_first_ingestion)
+                            )
                         }
                     }
                 }
-                val listState = rememberLazyListState()
-                val isScrollUpButtonShown by remember {
-                    derivedStateOf {
-                        listState.firstVisibleItemIndex > 0
-                    }
-                }
-                Box(contentAlignment = Alignment.TopEnd) {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        state = listState
-                    ) {
-                        if (experiences.isNotEmpty()) {
-                            item {
-                                HorizontalDivider()
-                            }
-                        }
-                        items(experiences) { experienceWithIngestions ->
+            } else {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    val listState = rememberLazyListState()
+                    LazyColumn(state = listState) {
+                        items(experiences, key = { it.experience.id }) { experienceWithIngestions ->
                             ExperienceRow(
                                 experienceWithIngestions,
                                 navigateToExperienceScreen = {
@@ -307,33 +234,47 @@ fun JournalScreen(
                             HorizontalDivider()
                         }
                     }
-                    this@Column.AnimatedVisibility(visible = isScrollUpButtonShown) {
+
+                    val isScrollUpButtonShown by remember { derivedStateOf { listState.firstVisibleItemIndex > 2 } }
+                    this@Column.AnimatedVisibility(
+                        visible = isScrollUpButtonShown,
+                        modifier = Modifier.align(Alignment.BottomEnd)
+                    ) {
                         val scope = rememberCoroutineScope()
-                        ElevatedButton(
-                            modifier = Modifier.padding(all = horizontalPadding),
-                            onClick = {
-                                scope.launch {
-                                    listState.scrollToItem(index = 0)
-                                }
-                            }) {
+                        SmallFloatingActionButton(
+                            modifier = Modifier.padding(16.dp),
+                            onClick = { scope.launch { listState.animateScrollToItem(index = 0) } }
+                        ) {
                             Icon(Icons.Default.ArrowUpward, contentDescription = stringResource(R.string.scroll_to_top))
                         }
                     }
                 }
             }
-            if (experiences.isEmpty() && !isSearchEnabled) {
-                if (isFavoriteEnabled) {
-                    EmptyScreenDisclaimer(
-                        title = stringResource(R.string.no_favorites),
-                        description = stringResource(R.string.no_favorites_description)
-                    )
-                } else {
-                    EmptyScreenDisclaimer(
-                        title = stringResource(R.string.no_experiences_yet),
-                        description = stringResource(R.string.add_your_first_ingestion)
-                    )
-                }
-            }
         }
+    }
+}
+
+@Preview
+@Composable
+fun ExperiencesScreenPreview(
+    @PreviewParameter(
+        JournalScreenPreviewProvider::class,
+    ) experiences: List<ExperienceWithIngestionsCompanionsAndRatings>,
+) {
+    JournalTheme {
+        JournalScreen(
+            navigateToExperiencePopNothing = {},
+            navigateToAddIngestion = {},
+            navigateToCalendar = {},
+            isFavoriteEnabled = false,
+            onChangeIsFavorite = {},
+            isTimeRelativeToNow = true,
+            onChangeIsRelative = {},
+            searchText = "",
+            onChangeSearchText = {},
+            isSearchEnabled = true,
+            onChangeIsSearchEnabled = {},
+            experiences = experiences,
+        )
     }
 }
