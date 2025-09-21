@@ -155,47 +155,53 @@ fun StatsScreen(
                     }
                 }
                 if (statsModel.statItems.isNotEmpty()) {
-                    Column {
-                        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-                            Text(
-                                text = stringResource(
-                                    R.string.experiences_since,
-                                    statsModel.startDateText
-                                ),
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            Text(
-                                text = stringResource(R.string.substance_counted_once_per_experience),
-                                style = MaterialTheme.typography.bodySmall
+                    LazyColumn {
+                        item {
+                            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                                Text(
+                                    text = stringResource(
+                                        R.string.experiences_since,
+                                        statsModel.startDateText
+                                    ),
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                                Text(
+                                    text = stringResource(R.string.substance_counted_once_per_experience),
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                        }
+
+                        item {
+                            BarChart(
+                                buckets = statsModel.chartBuckets,
+                                startDateText = statsModel.startDateText,
                             )
                         }
 
-                        BarChart(
-                            buckets = statsModel.chartBuckets,
-                            startDateText = statsModel.startDateText,
-                        )
-                        HorizontalDivider(
-                            Modifier,
-                            DividerDefaults.Thickness,
-                            DividerDefaults.color
-                        )
-                        LazyColumn {
-                            items(statsModel.statItems) { subStat ->
-                                StatItemRow(
-                                    subStat = subStat,
-                                    onClick = {
-                                        navigateToSubstanceCompanion(
-                                            subStat.substanceName,
-                                            statsModel.consumerName
-                                        )
-                                    }
-                                )
-                                HorizontalDivider(
-                                    Modifier,
-                                    DividerDefaults.Thickness,
-                                    DividerDefaults.color
-                                )
-                            }
+                        item {
+                            HorizontalDivider(
+                                modifier = Modifier,
+                                thickness = DividerDefaults.Thickness,
+                                color = DividerDefaults.color
+                            )
+                        }
+
+                        items(statsModel.statItems) { subStat ->
+                            StatItemRow(
+                                subStat = subStat,
+                                onClick = {
+                                    navigateToSubstanceCompanion(
+                                        subStat.substanceName,
+                                        statsModel.consumerName
+                                    )
+                                }
+                            )
+                            HorizontalDivider(
+                                modifier = Modifier,
+                                thickness = DividerDefaults.Thickness,
+                                color = DividerDefaults.color
+                            )
                         }
                     }
                 } else {
