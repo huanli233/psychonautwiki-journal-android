@@ -1,30 +1,11 @@
-/*
- * Copyright (c) 2022-2023. Isaak Hanimann.
- * This file is part of PsychonautWiki Journal.
- *
- * PsychonautWiki Journal is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at
- * your option) any later version.
- *
- * PsychonautWiki Journal is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with PsychonautWiki Journal.  If not, see https://www.gnu.org/licenses/gpl-3.0.en.html.
- */
-
 package com.isaakhanimann.journal.ui.tabs.journal.experience.components.ingestion
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,6 +22,79 @@ import com.isaakhanimann.journal.data.room.experiences.entities.AdaptiveColor
 import com.isaakhanimann.journal.ui.tabs.journal.experience.components.DotRows
 import com.isaakhanimann.journal.ui.tabs.journal.experience.models.IngestionElement
 
+@Composable
+fun IngestionRow(
+    ingestionElement: IngestionElement,
+    areDosageDotsHidden: Boolean,
+    modifier: Modifier = Modifier,
+    time: @Composable () -> Unit,
+) {
+    val ingestionWithCompanionAndCustomUnit = ingestionElement.ingestionWithCompanionAndCustomUnit
+    val ingestion = ingestionWithCompanionAndCustomUnit.ingestion
+    val customUnit = ingestionWithCompanionAndCustomUnit.customUnit
+
+    ListItem(
+        modifier = modifier,
+        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+        headlineContent = {
+            val title = if (customUnit != null) {
+                "${ingestion.substanceName}, ${customUnit.name}"
+            } else {
+                ingestion.substanceName
+            }
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium
+            )
+        },
+        supportingContent = {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    val doseText = buildAnnotatedString {
+                        append(ingestionWithCompanionAndCustomUnit.doseDescription)
+                        withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant)) {
+                            val routeText = " ${ingestion.administrationRoute.displayText.lowercase()}"
+                            if (customUnit == null) {
+                                append(routeText)
+                            } else {
+                                val calculatedDose = ingestionWithCompanionAndCustomUnit.customUnitDose?.calculatedDoseDescription
+                                val calculatedText = if (calculatedDose != null) " = $calculatedDose" else " = unknown dose"
+                                append(calculatedText + routeText)
+                            }
+                        }
+                    }
+                    Text(text = doseText, style = MaterialTheme.typography.bodyMedium)
+
+                    val numDots = ingestionElement.numDots
+                    if (numDots != null && !areDosageDotsHidden) {
+                        DotRows(numDots = numDots)
+                    }
+                }
+
+                val note = ingestion.notes
+                if (!note.isNullOrBlank()) {
+                    Text(
+                        text = note,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        },
+        leadingContent = {
+            VerticalLine(color = ingestionWithCompanionAndCustomUnit.substanceCompanion?.color ?: AdaptiveColor.RED)
+        },
+        trailingContent = {
+            time()
+        }
+    )
+}
+
+
 @Preview(showBackground = true)
 @Composable
 fun IngestionRowPreview(@PreviewParameter(IngestionRowPreviewProvider::class) ingestionElement: IngestionElement) {
@@ -53,66 +107,5 @@ fun IngestionRowPreview(@PreviewParameter(IngestionRowPreviewProvider::class) in
             text = "Fri 07:17",
             style = MaterialTheme.typography.labelMedium
         )
-    }
-}
-
-
-@Composable
-fun IngestionRow(
-    ingestionElement: IngestionElement,
-    areDosageDotsHidden: Boolean,
-    modifier: Modifier = Modifier,
-    time: @Composable () -> Unit,
-) {
-    val ingestionWithCompanionAndCustomUnit = ingestionElement.ingestionWithCompanionAndCustomUnit
-    val ingestion = ingestionWithCompanionAndCustomUnit.ingestion
-    val customUnit = ingestionWithCompanionAndCustomUnit.customUnit
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        modifier = modifier.height(intrinsicSize = IntrinsicSize.Min).padding(vertical = 3.dp)
-    ) {
-        VerticalLine(color = ingestionWithCompanionAndCustomUnit.substanceCompanion?.color ?: AdaptiveColor.RED)
-        Column {
-            time()
-            val title = if (customUnit != null) {
-                "${ingestion.substanceName}, ${customUnit.name}"
-            } else {
-                ingestion.substanceName
-            }
-            Text(
-                modifier = Modifier.weight(1f),
-                text = title,
-                style = MaterialTheme.typography.titleMedium
-            )
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                val text = buildAnnotatedString {
-                    append(ingestionWithCompanionAndCustomUnit.doseDescription)
-                    withStyle(style = SpanStyle(color = Color.Gray)) {
-                        if (customUnit == null) {
-                            append(" " + ingestion.administrationRoute.displayText.lowercase())
-                        } else {
-                            ingestionWithCompanionAndCustomUnit.customUnitDose?.calculatedDoseDescription?.let {
-                                append(" = $it ${ingestion.administrationRoute.displayText.lowercase()}")
-                            } ?: run {
-                                append(" = unknown dose ${ingestion.administrationRoute.displayText.lowercase()}")
-                            }
-                        }
-                    }
-                }
-                Text(text = text, style = MaterialTheme.typography.titleSmall)
-                val numDots = ingestionElement.numDots
-                if (numDots != null && !areDosageDotsHidden) {
-                    DotRows(numDots = numDots)
-                }
-            }
-            val note = ingestion.notes
-            if (!note.isNullOrBlank()) {
-                Text(text = note, style = MaterialTheme.typography.bodySmall)
-            }
-        }
     }
 }

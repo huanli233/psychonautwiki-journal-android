@@ -1,21 +1,3 @@
-/*
- * Copyright (c) 2022-2023. Isaak Hanimann.
- * This file is part of PsychonautWiki Journal.
- *
- * PsychonautWiki Journal is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at
- * your option) any later version.
- *
- * PsychonautWiki Journal is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with PsychonautWiki Journal.  If not, see https://www.gnu.org/licenses/gpl-3.0.en.html.
- */
-
 package com.isaakhanimann.journal.ui.tabs.stats
 
 import androidx.compose.foundation.clickable
@@ -23,10 +5,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -40,12 +19,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -61,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -71,8 +54,6 @@ import com.isaakhanimann.journal.R
 import com.isaakhanimann.journal.ui.YOU
 import com.isaakhanimann.journal.ui.tabs.search.substance.roa.toReadableString
 import com.isaakhanimann.journal.ui.theme.JournalTheme
-import com.isaakhanimann.journal.ui.theme.horizontalPadding
-
 
 @Composable
 fun StatsScreen(
@@ -88,24 +69,6 @@ fun StatsScreen(
     )
 }
 
-@Preview
-@Composable
-fun StatsPreview(
-    @PreviewParameter(
-        StatsPreviewProvider::class,
-    ) statsModel: StatsModel
-) {
-    JournalTheme {
-        StatsScreen(
-            navigateToSubstanceCompanion = { _, _ -> },
-            onTapOption = {},
-            statsModel = statsModel,
-            onChangeConsumerName = {},
-            consumerNamesSorted = listOf("You", "Someone else"),
-        )
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatsScreen(
@@ -118,9 +81,13 @@ fun StatsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (statsModel.consumerName == null) stringResource(R.string.statistics) else stringResource(
-                    R.string.statistics_for, statsModel.consumerName
-                )) },
+                title = {
+                    Text(
+                        if (statsModel.consumerName == null) stringResource(R.string.statistics) else stringResource(
+                            R.string.statistics_for, statsModel.consumerName
+                        )
+                    )
+                },
                 actions = {
                     if (consumerNamesSorted.isNotEmpty()) {
                         var isConsumerSelectionExpanded by remember { mutableStateOf(false) }
@@ -141,8 +108,7 @@ fun StatsScreen(
                                     if (statsModel.consumerName == null) {
                                         Icon(
                                             Icons.Filled.Check,
-                                            contentDescription = "Check",
-                                            modifier = Modifier.size(ButtonDefaults.IconSize)
+                                            contentDescription = "Check"
                                         )
                                     }
                                 }
@@ -158,8 +124,7 @@ fun StatsScreen(
                                         if (statsModel.consumerName == consumerName) {
                                             Icon(
                                                 Icons.Filled.Check,
-                                                contentDescription = "Check",
-                                                modifier = Modifier.size(ButtonDefaults.IconSize)
+                                                contentDescription = "Check"
                                             )
                                         }
                                     }
@@ -179,8 +144,7 @@ fun StatsScreen(
         } else {
             Column(modifier = Modifier.padding(padding)) {
                 TabRow(
-                    selectedTabIndex = statsModel.selectedOption.tabIndex,
-                    contentColor = MaterialTheme.colorScheme.onSurface,
+                    selectedTabIndex = statsModel.selectedOption.tabIndex
                 ) {
                     TimePickerOption.entries.forEachIndexed { index, option ->
                         Tab(
@@ -191,106 +155,46 @@ fun StatsScreen(
                     }
                 }
                 if (statsModel.statItems.isNotEmpty()) {
-                    val isDarkTheme = isSystemInDarkTheme()
                     Column {
-                        Text(
-                            text = stringResource(
-                                R.string.experiences_since,
-                                statsModel.startDateText
-                            ),
-                            style = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.padding(start = 10.dp, top = 5.dp)
-                        )
-                        Text(
-                            text = stringResource(R.string.substance_counted_once_per_experience),
-                            style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.padding(
-                                start = 10.dp,
-                                bottom = 16.dp
+                        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                            Text(
+                                text = stringResource(
+                                    R.string.experiences_since,
+                                    statsModel.startDateText
+                                ),
+                                style = MaterialTheme.typography.titleMedium
                             )
-                        )
+                            Text(
+                                text = stringResource(R.string.substance_counted_once_per_experience),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+
                         BarChart(
                             buckets = statsModel.chartBuckets,
                             startDateText = statsModel.startDateText,
                         )
-                        HorizontalDivider()
+                        HorizontalDivider(
+                            Modifier,
+                            DividerDefaults.Thickness,
+                            DividerDefaults.color
+                        )
                         LazyColumn {
                             items(statsModel.statItems) { subStat ->
-                                Column {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(intrinsicSize = IntrinsicSize.Min)
-                                            .clickable {
-                                                navigateToSubstanceCompanion(
-                                                    subStat.substanceName,
-                                                    statsModel.consumerName
-                                                )
-                                            }
-                                            .padding(
-                                                horizontal = horizontalPadding,
-                                                vertical = 8.dp
-                                            )
-                                    ) {
-                                        Surface(
-                                            shape = RoundedCornerShape(3.dp),
-                                            color = subStat.color.getComposeColor(
-                                                isDarkTheme
-                                            ),
-                                            modifier = Modifier
-                                                .width(11.dp)
-                                                .fillMaxHeight()
-                                        ) {}
-                                        Column {
-                                            Text(
-                                                text = subStat.substanceName,
-                                                style = MaterialTheme.typography.titleMedium
-                                            )
-                                            val addOn =
-                                                if (subStat.experienceCount == 1) stringResource(
-                                                    R.string.experience_count
-                                                ) else stringResource(R.string.experiences_count)
-                                            Text(
-                                                text = subStat.experienceCount.toString() + addOn,
-                                            )
-                                        }
-                                        Spacer(modifier = Modifier.weight(1f))
-                                        Column(horizontalAlignment = Alignment.End) {
-                                            val cumulativeDose = subStat.totalDose
-                                            if (cumulativeDose != null) {
-                                                if (cumulativeDose.isEstimate) {
-                                                    if (cumulativeDose.estimatedDoseStandardDeviation != null) {
-                                                        Text(text = stringResource(
-                                                            R.string.total,
-                                                            "${cumulativeDose.dose.toReadableString()}±${cumulativeDose.estimatedDoseStandardDeviation.toReadableString()} ${cumulativeDose.units}"
-                                                        ))
-                                                    } else {
-                                                        Text(text = stringResource(
-                                                            R.string.total,
-                                                            "~${cumulativeDose.dose.toReadableString()} ${cumulativeDose.units}"
-                                                        ))
-                                                    }
-                                                } else {
-                                                    Text(text = stringResource(
-                                                        R.string.total,
-                                                        "${cumulativeDose.dose.toReadableString()} ${cumulativeDose.units}"
-                                                    ))
-                                                }
-                                            } else {
-                                                Text(text = "total dose unknown")
-                                            }
-                                            subStat.routeCounts.forEach {
-                                                Text(
-                                                    text = "${it.administrationRoute.displayText.lowercase()} ${it.count}x ",
-                                                )
-                                            }
-                                        }
-
+                                StatItemRow(
+                                    subStat = subStat,
+                                    onClick = {
+                                        navigateToSubstanceCompanion(
+                                            subStat.substanceName,
+                                            statsModel.consumerName
+                                        )
                                     }
-                                    HorizontalDivider()
-                                }
+                                )
+                                HorizontalDivider(
+                                    Modifier,
+                                    DividerDefaults.Thickness,
+                                    DividerDefaults.color
+                                )
                             }
                         }
                     }
@@ -309,25 +213,105 @@ fun StatsScreen(
 }
 
 @Composable
+private fun StatItemRow(subStat: StatItem, onClick: () -> Unit) {
+    val isDarkTheme = isSystemInDarkTheme()
+    ListItem(
+        modifier = Modifier.clickable(onClick = onClick),
+        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+        headlineContent = {
+            Text(
+                text = subStat.substanceName,
+                style = MaterialTheme.typography.titleMedium
+            )
+        },
+        supportingContent = {
+            val addOn = if (subStat.experienceCount == 1) stringResource(R.string.experience_count)
+            else stringResource(R.string.experiences_count)
+            Text(text = "${subStat.experienceCount}$addOn")
+        },
+        leadingContent = {
+            Surface(
+                shape = RoundedCornerShape(4.dp),
+                color = subStat.color.getComposeColor(isDarkTheme),
+                modifier = Modifier
+                    .width(8.dp)
+                    .height(40.dp)
+            ) {}
+        },
+        trailingContent = {
+            Column(horizontalAlignment = Alignment.End) {
+                val cumulativeDose = subStat.totalDose
+                val doseTextValue = if (cumulativeDose != null) {
+                    if (cumulativeDose.isEstimate) {
+                        if (cumulativeDose.estimatedDoseStandardDeviation != null) {
+                            "~${cumulativeDose.dose.toReadableString()}±${cumulativeDose.estimatedDoseStandardDeviation.toReadableString()} ${cumulativeDose.units}"
+                        } else {
+                            "~${cumulativeDose.dose.toReadableString()} ${cumulativeDose.units}"
+                        }
+                    } else {
+                        "${cumulativeDose.dose.toReadableString()} ${cumulativeDose.units}"
+                    }
+                } else {
+                    stringResource(R.string.dose_unknown)
+                }
+                Text(
+                    text = stringResource(R.string.total, doseTextValue),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                if (subStat.routeCounts.isNotEmpty()) {
+                    Text(
+                        text = subStat.routeCounts.joinToString { "${it.administrationRoute.displayText.lowercase()} ${it.count}x" },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+    )
+}
+
+
+@Composable
 fun EmptyScreenDisclaimer(title: String, description: String) {
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 20.dp)
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.headlineSmall,
                 textAlign = TextAlign.Center
             )
-            Spacer(modifier = Modifier.height(10.dp))
             Text(
                 text = description,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyMedium
             )
         }
+    }
+}
+
+@Preview
+@Composable
+fun StatsPreview(
+    @PreviewParameter(
+        StatsPreviewProvider::class,
+    ) statsModel: StatsModel
+) {
+    JournalTheme {
+        StatsScreen(
+            navigateToSubstanceCompanion = { _, _ -> },
+            onTapOption = {},
+            statsModel = statsModel,
+            onChangeConsumerName = {},
+            consumerNamesSorted = listOf("You", "Someone else"),
+        )
     }
 }

@@ -1,21 +1,3 @@
-/*
- * Copyright (c) 2022-2023. Isaak Hanimann.
- * This file is part of PsychonautWiki Journal.
- *
- * PsychonautWiki Journal is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at
- * your option) any later version.
- *
- * PsychonautWiki Journal is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with PsychonautWiki Journal.  If not, see https://www.gnu.org/licenses/gpl-3.0.en.html.
- */
-
 package com.isaakhanimann.journal.ui.tabs.journal.experience
 
 import androidx.compose.animation.AnimatedVisibility
@@ -33,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.NoteAdd
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
@@ -44,16 +27,18 @@ import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.ExposurePlus2
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -63,6 +48,10 @@ import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -73,11 +62,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.isaakhanimann.journal.R
@@ -86,7 +75,6 @@ import com.isaakhanimann.journal.data.substances.AdministrationRoute
 import com.isaakhanimann.journal.ui.FULL_STOMACH_DISCLAIMER
 import com.isaakhanimann.journal.ui.YOU
 import com.isaakhanimann.journal.ui.tabs.journal.addingestion.interactions.Interaction
-import com.isaakhanimann.journal.ui.tabs.journal.experience.components.CardTitle
 import com.isaakhanimann.journal.ui.tabs.journal.experience.components.CumulativeDoseRow
 import com.isaakhanimann.journal.ui.tabs.journal.experience.components.IngestionTimeOrDurationText
 import com.isaakhanimann.journal.ui.tabs.journal.experience.components.InteractionRow
@@ -103,7 +91,6 @@ import com.isaakhanimann.journal.ui.tabs.journal.experience.models.CumulativeDos
 import com.isaakhanimann.journal.ui.tabs.journal.experience.models.OneExperienceScreenModel
 import com.isaakhanimann.journal.ui.tabs.journal.experience.timeline.AllTimelines
 import com.isaakhanimann.journal.ui.theme.JournalTheme
-import com.isaakhanimann.journal.ui.theme.horizontalPadding
 import com.isaakhanimann.journal.ui.utils.getDateWithWeekdayText
 import kotlinx.coroutines.delay
 import java.time.Instant
@@ -171,41 +158,7 @@ fun ExperienceScreen(
     )
 }
 
-@Preview
-@Composable
-fun ExperienceScreenPreview(
-    @PreviewParameter(
-        OneExperienceScreenPreviewProvider::class,
-        limit = 1
-    ) oneExperienceScreenModel: OneExperienceScreenModel
-) {
-    JournalTheme {
-        ExperienceScreen(
-            oneExperienceScreenModel = oneExperienceScreenModel,
-            timelineDisplayOption = TimelineDisplayOption.Loading,
-            isOralDisclaimerHidden = false,
-            onChangeIsOralDisclaimerHidden = {},
-            addIngestion = {},
-            deleteExperience = {},
-            navigateToEditExperienceScreen = {},
-            navigateToExplainTimeline = {},
-            navigateToIngestionScreen = {},
-            navigateToAddRatingScreen = {},
-            navigateToAddTimedNoteScreen = {},
-            navigateBack = {},
-            saveIsFavorite = {},
-            navigateToEditRatingScreen = {},
-            navigateToEditTimedNoteScreen = {},
-            savedTimeDisplayOption = SavedTimeDisplayOption.RELATIVE_TO_START,
-            timeDisplayOption = TimeDisplayOption.RELATIVE_TO_START,
-            onChangeTimeDisplayOption = {},
-            navigateToTimelineScreen = {},
-            areDosageDotsHidden = false,
-            isTimelineHidden = false
-        )
-    }
-}
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExperienceScreen(
     oneExperienceScreenModel: OneExperienceScreenModel,
@@ -230,7 +183,10 @@ fun ExperienceScreen(
     areDosageDotsHidden: Boolean,
     isTimelineHidden: Boolean,
 ) {
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             ExperienceTopBar(
                 oneExperienceScreenModel = oneExperienceScreenModel,
@@ -242,7 +198,8 @@ fun ExperienceScreen(
                 saveIsFavorite = saveIsFavorite,
                 navigateToAddTimedNoteScreen = navigateToAddTimedNoteScreen,
                 navigateToAddRatingScreen = navigateToAddRatingScreen,
-                addIngestion = addIngestion
+                addIngestion = addIngestion,
+                scrollBehavior = scrollBehavior
             )
         },
         floatingActionButton = {
@@ -253,12 +210,12 @@ fun ExperienceScreen(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
                 .padding(padding)
-                .padding(horizontal = horizontalPadding)
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            val verticalCardPadding = 4.dp
+            Spacer(Modifier.height(0.dp)) // Spacer for correct arrangement spacing at the top
             MyTimelineSection(
                 timelineDisplayOption = timelineDisplayOption,
-                verticalCardPadding = verticalCardPadding,
                 navigateToExplainTimeline = navigateToExplainTimeline,
                 navigateToTimelineScreen = navigateToTimelineScreen,
                 oneExperienceScreenModel = oneExperienceScreenModel,
@@ -268,7 +225,6 @@ fun ExperienceScreen(
             )
             if (oneExperienceScreenModel.ingestionElements.isNotEmpty()) {
                 MyIngestionList(
-                    verticalCardPadding = verticalCardPadding,
                     oneExperienceScreenModel = oneExperienceScreenModel,
                     areDosageDotsHidden = areDosageDotsHidden,
                     navigateToIngestionScreen = navigateToIngestionScreen,
@@ -278,7 +234,6 @@ fun ExperienceScreen(
             val cumulativeDoses = oneExperienceScreenModel.cumulativeDoses
             if (cumulativeDoses.isNotEmpty()) {
                 CumulativeDosesSection(
-                    verticalCardPadding = verticalCardPadding,
                     cumulativeDoses = cumulativeDoses,
                     areDosageDotsHidden = areDosageDotsHidden
                 )
@@ -286,7 +241,6 @@ fun ExperienceScreen(
             val timedNotesSorted = oneExperienceScreenModel.timedNotesSorted
             if (timedNotesSorted.isNotEmpty()) {
                 TimedNotesSection(
-                    verticalCardPadding = verticalCardPadding,
                     timedNotesSorted = timedNotesSorted,
                     navigateToEditTimedNoteScreen = navigateToEditTimedNoteScreen,
                     timeDisplayOption = timeDisplayOption,
@@ -295,7 +249,6 @@ fun ExperienceScreen(
             }
             if (oneExperienceScreenModel.ratings.isNotEmpty()) {
                 ShulginRatingsSection(
-                    verticalCardPadding = verticalCardPadding,
                     oneExperienceScreenModel = oneExperienceScreenModel,
                     navigateToEditRatingScreen = navigateToEditRatingScreen,
                     timeDisplayOption = timeDisplayOption
@@ -304,14 +257,12 @@ fun ExperienceScreen(
             val notes = oneExperienceScreenModel.notes
             if (notes.isNotBlank()) {
                 NotesSection(
-                    verticalCardPadding = verticalCardPadding,
                     navigateToEditExperienceScreen = navigateToEditExperienceScreen,
                     oneExperienceScreenModel = oneExperienceScreenModel
                 )
             }
             oneExperienceScreenModel.consumersWithIngestions.forEach { consumerWithIngestions ->
                 ConsumerSection(
-                    verticalCardPadding = verticalCardPadding,
                     consumerWithIngestions = consumerWithIngestions,
                     navigateToTimelineScreen = navigateToTimelineScreen,
                     timeDisplayOption = timeDisplayOption,
@@ -323,52 +274,57 @@ fun ExperienceScreen(
             val interactions = oneExperienceScreenModel.interactions
             AnimatedVisibility(visible = interactions.isNotEmpty()) {
                 ExperienceInteractionsSection(
-                    verticalCardPadding = verticalCardPadding,
                     interactions = interactions,
                     oneExperienceScreenModel = oneExperienceScreenModel
                 )
             }
-            Spacer(modifier = Modifier.height(60.dp))
+            Spacer(modifier = Modifier.height(80.dp))
         }
     }
 }
 
-@Composable
 @OptIn(ExperimentalLayoutApi::class)
+@Composable
 private fun ExperienceInteractionsSection(
-    verticalCardPadding: Dp,
     interactions: List<Interaction>,
     oneExperienceScreenModel: OneExperienceScreenModel
 ) {
-    ElevatedCard(
-        modifier = Modifier
-            .padding(vertical = verticalCardPadding)
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
     ) {
-        CardTitle(title = stringResource(R.string.interactions))
-        interactions.forEachIndexed { index, interaction ->
-            InteractionRow(interaction = interaction)
-            if (index < interactions.size - 1) {
-                HorizontalDivider()
+        Column(modifier = Modifier.padding(bottom = 16.dp)) {
+            Text(
+                text = stringResource(R.string.interactions),
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(16.dp)
+            )
+            interactions.forEachIndexed { index, interaction ->
+                InteractionRow(interaction = interaction)
+                if (index < interactions.size - 1) {
+                    HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
+                }
             }
-        }
-        Spacer(modifier = Modifier.height(5.dp))
-        Text(
-            text = stringResource(R.string.explanations),
-            style = MaterialTheme.typography.labelMedium,
-            modifier = Modifier.padding(horizontal = horizontalPadding)
-        )
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(5.dp),
-            modifier = Modifier.padding(horizontal = horizontalPadding)
-        ) {
-            oneExperienceScreenModel.interactionExplanations.forEach {
-                val uriHandler = LocalUriHandler.current
-                SuggestionChip(
-                    onClick = {
-                        uriHandler.openUri(it.url)
-                    },
-                    label = { Text(it.name) }
-                )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = stringResource(R.string.explanations),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(horizontal = 16.dp)
+            ) {
+                oneExperienceScreenModel.interactionExplanations.forEach {
+                    val uriHandler = LocalUriHandler.current
+                    SuggestionChip(
+                        onClick = {
+                            uriHandler.openUri(it.url)
+                        },
+                        label = { Text(it.name) }
+                    )
+                }
             }
         }
     }
@@ -376,7 +332,6 @@ private fun ExperienceInteractionsSection(
 
 @Composable
 private fun ConsumerSection(
-    verticalCardPadding: Dp,
     consumerWithIngestions: ConsumerWithIngestions,
     navigateToTimelineScreen: (consumerName: String) -> Unit,
     timeDisplayOption: TimeDisplayOption,
@@ -384,12 +339,20 @@ private fun ConsumerSection(
     navigateToIngestionScreen: (ingestionId: Int) -> Unit,
     isTimelineHidden: Boolean
 ) {
-    ElevatedCard(modifier = Modifier.padding(vertical = verticalCardPadding)) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            CardTitle(title = consumerWithIngestions.consumerName)
+            Text(
+                text = consumerWithIngestions.consumerName,
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(16.dp)
+            )
             if (!isTimelineHidden) {
                 IconButton(onClick = { navigateToTimelineScreen(consumerWithIngestions.consumerName) }) {
                     Icon(
@@ -407,7 +370,7 @@ private fun ConsumerSection(
                 val timelineModel = timelineDisplayOption.allTimelinesModel
                 Column(
                     modifier = Modifier
-                        .padding(horizontal = horizontalPadding)
+                        .padding(horizontal = 16.dp)
                         .padding(bottom = 10.dp),
                     verticalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
@@ -422,7 +385,7 @@ private fun ConsumerSection(
                 }
             }
         }
-        HorizontalDivider()
+        HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
         consumerWithIngestions.ingestionElements.forEachIndexed { index, ingestionElement ->
             IngestionRow(
                 ingestionElement = ingestionElement,
@@ -432,7 +395,7 @@ private fun ConsumerSection(
                         navigateToIngestionScreen(ingestionElement.ingestionWithCompanionAndCustomUnit.ingestion.id)
                     }
                     .fillMaxWidth()
-                    .padding(vertical = 5.dp, horizontal = horizontalPadding)
+                    .padding(vertical = 5.dp, horizontal = 16.dp)
             ) {
                 val ingestion = ingestionElement.ingestionWithCompanionAndCustomUnit.ingestion
                 IngestionTimeOrDurationText(
@@ -444,7 +407,11 @@ private fun ConsumerSection(
                 )
             }
             if (index < consumerWithIngestions.ingestionElements.size - 1) {
-                HorizontalDivider()
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    thickness = DividerDefaults.Thickness,
+                    color = DividerDefaults.color
+                )
             }
         }
     }
@@ -452,24 +419,28 @@ private fun ConsumerSection(
 
 @Composable
 private fun NotesSection(
-    verticalCardPadding: Dp,
     navigateToEditExperienceScreen: () -> Unit,
     oneExperienceScreenModel: OneExperienceScreenModel
 ) {
-    ElevatedCard(modifier = Modifier
-        .padding(vertical = verticalCardPadding)
-        .fillMaxWidth()
-        .clickable { navigateToEditExperienceScreen() }) {
-        CardTitle(title = stringResource(R.string.notes))
-        Column(
-            modifier = Modifier
-                .padding(horizontal = horizontalPadding)
-                .padding(bottom = 10.dp)
-        ) {
-            Text(text = oneExperienceScreenModel.notes)
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { navigateToEditExperienceScreen() },
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = stringResource(R.string.notes),
+                style = MaterialTheme.typography.titleLarge
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = oneExperienceScreenModel.notes, style = MaterialTheme.typography.bodyMedium)
             if (oneExperienceScreenModel.locationName.isNotBlank()) {
-                Spacer(modifier = Modifier.height(5.dp))
-                Text(text = stringResource(R.string.location, oneExperienceScreenModel.locationName))
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = stringResource(R.string.location, oneExperienceScreenModel.locationName),
+                    style = MaterialTheme.typography.labelLarge
+                )
             }
         }
     }
@@ -477,22 +448,23 @@ private fun NotesSection(
 
 @Composable
 private fun ShulginRatingsSection(
-    verticalCardPadding: Dp,
     oneExperienceScreenModel: OneExperienceScreenModel,
     navigateToEditRatingScreen: (ratingId: Int) -> Unit,
     timeDisplayOption: TimeDisplayOption
 ) {
-    ElevatedCard(modifier = Modifier.padding(vertical = verticalCardPadding)) {
-        CardTitle(title = stringResource(R.string.shulgin_ratings))
-        HorizontalDivider()
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+    ) {
+        Text(
+            text = stringResource(R.string.shulgin_ratings),
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(16.dp)
+        )
+        HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
         val ratingsWithTime =
             oneExperienceScreenModel.ratings.mapNotNull { rating ->
-                val time = rating.time
-                if (time != null) {
-                    Pair(time, rating)
-                } else {
-                    null
-                }
+                rating.time?.let { Pair(it, rating) }
             }.sortedBy { it.first }
         ratingsWithTime.forEachIndexed { index, pair ->
             TimedRatingRow(
@@ -501,8 +473,9 @@ private fun ShulginRatingsSection(
                         navigateToEditRatingScreen(pair.second.id)
                     }
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp, horizontal = horizontalPadding),
-                ratingSign = pair.second.option.sign) {
+                    .padding(vertical = 8.dp, horizontal = 16.dp),
+                ratingSign = pair.second.option.sign
+            ) {
                 NoteOrRatingTimeOrDurationText(
                     time = pair.first,
                     timeDisplayOption = timeDisplayOption,
@@ -510,14 +483,18 @@ private fun ShulginRatingsSection(
                 )
             }
             if (index < ratingsWithTime.size - 1) {
-                HorizontalDivider()
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    thickness = DividerDefaults.Thickness,
+                    color = DividerDefaults.color
+                )
             }
         }
         val overallRating =
             oneExperienceScreenModel.ratings.firstOrNull { it.time == null }
         if (overallRating != null) {
             if (ratingsWithTime.isNotEmpty()) {
-                HorizontalDivider()
+                HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
             }
             OverallRatingRow(
                 modifier = Modifier
@@ -525,7 +502,7 @@ private fun ShulginRatingsSection(
                         navigateToEditRatingScreen(overallRating.id)
                     }
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp, horizontal = horizontalPadding),
+                    .padding(vertical = 8.dp, horizontal = 16.dp),
                 ratingSign = overallRating.option.sign
             )
         }
@@ -534,16 +511,22 @@ private fun ShulginRatingsSection(
 
 @Composable
 private fun TimedNotesSection(
-    verticalCardPadding: Dp,
     timedNotesSorted: List<TimedNote>,
     navigateToEditTimedNoteScreen: (timedNoteId: Int) -> Unit,
     timeDisplayOption: TimeDisplayOption,
     firstIngestionTime: Instant,
 ) {
-    ElevatedCard(modifier = Modifier.padding(vertical = verticalCardPadding)) {
-        CardTitle(title = stringResource(R.string.timed_notes))
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+    ) {
+        Text(
+            text = stringResource(R.string.timed_notes),
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(16.dp)
+        )
         if (timedNotesSorted.isNotEmpty()) {
-            HorizontalDivider()
+            HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
         }
         timedNotesSorted.forEachIndexed { index, timedNote ->
             TimedNoteRow(
@@ -553,7 +536,7 @@ private fun TimedNotesSection(
                         navigateToEditTimedNoteScreen(timedNote.id)
                     }
                     .fillMaxWidth()
-                    .padding(vertical = 5.dp, horizontal = horizontalPadding)
+                    .padding(horizontal = 16.dp)
             ) {
                 NoteOrRatingTimeOrDurationText(
                     time = timedNote.time,
@@ -562,7 +545,11 @@ private fun TimedNotesSection(
                 )
             }
             if (index < timedNotesSorted.size - 1) {
-                HorizontalDivider()
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    thickness = DividerDefaults.Thickness,
+                    color = DividerDefaults.color
+                )
             }
         }
     }
@@ -570,14 +557,20 @@ private fun TimedNotesSection(
 
 @Composable
 private fun CumulativeDosesSection(
-    verticalCardPadding: Dp,
     cumulativeDoses: List<CumulativeDose>,
     areDosageDotsHidden: Boolean
 ) {
-    ElevatedCard(modifier = Modifier.padding(vertical = verticalCardPadding)) {
-        CardTitle(title = stringResource(R.string.your_cumulative_doses))
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+    ) {
+        Text(
+            text = stringResource(R.string.your_cumulative_doses),
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(16.dp)
+        )
         if (cumulativeDoses.isNotEmpty()) {
-            HorizontalDivider()
+            HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
         }
         cumulativeDoses.forEachIndexed { index, cumulativeDose ->
             CumulativeDoseRow(
@@ -585,10 +578,14 @@ private fun CumulativeDosesSection(
                 areDosageDotsHidden = areDosageDotsHidden,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 5.dp, horizontal = horizontalPadding)
+                    .padding(vertical = 5.dp, horizontal = 16.dp)
             )
             if (index < cumulativeDoses.size - 1) {
-                HorizontalDivider()
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    thickness = DividerDefaults.Thickness,
+                    color = DividerDefaults.color
+                )
             }
         }
     }
@@ -596,18 +593,22 @@ private fun CumulativeDosesSection(
 
 @Composable
 private fun MyIngestionList(
-    verticalCardPadding: Dp,
     oneExperienceScreenModel: OneExperienceScreenModel,
     areDosageDotsHidden: Boolean,
     navigateToIngestionScreen: (ingestionId: Int) -> Unit,
     timeDisplayOption: TimeDisplayOption
 ) {
-    ElevatedCard(modifier = Modifier.padding(vertical = verticalCardPadding)) {
-        CardTitle(
-            title = oneExperienceScreenModel.firstIngestionTime.getDateWithWeekdayText()
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+    ) {
+        Text(
+            text = oneExperienceScreenModel.firstIngestionTime.getDateWithWeekdayText(),
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(16.dp)
         )
         if (oneExperienceScreenModel.ingestionElements.isNotEmpty()) {
-            HorizontalDivider()
+            HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
         }
         oneExperienceScreenModel.ingestionElements.forEachIndexed { index, ingestionElement ->
             IngestionRow(
@@ -618,7 +619,7 @@ private fun MyIngestionList(
                         navigateToIngestionScreen(ingestionElement.ingestionWithCompanionAndCustomUnit.ingestion.id)
                     }
                     .fillMaxWidth()
-                    .padding(vertical = 5.dp, horizontal = horizontalPadding)
+                    .padding(vertical = 5.dp, horizontal = 10.dp)
             ) {
                 val ingestion = ingestionElement.ingestionWithCompanionAndCustomUnit.ingestion
                 IngestionTimeOrDurationText(
@@ -634,15 +635,27 @@ private fun MyIngestionList(
             if (isLastIngestion) {
                 if (oneExperienceScreenModel.isCurrentExperience) {
                     if (timeDisplayOption == TimeDisplayOption.TIME_BETWEEN) {
-                        HorizontalDivider()
+                        HorizontalDivider(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            thickness = DividerDefaults.Thickness,
+                            color = DividerDefaults.color
+                        )
                         LastIngestionRelativeToNowText(lastIngestionTime = ingestionElement.ingestionWithCompanionAndCustomUnit.ingestion.time)
                     } else if (timeDisplayOption == TimeDisplayOption.RELATIVE_TO_START) {
-                        HorizontalDivider()
+                        HorizontalDivider(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            thickness = DividerDefaults.Thickness,
+                            color = DividerDefaults.color
+                        )
                         NowRelativeToStartTimeText(startTime = oneExperienceScreenModel.firstIngestionTime)
                     }
                 }
             } else {
-                HorizontalDivider()
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    thickness = DividerDefaults.Thickness,
+                    color = DividerDefaults.color
+                )
             }
         }
     }
@@ -651,7 +664,6 @@ private fun MyIngestionList(
 @Composable
 private fun MyTimelineSection(
     timelineDisplayOption: TimelineDisplayOption,
-    verticalCardPadding: Dp,
     navigateToExplainTimeline: () -> Unit,
     navigateToTimelineScreen: (consumerName: String) -> Unit,
     oneExperienceScreenModel: OneExperienceScreenModel,
@@ -664,14 +676,24 @@ private fun MyTimelineSection(
     TimelineDisplayOption.NotWorthDrawing -> {}
     is TimelineDisplayOption.Shown -> {
         val timelineModel = timelineDisplayOption.allTimelinesModel
-        ElevatedCard(modifier = Modifier.padding(vertical = verticalCardPadding)) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+        ) {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                CardTitle(title = stringResource(R.string.effect_timeline))
-                Row {
+                Text(
+                    text = stringResource(R.string.effect_timeline),
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(16.dp)
+                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     TextButton(onClick = navigateToExplainTimeline) {
+                        Icon(Icons.Outlined.Info, contentDescription = stringResource(R.string.info))
+                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                         Text(text = stringResource(R.string.info))
                     }
                     IconButton(onClick = { navigateToTimelineScreen(YOU) }) {
@@ -684,7 +706,7 @@ private fun MyTimelineSection(
             }
             Column(
                 modifier = Modifier
-                    .padding(horizontal = horizontalPadding)
+                    .padding(horizontal = 16.dp)
                     .padding(bottom = 10.dp),
                 verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
@@ -743,8 +765,8 @@ private fun AddIngestionFAB(
     }
 }
 
-@Composable
 @OptIn(ExperimentalMaterial3Api::class)
+@Composable
 private fun ExperienceTopBar(
     oneExperienceScreenModel: OneExperienceScreenModel,
     onChangeTimeDisplayOption: (SavedTimeDisplayOption) -> Unit,
@@ -755,10 +777,16 @@ private fun ExperienceTopBar(
     saveIsFavorite: (Boolean) -> Unit,
     navigateToAddTimedNoteScreen: () -> Unit,
     navigateToAddRatingScreen: () -> Unit,
-    addIngestion: () -> Unit
+    addIngestion: () -> Unit,
+    scrollBehavior: TopAppBarScrollBehavior
 ) {
     TopAppBar(
         title = { Text(oneExperienceScreenModel.title) },
+        navigationIcon = {
+            IconButton(onClick = navigateBack) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.navigate_back))
+            }
+        },
         actions = {
             var areTimeOptionsExpanded by remember { mutableStateOf(false) }
             IconButton(onClick = { areTimeOptionsExpanded = true }) {
@@ -779,8 +807,7 @@ private fun ExperienceTopBar(
                             if (option == savedTimeDisplayOption) {
                                 Icon(
                                     Icons.Filled.Check,
-                                    contentDescription = stringResource(R.string.check),
-                                    modifier = Modifier.size(ButtonDefaults.IconSize)
+                                    contentDescription = stringResource(R.string.check)
                                 )
                             }
                         }
@@ -795,7 +822,7 @@ private fun ExperienceTopBar(
                 )
             }
             var isShowingDeleteDialog by remember { mutableStateOf(false) }
-            AnimatedVisibility(visible = isShowingDeleteDialog) {
+            if(isShowingDeleteDialog) {
                 AlertDialog(
                     onDismissRequest = { isShowingDeleteDialog = false },
                     title = {
@@ -837,43 +864,31 @@ private fun ExperienceTopBar(
                     leadingIcon = {
                         Icon(
                             Icons.Outlined.Edit,
-                            contentDescription = stringResource(R.string.edit_experience),
-                            modifier = Modifier.size(ButtonDefaults.IconSize)
+                            contentDescription = stringResource(R.string.edit_experience)
                         )
                     }
                 )
                 val isFavorite = oneExperienceScreenModel.isFavorite
-                if (isFavorite) {
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.unmark_favorite)) },
-                        onClick = {
-                            saveIsFavorite(false)
-                            areEditOptionsExpanded = false
-                        },
-                        leadingIcon = {
+                DropdownMenuItem(
+                    text = { if(isFavorite) Text(stringResource(R.string.unmark_favorite)) else Text(stringResource(R.string.mark_favorite)) },
+                    onClick = {
+                        saveIsFavorite(!isFavorite)
+                        areEditOptionsExpanded = false
+                    },
+                    leadingIcon = {
+                        if (isFavorite) {
                             Icon(
                                 Icons.Filled.Star,
-                                contentDescription = stringResource(R.string.unmark_favorite),
-                                modifier = Modifier.size(ButtonDefaults.IconSize)
+                                contentDescription = stringResource(R.string.unmark_favorite)
                             )
-                        }
-                    )
-                } else {
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.mark_favorite)) },
-                        onClick = {
-                            saveIsFavorite(true)
-                            areEditOptionsExpanded = false
-                        },
-                        leadingIcon = {
+                        } else {
                             Icon(
                                 Icons.Outlined.StarOutline,
-                                contentDescription = "Mark favorite",
-                                modifier = Modifier.size(ButtonDefaults.IconSize)
+                                contentDescription = "Mark favorite"
                             )
                         }
-                    )
-                }
+                    }
+                )
                 DropdownMenuItem(
                     text = { Text(stringResource(R.string.delete_experience)) },
                     onClick = {
@@ -883,8 +898,7 @@ private fun ExperienceTopBar(
                     leadingIcon = {
                         Icon(
                             Icons.Outlined.Delete,
-                            contentDescription = stringResource(R.string.delete_experience),
-                            modifier = Modifier.size(ButtonDefaults.IconSize)
+                            contentDescription = stringResource(R.string.delete_experience)
                         )
                     }
                 )
@@ -910,8 +924,7 @@ private fun ExperienceTopBar(
                     leadingIcon = {
                         Icon(
                             Icons.Outlined.Add,
-                            contentDescription = "Add Ingestion",
-                            modifier = Modifier.size(ButtonDefaults.IconSize)
+                            contentDescription = "Add Ingestion"
                         )
                     }
                 )
@@ -924,8 +937,7 @@ private fun ExperienceTopBar(
                     leadingIcon = {
                         Icon(
                             Icons.AutoMirrored.Outlined.NoteAdd,
-                            contentDescription = stringResource(R.string.add_timed_note),
-                            modifier = Modifier.size(ButtonDefaults.IconSize)
+                            contentDescription = stringResource(R.string.add_timed_note)
                         )
                     }
                 )
@@ -938,20 +950,20 @@ private fun ExperienceTopBar(
                     leadingIcon = {
                         Icon(
                             Icons.Outlined.ExposurePlus2,
-                            contentDescription = stringResource(R.string.add_shulgin_rating),
-                            modifier = Modifier.size(ButtonDefaults.IconSize)
+                            contentDescription = stringResource(R.string.add_shulgin_rating)
                         )
                     }
                 )
             }
-        }
+        },
+        scrollBehavior = scrollBehavior
     )
 }
 
 @Composable
 private fun LastIngestionRelativeToNowText(lastIngestionTime: Instant) {
     val now: MutableState<Instant> = remember { mutableStateOf(Instant.now()) }
-    LaunchedEffect(key1 = "updateTime") {
+    LaunchedEffect(Unit) {
         while (true) {
             delay(10000L) // update every 10 seconds
             now.value = Instant.now()
@@ -971,15 +983,15 @@ private fun LastIngestionRelativeToNowText(lastIngestionTime: Instant) {
     }
     Text(
         text = relativeTime,
-        style = MaterialTheme.typography.titleSmall,
-        modifier = Modifier.padding(vertical = 5.dp, horizontal = horizontalPadding)
+        style = MaterialTheme.typography.labelMedium,
+        modifier = Modifier.padding(vertical = 5.dp, horizontal = 16.dp)
     )
 }
 
 @Composable
 private fun NowRelativeToStartTimeText(startTime: Instant) {
     val now: MutableState<Instant> = remember { mutableStateOf(Instant.now()) }
-    LaunchedEffect(key1 = "updateTime") {
+    LaunchedEffect(Unit) {
         while (true) {
             delay(10000L) // update every 10 seconds
             now.value = Instant.now()
@@ -987,19 +999,55 @@ private fun NowRelativeToStartTimeText(startTime: Instant) {
     }
     val isStartInPast = startTime < now.value
     val relativeTime = if (isStartInPast) {
-        stringResource(R.string.now) + getDurationText(
+        stringResource(R.string.now) + " " + getDurationText(
             fromInstant = startTime,
             toInstant = now.value
-        ) + stringResource(R.string.in_since_start)
+        ) + " " + stringResource(R.string.in_since_start)
     } else {
-        stringResource(R.string.start_is_in) + getDurationText(
+        stringResource(R.string.start_is_in) + " " + getDurationText(
             fromInstant = startTime,
             toInstant = now.value
         )
     }
     Text(
         text = relativeTime,
-        style = MaterialTheme.typography.titleSmall,
-        modifier = Modifier.padding(vertical = 5.dp, horizontal = horizontalPadding)
+        style = MaterialTheme.typography.labelMedium,
+        modifier = Modifier.padding(vertical = 5.dp, horizontal = 16.dp)
     )
+}
+
+
+@Preview
+@Composable
+fun ExperienceScreenPreview(
+    @PreviewParameter(
+        OneExperienceScreenPreviewProvider::class,
+        limit = 1
+    ) oneExperienceScreenModel: OneExperienceScreenModel
+) {
+    JournalTheme {
+        ExperienceScreen(
+            oneExperienceScreenModel = oneExperienceScreenModel,
+            timelineDisplayOption = TimelineDisplayOption.Loading,
+            isOralDisclaimerHidden = false,
+            onChangeIsOralDisclaimerHidden = {},
+            addIngestion = {},
+            deleteExperience = {},
+            navigateToEditExperienceScreen = {},
+            navigateToExplainTimeline = {},
+            navigateToIngestionScreen = {},
+            navigateToAddRatingScreen = {},
+            navigateToAddTimedNoteScreen = {},
+            navigateBack = {},
+            saveIsFavorite = {},
+            navigateToEditRatingScreen = {},
+            navigateToEditTimedNoteScreen = {},
+            savedTimeDisplayOption = SavedTimeDisplayOption.RELATIVE_TO_START,
+            timeDisplayOption = TimeDisplayOption.RELATIVE_TO_START,
+            onChangeTimeDisplayOption = {},
+            navigateToTimelineScreen = {},
+            areDosageDotsHidden = false,
+            isTimelineHidden = false
+        )
+    }
 }

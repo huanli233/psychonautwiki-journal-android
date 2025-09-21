@@ -234,4 +234,55 @@
     <string name="export_description_short">將您的所有資料儲存到一個 JSON 檔案。</string>
     <string name="import_description_short">從先前匯出的 JSON 檔案匯入資料。</string>
     <string name="delete_everything_description_short">永久刪除您的所有資料。此操作無法復原。</string>
+    <string name="custom">自訂</string>
+    <string name="explain_timeline_title">時間軸資訊</string>
+
+    <string name="explain_timeline_assumptions_title">簡化/錯誤假設</string>
+    <string name="explain_timeline_assumptions_intro_part1">為了能夠使用給定數據繪製時間軸，我們做出了多個</string>
+    <string name="explain_timeline_assumptions_intro_part2_bold">通常是錯誤的</string>
+    <string name="explain_timeline_assumptions_intro_part3">簡化假設：</string>
+    <string-array name="explain_timeline_assumptions_bullets">
+        <item>現在攝入x劑量與稍後攝入x劑量會產生相同的效果。不存在即時耐受性。</item>
+        <item>攝入雙倍劑量會產生雙倍效果。</item>
+        <item>PsychonautWiki中的時效範圍適用於所有劑量。</item>
+        <item>口服攝入總是在空腹狀態下進行，因此不會被延遲（最多4小時）。</item>
+    </string-array>
+
+    <string name="explain_timeline_understanding_title">理解時間軸</string>
+    <string-array name="explain_timeline_understanding_bullets">
+        <item>時間軸是根據PsychonautWiki提供的起效、上升、峰值和消退（有時還有總）時效繪製的。</item>
+        <item>在理想情況下，所有4個時效（起效、上升、峰值和消退）都有定義，完整的時間軸會按照 averageOnset -> averageComeup -> weightedPeak -> weightedOffset 的順序繪製。其中「weighted」意味著給定的範圍已根據劑量進行線性插值，所以如果攝入閾值劑量，則取範圍的最小值；如果攝入高劑量，則取最大值；介於兩者之間的則進行線性插值。</item>
+        <item>對於具有已定義起效、上升、峰值和消退時效的同種物質和給藥途徑的攝入，其時間軸透過簡單地將各條線疊加來合併為累積時間軸。對於缺少起效、上升、峰值或消退中任何一個時效的攝入，則不進行此操作。</item>
+        <item>即使是同一種物質，不同的給藥途徑也總是繪製為單獨的時間軸。它們也會佔據畫布的整個高度，而不是與劑量或效果成比例的高度。</item>
+        <item>如果缺少4個時效中的任何一個，但給出了總時效，那麼會先繪製已定義的時效部分，一旦遇到缺失的時效，就會使用總時效來推斷時間軸的終點，並畫一條虛線直至終點。如果未給出總時效，則停止繪製線條。因此，如果沒有時間軸或部分時間軸缺失，意味著PsychonautWiki中未定義該時效。如果您在PsychonautWiki中新增缺失的時效，完整的時間軸將在下次更新中顯示。</item>
+        <item>虛線的垂直軌跡是未知的。因此，如果您看到虛線，意味著效果在該時間段內如何發展是未知的。唯一已知的是線條的終點位置。</item>
+        <item>如果給出了攝入的時間範圍，並且該給藥途徑的所有時效都有定義，那麼應用程式會假設劑量在該時間範圍內被均勻消耗，並使用卷積累積無限小次攝入的曲線。</item>
+    </string-array>
+
+    <string name="explain_timeline_pw_durations_title">PsychonautWiki 時效資訊</string>
+    <string name="explain_timeline_pw_durations_intro">時效指的是精神活性物質的主觀效果顯現的時間長度。\n時效可分為6個部分：(1) 總時效 (2) 起效 (3) 上升 (4) 峰值 (5) 消退 和 (6) 後續效應。根據所消耗的物質，這些部分各自以獨立且連續的方式發生。</string>
+    <string name="explain_timeline_pw_durations_total_title">總時效</string>
+    <string name="explain_timeline_pw_durations_total_desc">物質的總時效可以定義為從首次給藥開始，直到物質效果完全消退至清醒狀態所需的時間。</string>
+    <string name="explain_timeline_pw_durations_onset_title">起效</string>
+    <string name="explain_timeline_pw_durations_onset_desc">起效階段可以定義為直到能夠偵測到最初的感知變化（即「初感」）的時期。</string>
+    <string name="explain_timeline_pw_durations_comeup_title">上升</string>
+    <string name="explain_timeline_pw_durations_comeup_desc">「上升」階段可以定義為從首次可察覺的感知變化到主觀強度最高點之間的時期。通俗地稱為“上頭”。</string>
+    <string name="explain_timeline_pw_durations_peak_title">峰值</string>
+    <string name="explain_timeline_pw_durations_peak_desc">峰值階段可以定義為物質效果強度達到頂點的時期。</string>
+    <string name="explain_timeline_pw_durations_offset_title">消退</string>
+    <string name="explain_timeline_pw_durations_offset_desc">消退階段可以定義為從峰值結束到轉變為清醒狀態之間的時間。通俗地稱為“下頭”。</string>
+    <string name="explain_timeline_pw_durations_after_effects_title">後續效應</string>
+    <string name="explain_timeline_pw_durations_after_effects_desc">後續效應可以定義為在體驗結束後可能殘留的任何效果。根據物質和使用情況，通俗地稱為“宿醉”或“餘暉”。\n後續效應不包含在總時效內。</string>
+
+    <string name="faq_title">常見問題</string>
+    <string name="faq_q1_info_source">資訊來源是哪裡？</string>
+    <string name="faq_a1_info_source">劑量、時效、交互作用、耐受性、通用名稱、精神活性類別、毒性和成癮潛力來自 PsychonautWiki。物質摘要和附加類別來自 Tripsit。效果、劑量說明、一般及長期風險和更安全的使用方法來自蘇黎世藥物資訊中心（DIZ）。</string>
+    <string name="faq_q2_interactions">應用程式何時會偵測交互作用？</string>
+    <string name="faq_a2_interactions">當您攝入的某種物質與過去兩天內攝入的另一種物質存在交互作用時。應用程式會雙向檢查交互作用，並檢查某種物質是否透過其精神活性類別被間接提及。</string>
+    <string name="faq_q3_changing_info">如何變更或新增資訊？</string>
+    <string name="faq_a3_changing_info">在 PsychonautWiki 中編輯文章，您的編輯可能會被 PsychonautWiki 的版主批准，特別是當您能引用可靠來源時。變更後的資訊將在應用程式的下一次更新中提供。如果要變更的資訊來自 PsychonautWiki 以外的其他來源，請聯繫支援。</string>
+    <string name="faq_q4_timeline_independence">為什麼時間軸獨立處理每次攝入？</string>
+    <string name="faq_a4_timeline_independence">因為關於耐受性和交叉耐受性的資訊尚不能可靠地支援更複雜的處理方式。</string>
+    <string name="faq_q5_dose_dots">攝入劑量旁邊的點代表什麼？</string>
+    <string name="faq_a5_dose_dots">0個點表示劑量低於閾值，1：輕微，2：普通，3：強烈，4：高。超過4個點意味著減去高劑量後，剩餘部分再次按照輕微、普通和強烈的標準進行分類。</string>
 </resources>

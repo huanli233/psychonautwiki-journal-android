@@ -241,4 +241,61 @@
     <string name="export_description_short">Save all your data to a JSON file.</string>
     <string name="import_description_short">Import data from a previously exported JSON file.</string>
     <string name="delete_everything_description_short">Permanently removes all your data. This cannot be undone.</string>
+    <string name="suggestions">Suggestions</string>
+    <string name="dose_is_known">Dose is known</string>
+    <string name="part_of_unknown_experience">Part of unknown experience</string>
+    <string name="add_ingestion_at_same_time">Add ingestion at same time</string>
+    <string name="custom">custom</string>
+    <string name="navigate_back">Navigate back</string>
+    <string name="dose_unknown">total dose unknown</string>
+    <string name="explain_timeline_title">Timeline info</string>
+
+    <string name="explain_timeline_assumptions_title">Simplifying/False assumptions</string>
+    <string name="explain_timeline_assumptions_intro_part1">To be able to draw the timeline with the given data multiple </string>
+    <string name="explain_timeline_assumptions_intro_part2_bold">often false</string>
+    <string name="explain_timeline_assumptions_intro_part3"> simplifying assumptions are made:</string>
+    <string-array name="explain_timeline_assumptions_bullets">
+        <item>Taking e.g. x amount now will give the same effect as taking x amount later. There is no immediate tolerance.</item>
+        <item>Taking twice the dose will give twice the effect.</item>
+        <item>Duration ranges from PsychonautWiki can be applied for all kinds of dosages.</item>
+        <item>Oral ingestions are always on an empty stomach and therefore not delayed (by up to 4 hours).</item>
+    </string-array>
+
+    <string name="explain_timeline_understanding_title">Understanding the timeline</string>
+    <string-array name="explain_timeline_understanding_bullets">
+        <item>The timeline is drawn based on the onset, comeup, peak and offset (and sometimes total) from PsychonautWiki.</item>
+        <item>In the ideal case all 4 durations (onset, comeup, peak and offset) are defined and the full timeline is drawn as averageOnset -> averageComeup -> weightedPeak -> weightedOffset, where \"weighted\" means that the given range has been linearly interpolated with the dose, so if a threshold dose was taken it takes the minimum of the range, if a heavy dose was taken it takes the max and for everything in between it linearly interpolates.</item>
+        <item>The timelines from ingestions with the same substance and administration route where substances have onset, comeup, peak and offset defined are combined into a cumulative timeline by simply putting the individual lines on top of each other. This is not done for ingestions where either the onset, comeup, peak or offset duration is missing.</item>
+        <item>Different administration routes are always drawn as separate timelines even if they are of the same substance. They also take the full height of the canvas, not the height that is proportional to the dose or effect.</item>
+        <item>If any of the 4 durations are missing but the total duration is given, then the first defined durations are drawn and as soon as a missing duration is encountered it uses the total to infer the end of the timeline and draws a dotted line to the end. If the total is not given it just stops drawing the line. So if there is no timeline or part of the timeline is missing that means that the duration is not defined in PsychonautWiki. If you add the missing durations in PsychonautWiki, the full timeline will be shown in the next update.</item>
+        <item>The vertical trajectory of dotted lines is unknown. So if you see a dotted line that means it is not known how the effect develops over that timeframe. The only thing that is known is where the line will end.</item>
+        <item>When a time range is given for the ingestion and all durations are defined for the route of administration then the app assumes the dosage was evenly consumed in that time frame and cumulates the curves of the infinitesimal ingestions using convolution.</item>
+    </string-array>
+
+    <string name="explain_timeline_pw_durations_title">PsychonautWiki durations</string>
+    <string name="explain_timeline_pw_durations_intro">Duration refers to the length of time over which the subjective effects of a psychoactive substance manifest themselves.\nDuration can be broken down into 6 parts: (1) total duration (2) onset (3) come up (4) peak (5) offset and (6) after effects. Depending upon the substance consumed, each of these occurs in a separate and continuous fashion.</string>
+    <string name="explain_timeline_pw_durations_total_title">Total</string>
+    <string name="explain_timeline_pw_durations_total_desc">The total duration of a substance can be defined as the amount of time it takes for the effects of a substance to completely wear off into sobriety, starting from the moment the substance is first administered.</string>
+    <string name="explain_timeline_pw_durations_onset_title">Onset</string>
+    <string name="explain_timeline_pw_durations_onset_desc">The onset phase can be defined as the period until the very first changes in perception (i.e. \"first alerts\") are able to be detected.</string>
+    <string name="explain_timeline_pw_durations_comeup_title">Come up</string>
+    <string name="explain_timeline_pw_durations_comeup_desc">The \"come up\" phase can be defined as the period between the first noticeable changes in perception and the point of highest subjective intensity. This is colloquially known as \"coming up.\"</string>
+    <string name="explain_timeline_pw_durations_peak_title">Peak</string>
+    <string name="explain_timeline_pw_durations_peak_desc">The peak phase can be defined as period of time in which the intensity of the substance\'s effects are at its height.</string>
+    <string name="explain_timeline_pw_durations_offset_title">Offset</string>
+    <string name="explain_timeline_pw_durations_offset_desc">The offset phase can be defined as the amount of time in between the conclusion of the peak and shifting into a sober state. This is colloquially referred to as \"coming down.\"</string>
+    <string name="explain_timeline_pw_durations_after_effects_title">After effects</string>
+    <string name="explain_timeline_pw_durations_after_effects_desc">The after effects can be defined as any residual effects which may remain after the experience has reached its conclusion. This is colloquially known as a \"hangover\" or an \"afterglow\" depending on the substance and usage.\nThe after effects are not included as part of the total duration.</string>
+
+    <string name="faq_title">FAQ</string>
+    <string name="faq_q1_info_source">Where does the information come from?</string>
+    <string name="faq_a1_info_source">Dosages, durations, interactions, tolerance, common names, psychoactive classes, toxicity and addiction potential come from PsychonautWiki. Substance summaries and additional categories come from Tripsit. Effects, dosage remarks, general &amp; long term risks and safer use come from the DIZ (drug information center of Zurich).</string>
+    <string name="faq_q2_interactions">When does the app detect interactions?</string>
+    <string name="faq_a2_interactions">If there is an interaction with a substance you ingested less than 2 days ago. It checks interaction both ways and checks if a substance is indirectly mentioned through its psychoactive class.</string>
+    <string name="faq_q3_changing_info">How can the information be changed or added?</string>
+    <string name="faq_a3_changing_info">Edit the article in PsychonautWiki so your edit might get approved by one of the PsychonautWiki moderators, especially if you can reference good sources. The changed information will come in the next update of the app. If the information to be changed comes from another source than PsychonautWiki contact support.</string>
+    <string name="faq_q4_timeline_independence">Why does the timeline treat every ingestion independently?</string>
+    <string name="faq_a4_timeline_independence">Because the information on tolerance and cross tolerance does not yet allow to do this reliably.</string>
+    <string name="faq_q5_dose_dots">What do the dots next to the dose of the ingestion mean?</string>
+    <string name="faq_a5_dose_dots">0 dots means that the dose is less than threshold, 1: light, 2: common, 3: strong, 4: heavy. More than 4 dots means that the heavy dose is subtracted and the remainder is again classified in terms of light, common and strong.</string>
 </resources>

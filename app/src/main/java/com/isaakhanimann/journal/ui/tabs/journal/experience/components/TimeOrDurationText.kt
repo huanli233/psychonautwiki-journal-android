@@ -1,21 +1,3 @@
-/*
- * Copyright (c) 2024. Isaak Hanimann.
- * This file is part of PsychonautWiki Journal.
- *
- * PsychonautWiki Journal is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at
- * your option) any later version.
- *
- * PsychonautWiki Journal is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with PsychonautWiki Journal.  If not, see https://www.gnu.org/licenses/gpl-3.0.en.html.
- */
-
 package com.isaakhanimann.journal.ui.tabs.journal.experience.components
 
 import androidx.compose.foundation.layout.Row
@@ -39,32 +21,32 @@ fun IngestionTimeOrDurationText(
     timeDisplayOption: TimeDisplayOption,
     allTimesSortedMap: List<Instant>
 ) {
-    val isFirstIngestion = index == 0
-    val textStyle = MaterialTheme.typography.labelMedium
+    val textStyle = MaterialTheme.typography.bodyMedium
+    val secondaryTextStyle = textStyle.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
     when (timeDisplayOption) {
         TimeDisplayOption.REGULAR -> {
-            RegularTimeOrRangeText(time, endTime, textStyle)
+            RegularTimeOrRangeText(time, endTime, secondaryTextStyle)
         }
 
         TimeDisplayOption.RELATIVE_TO_NOW -> {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 TimeRelativeToNowText(
                     time = time,
-                    style = textStyle
+                    style = secondaryTextStyle
                 )
                 if (endTime != null) {
-                    Text(TIME_RANGE_SEPARATOR_TEXT)
+                    Text(TIME_RANGE_SEPARATOR_TEXT, style = secondaryTextStyle)
                     TimeRelativeToNowText(
                         time = endTime,
-                        style = textStyle
+                        style = secondaryTextStyle
                     )
                 }
             }
         }
 
         TimeDisplayOption.TIME_BETWEEN -> {
-            if (isFirstIngestion) {
-                RegularTimeOrRangeText(time, endTime, textStyle)
+            if (index == 0) {
+                RegularTimeOrRangeText(time, endTime, secondaryTextStyle)
             } else {
                 val previousTime =
                     allTimesSortedMap[index - 1]
@@ -75,15 +57,15 @@ fun IngestionTimeOrDurationText(
                                 fromInstant = previousTime,
                                 toInstant = time
                             ),
-                            style = textStyle
+                            style = secondaryTextStyle
                         )
-                        Text(TIME_RANGE_SEPARATOR_TEXT)
+                        Text(TIME_RANGE_SEPARATOR_TEXT, style = secondaryTextStyle)
                         Text(
                             text = getDurationText(
                                 fromInstant = previousTime,
                                 toInstant = endTime
                             ) + " after previous",
-                            style = textStyle
+                            style = secondaryTextStyle
                         )
                     } else {
                         Text(
@@ -91,7 +73,7 @@ fun IngestionTimeOrDurationText(
                                 fromInstant = previousTime,
                                 toInstant = time
                             ) + " after previous",
-                            style = textStyle
+                            style = secondaryTextStyle
                         )
                     }
                 }
@@ -99,8 +81,8 @@ fun IngestionTimeOrDurationText(
         }
 
         TimeDisplayOption.RELATIVE_TO_START -> {
-            if (isFirstIngestion) {
-                RegularTimeOrRangeText(time, endTime, textStyle)
+            if (index == 0) {
+                RegularTimeOrRangeText(time, endTime, secondaryTextStyle)
             } else {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     val startTime = allTimesSortedMap.firstOrNull()
@@ -111,15 +93,15 @@ fun IngestionTimeOrDurationText(
                                 fromInstant = startTime,
                                 toInstant = time
                             ),
-                            style = textStyle
+                            style = secondaryTextStyle
                         )
-                        Text(TIME_RANGE_SEPARATOR_TEXT)
+                        Text(TIME_RANGE_SEPARATOR_TEXT, style = secondaryTextStyle)
                         Text(
                             text = getDurationText(
                                 fromInstant = startTime,
                                 toInstant = endTime
                             ) + " after start",
-                            style = textStyle
+                            style = secondaryTextStyle
                         )
                     } else {
                         Text(
@@ -127,7 +109,7 @@ fun IngestionTimeOrDurationText(
                                 fromInstant = startTime,
                                 toInstant = time
                             ) + " after start",
-                            style = textStyle
+                            style = secondaryTextStyle
                         )
                     }
                 }
@@ -166,9 +148,9 @@ fun NoteOrRatingTimeOrDurationText(
     timeDisplayOption: TimeDisplayOption,
     firstIngestionTime: Instant
 ) {
-    val textStyle = MaterialTheme.typography.labelMedium
+    val textStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
     when (timeDisplayOption) {
-        TimeDisplayOption.REGULAR -> {
+        TimeDisplayOption.REGULAR, TimeDisplayOption.TIME_BETWEEN -> {
             val startText = time.getShortTimeWithWeekdayText()
             Text(text = startText, style = textStyle)
         }
@@ -180,16 +162,11 @@ fun NoteOrRatingTimeOrDurationText(
             )
         }
 
-        TimeDisplayOption.TIME_BETWEEN -> {
-            val startText = time.getShortTimeWithWeekdayText()
-            Text(text = startText, style = textStyle)
-        }
-
         TimeDisplayOption.RELATIVE_TO_START -> {
             val durationText = getDurationText(
                 fromInstant = firstIngestionTime,
                 toInstant = time
-            ) + if (firstIngestionTime < time) " after start" else "before start"
+            ) + if (firstIngestionTime < time) " after start" else " before start"
             Text(
                 text = durationText,
                 style = textStyle

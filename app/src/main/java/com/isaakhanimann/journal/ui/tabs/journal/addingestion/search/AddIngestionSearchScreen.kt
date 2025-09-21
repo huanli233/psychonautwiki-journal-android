@@ -1,33 +1,9 @@
-/*
- * Copyright (c) 2022-2023. Isaak Hanimann.
- * This file is part of PsychonautWiki Journal.
- *
- * PsychonautWiki Journal is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at
- * your option) any later version.
- *
- * PsychonautWiki Journal is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with PsychonautWiki Journal.  If not, see https://www.gnu.org/licenses/gpl-3.0.en.html.
- */
-
 package com.isaakhanimann.journal.ui.tabs.journal.addingestion.search
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -36,34 +12,17 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Keyboard
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.*
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
@@ -76,7 +35,6 @@ import com.isaakhanimann.journal.data.substances.AdministrationRoute
 import com.isaakhanimann.journal.ui.tabs.journal.addingestion.search.suggestion.SuggestionRow
 import com.isaakhanimann.journal.ui.tabs.journal.addingestion.search.suggestion.models.Suggestion
 import com.isaakhanimann.journal.ui.tabs.search.SubstanceModel
-import com.isaakhanimann.journal.ui.theme.horizontalPadding
 
 @Composable
 fun AddIngestionSearchScreen(
@@ -91,7 +49,7 @@ fun AddIngestionSearchScreen(
     navigateToAddCustomSubstanceScreen: (searchText: String) -> Unit,
     viewModel: AddIngestionSearchViewModel = hiltViewModel()
 ) {
-    val searchText = viewModel.searchTextFlow.collectAsState().value
+    val searchText by viewModel.searchTextFlow.collectAsState()
     AddIngestionSearchScreen(
         navigateToCheckInteractions = navigateToCheckInteractions,
         navigateToCheckSaferUse = navigateToCheckSaferUse,
@@ -106,9 +64,7 @@ fun AddIngestionSearchScreen(
         navigateToCustomUnitChooseDose = navigateToCustomUnitChooseDose,
         suggestions = viewModel.filteredSuggestions.collectAsState().value,
         searchText = searchText,
-        onChangeSearchText = {
-            viewModel.updateSearchText(it)
-        },
+        onChangeSearchText = viewModel::updateSearchText,
         filteredSubstances = viewModel.filteredSubstancesFlow.collectAsState().value,
         filteredCustomUnits = viewModel.filteredCustomUnitsFlow.collectAsState().value,
         filteredCustomSubstances = viewModel.filteredCustomSubstancesFlow.collectAsState().value
@@ -135,149 +91,140 @@ fun AddIngestionSearchScreen(
     filteredCustomSubstances: List<CustomSubstance>
 ) {
     val focusRequester = remember { FocusRequester() }
-    var isFocused by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
+
     Scaffold(
-        floatingActionButton = {
-            if (!isFocused) {
-                FloatingActionButton(onClick = { focusRequester.requestFocus() }) {
-                    Icon(Icons.Default.Keyboard, contentDescription = "Keyboard")
+        topBar = {
+            Surface(shadowElevation = 2.dp) {
+                Column(modifier = Modifier.statusBarsPadding()) {
+                    LinearProgressIndicator(
+                        progress = { 0.17f },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    OutlinedTextField(
+                        value = searchText,
+                        onValueChange = onChangeSearchText,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                            .focusRequester(focusRequester),
+                        placeholder = { Text(text = stringResource(R.string.search_substances)) },
+                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search)) },
+                        trailingIcon = {
+                            if (searchText.isNotEmpty()) {
+                                IconButton(onClick = { onChangeSearchText("") }) {
+                                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close))
+                                }
+                            }
+                        },
+                        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            autoCorrectEnabled = false,
+                            imeAction = ImeAction.Done,
+                            capitalization = KeyboardCapitalization.Words,
+                        ),
+                        singleLine = true,
+                        shape = CircleShape
+                    )
                 }
             }
         }
     ) { padding ->
-        Column(modifier = Modifier.padding(padding)) {
-            LinearProgressIndicator(
-                progress = { 0.17f },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clearAndSetSemantics { },
-            )
-            TextField(
-                value = searchText,
-                onValueChange = { value ->
-                    onChangeSearchText(value)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(focusRequester)
-                    .onFocusChanged { focusState ->
-                        isFocused = focusState.isFocused
-                    }
-                    .clearAndSetSemantics { },
-                placeholder = { Text(text = stringResource(R.string.search_substances)) },
-                leadingIcon = {
-                    Icon(
-                        Icons.Default.Search,
-                        contentDescription = stringResource(R.string.search),
+        LazyColumn(contentPadding = padding) {
+            if (suggestions.isNotEmpty()) {
+                stickyHeader { SectionHeader(title = stringResource(R.string.quick_logging)) }
+            }
+            itemsIndexed(suggestions) { index, suggestion ->
+                SuggestionRow(
+                    suggestion = suggestion,
+                    navigateToDose = navigateToDose,
+                    navigateToCustomUnitChooseDose = navigateToCustomUnitChooseDose,
+                    navigateToCustomDose = navigateToCustomDose,
+                    navigateToChooseTime = navigateToChooseTime
+                )
+                if (index < suggestions.size - 1) {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        thickness = DividerDefaults.Thickness,
+                        color = DividerDefaults.color
                     )
-                },
-                trailingIcon = {
-                    Row {
-                        if (searchText.isNotEmpty()) {
-                            IconButton(onClick = {
-                                onChangeSearchText("")
-                            }) {
-                                Icon(
-                                    Icons.Default.Close,
-                                    contentDescription = stringResource(R.string.close),
-                                )
-                            }
-                        }
-                    }
-                },
-                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    autoCorrectEnabled = false,
-                    imeAction = ImeAction.Done,
-                    capitalization = KeyboardCapitalization.Words,
-                ),
-                singleLine = true
-            )
-            LazyColumn {
-                if (suggestions.isNotEmpty()) {
-                    stickyHeader {
-                        SectionHeader(title = stringResource(R.string.quick_logging))
-                    }
                 }
-                itemsIndexed(suggestions) { index, suggestion ->
-                    SuggestionRow(
-                        suggestion = suggestion,
-                        navigateToDose = navigateToDose,
-                        navigateToCustomUnitChooseDose = navigateToCustomUnitChooseDose,
-                        navigateToCustomDose = navigateToCustomDose,
-                        navigateToChooseTime = navigateToChooseTime
-                    )
-                    if (index < suggestions.size - 1) {
-                        HorizontalDivider()
-                    }
-                }
-                if (filteredCustomSubstances.isNotEmpty()) {
-                    stickyHeader {
-                        SectionHeader(title = stringResource(R.string.custom_substances))
-                    }
-                }
-                itemsIndexed(filteredCustomSubstances) { index, customSubstance ->
-                    SubstanceRowAddIngestion(substanceModel = SubstanceModel(
+            }
+
+            if (filteredCustomSubstances.isNotEmpty()) {
+                stickyHeader { SectionHeader(title = stringResource(R.string.custom_substances)) }
+            }
+            items(filteredCustomSubstances) { customSubstance ->
+                SubstanceRowAddIngestion(
+                    substanceModel = SubstanceModel(
                         name = customSubstance.name,
                         commonNames = emptyList(),
                         categories = emptyList(),
                         hasSaferUse = false,
                         hasInteractions = false
-                    ), onTap = {
-                        navigateToCustomSubstanceChooseRoute(customSubstance.name)
-                    })
-                    if (index < filteredCustomSubstances.size - 1) {
-                        HorizontalDivider()
+                    ), onTap = { navigateToCustomSubstanceChooseRoute(customSubstance.name) })
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    thickness = DividerDefaults.Thickness,
+                    color = DividerDefaults.color
+                )
+            }
+
+            if (filteredCustomUnits.isNotEmpty()) {
+                stickyHeader { SectionHeader(title = stringResource(R.string.custom_units)) }
+            }
+            items(filteredCustomUnits) { customUnit ->
+                CustomUnitRowAddIngestion(
+                    customUnit = customUnit,
+                    navigateToCustomUnitChooseDose = navigateToCustomUnitChooseDose
+                )
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    thickness = DividerDefaults.Thickness,
+                    color = DividerDefaults.color
+                )
+            }
+
+            if (filteredSubstances.isNotEmpty()) {
+                stickyHeader { SectionHeader(title = stringResource(R.string.substances)) }
+            }
+            items(filteredSubstances) { substance ->
+                SubstanceRowAddIngestion(substanceModel = substance, onTap = {
+                    when {
+                        substance.hasSaferUse -> navigateToCheckSaferUse(substance.name)
+                        substance.hasInteractions -> navigateToCheckInteractions(substance.name)
+                        else -> navigateToChooseRoute(substance.name)
                     }
-                }
-                if (filteredCustomUnits.isNotEmpty()) {
-                    stickyHeader {
-                        SectionHeader(title = stringResource(R.string.custom_units))
-                    }
-                }
-                itemsIndexed(filteredCustomUnits) { index, customUnit ->
-                    CustomUnitRowAddIngestion(
-                        customUnit = customUnit,
-                        navigateToCustomUnitChooseDose = navigateToCustomUnitChooseDose)
-                    if (index < filteredCustomUnits.size - 1) {
-                        HorizontalDivider()
-                    }
-                }
-                if (filteredSubstances.isNotEmpty()) {
-                    stickyHeader {
-                        SectionHeader(title = stringResource(R.string.substances))
-                    }
-                }
-                items(filteredSubstances) { substance ->
-                    SubstanceRowAddIngestion(substanceModel = substance, onTap = {
-                        if (substance.hasSaferUse) {
-                            navigateToCheckSaferUse(substance.name)
-                        } else if (substance.hasInteractions) {
-                            navigateToCheckInteractions(substance.name)
-                        } else {
-                            navigateToChooseRoute(substance.name)
-                        }
-                    })
-                    HorizontalDivider()
-                }
-                item {
-                    HorizontalDivider()
-                    TextButton(
-                        onClick = navigateToAddCustomSubstanceScreen,
-                        modifier = Modifier.padding(horizontal = horizontalPadding)
-                    ) {
+                })
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    thickness = DividerDefaults.Thickness,
+                    color = DividerDefaults.color
+                )
+            }
+
+            item {
+                ListItem(
+                    headlineContent = { Text(text = stringResource(R.string.add_custom_substance)) },
+                    leadingContent = {
                         Icon(
-                            Icons.Outlined.Add, contentDescription = stringResource(R.string.add)
+                            Icons.Outlined.Add,
+                            contentDescription = stringResource(R.string.add)
                         )
-                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                        Text(text = stringResource(R.string.add_custom_substance))
-                    }
-                    HorizontalDivider()
-                }
-                item {
-                    if (filteredSubstances.isEmpty() && filteredCustomSubstances.isEmpty()) {
-                        Text(stringResource(R.string.no_matching_substance_found), modifier = Modifier.padding(10.dp))
+                    },
+                    modifier = Modifier.clickable(onClick = navigateToAddCustomSubstanceScreen)
+                )
+                HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
+            }
+
+            item {
+                if (filteredSubstances.isEmpty() && filteredCustomSubstances.isEmpty() && suggestions.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 50.dp), contentAlignment = Alignment.Center
+                    ) {
+                        Text(stringResource(R.string.no_matching_substance_found))
                     }
                 }
             }
@@ -287,24 +234,20 @@ fun AddIngestionSearchScreen(
 
 @Composable
 fun SectionHeader(title: String) {
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .background(MaterialTheme.colorScheme.background)) {
-        Surface(
-            color = MaterialTheme.colorScheme.secondaryContainer,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                modifier = Modifier
-                    .padding(horizontal = horizontalPadding, vertical = 5.dp)
-                    .fillMaxWidth(),
-                text = title,
-                style = MaterialTheme.typography.titleSmall
-            )
-        }
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceContainerLowest,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .fillMaxWidth(),
+            text = title,
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
-
 
 @Composable
 fun ColorCircle(adaptiveColor: AdaptiveColor) {

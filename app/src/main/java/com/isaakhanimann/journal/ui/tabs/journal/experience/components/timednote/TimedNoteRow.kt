@@ -1,21 +1,3 @@
-/*
- * Copyright (c) 2023. Isaak Hanimann.
- * This file is part of PsychonautWiki Journal.
- *
- * PsychonautWiki Journal is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at
- * your option) any later version.
- *
- * PsychonautWiki Journal is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with PsychonautWiki Journal.  If not, see https://www.gnu.org/licenses/gpl-3.0.en.html.
- */
-
 package com.isaakhanimann.journal.ui.tabs.journal.experience.components.timednote
 
 import androidx.compose.foundation.Canvas
@@ -24,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -62,40 +45,39 @@ fun TimedNoteRow(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
         modifier = modifier.height(intrinsicSize = IntrinsicSize.Min)
     ) {
         val isDarkTheme = isSystemInDarkTheme()
-        val strokeWidth = 3.dp
+        val strokeWidth = 2.dp
         Canvas(modifier = Modifier
             .fillMaxHeight()
             .width(strokeWidth)
-            .padding(vertical = 5.dp)) {
+            .padding(vertical = 4.dp)) {
             if (timedNote.isPartOfTimeline) {
                 val strokeWidthPx = strokeWidth.toPx()
                 drawLine(
                     color = timedNote.color.getComposeColor(isDarkTheme),
-                    start = Offset(x = size.width/2, y = 0f),
-                    end = Offset(x = size.width/2, y = size.height),
+                    start = Offset(x = center.x, y = 0f),
+                    end = Offset(x = center.x, y = size.height),
                     strokeWidth = strokeWidthPx,
                     cap = StrokeCap.Round,
-                    pathEffect = PathEffect.dashPathEffect(
-                        floatArrayOf(
-                            strokeWidthPx,
-                            strokeWidthPx * 2
-                        )
-                    )
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(strokeWidthPx * 2, strokeWidthPx * 3))
                 )
             }
         }
-        Column {
-            Row(horizontalArrangement = Arrangement.spacedBy(15.dp), verticalAlignment = Alignment.Bottom) {
+        Column(modifier = Modifier.padding(vertical = 8.dp)) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 timeText()
                 if (!timedNote.isPartOfTimeline) {
-                    Text(text = "(Not in timeline)", style = MaterialTheme.typography.bodySmall)
+                    Text(text = "(Not in timeline)", style = MaterialTheme.typography.labelMedium)
                 }
             }
-            Text(text = timedNote.note, style = MaterialTheme.typography.bodyLarge)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(text = timedNote.note, style = MaterialTheme.typography.bodyMedium)
         }
     }
 }

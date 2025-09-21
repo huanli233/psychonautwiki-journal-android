@@ -1,74 +1,23 @@
-/*
- * Copyright (c) 2022-2023. Isaak Hanimann.
- * This file is part of PsychonautWiki Journal.
- *
- * PsychonautWiki Journal is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at
- * your option) any later version.
- *
- * PsychonautWiki Journal is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with PsychonautWiki Journal.  If not, see https://www.gnu.org/licenses/gpl-3.0.en.html.
- */
-
 package com.isaakhanimann.journal.ui.tabs.journal.addingestion.time
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.relocation.BringIntoViewRequester
-import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -83,10 +32,7 @@ import com.isaakhanimann.journal.data.room.experiences.relations.ExperienceWithI
 import com.isaakhanimann.journal.ui.YOU
 import com.isaakhanimann.journal.ui.tabs.journal.experience.components.CardWithTitle
 import com.isaakhanimann.journal.ui.tabs.journal.experience.rating.FloatingDoneButton
-import com.isaakhanimann.journal.ui.theme.horizontalPadding
-import kotlinx.coroutines.launch
 import java.time.LocalDateTime
-
 
 @Composable
 fun FinishIngestionScreen(
@@ -125,46 +71,6 @@ fun FinishIngestionScreen(
         consumerName = viewModel.consumerName,
         onChangeOfConsumerName = viewModel::changeConsumerName,
         consumerNamesSorted = viewModel.sortedConsumerNamesFlow.collectAsState().value
-    )
-}
-
-@Preview
-@Composable
-fun FinishIngestionScreenPreview() {
-    val alreadyUsedColors = listOf(AdaptiveColor.BLUE, AdaptiveColor.PINK)
-    val otherColors = AdaptiveColor.entries.filter { color ->
-        !alreadyUsedColors.contains(color)
-    }
-    FinishIngestionScreen(
-        createSaveAndDismissAfter = {},
-        ingestionTimePickerOption = IngestionTimePickerOption.POINT_IN_TIME,
-        onChangeTimePickerOption = {},
-        onChangeStartDateOrTime = {},
-        localDateTimeStart = LocalDateTime.now(),
-        localDateTimeEnd = LocalDateTime.now(),
-        onChangeEndDateOrTime = {},
-        isLoadingColor = false,
-        isShowingColorPicker = true,
-        selectedColor = AdaptiveColor.BLUE,
-        onChangeColor = {},
-        alreadyUsedColors = alreadyUsedColors,
-        otherColors = otherColors,
-        previousNotes = listOf(
-            "My previous note where I make some remarks",
-            "Another previous note and this one is very long, such that it doesn't fit on one line"
-        ),
-        note = "",
-        onNoteChange = {},
-        experiencesInRange = emptyList(),
-        selectedExperience = null,
-        onChangeOfSelectedExperience = {},
-        substanceName = "LSD",
-        enteredTitle = "This is my title",
-        onChangeOfEnteredTitle = {},
-        isEnteredTitleOk = true,
-        consumerName = "",
-        onChangeOfConsumerName = {},
-        consumerNamesSorted = listOf("Isaak", "Marc", "Eve")
     )
 }
 
@@ -221,20 +127,20 @@ fun FinishIngestionScreen(
         Column(
             modifier = Modifier
                 .padding(padding)
-                .imePadding()
+                .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
             LinearProgressIndicator(
-                progress = { 0.9f },
+                progress = { 1.0f },
                 modifier = Modifier.fillMaxWidth(),
             )
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = horizontalPadding)
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 80.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Spacer(modifier = Modifier.height(3.dp))
+                Spacer(modifier = Modifier.height(0.dp))
                 CardWithTitle(title = stringResource(R.string.time)) {
                     TimePointOrRangePicker(
                         onChangeTimePickerOption = onChangeTimePickerOption,
@@ -245,25 +151,29 @@ fun FinishIngestionScreen(
                         onChangeEndDateOrTime = onChangeEndDateOrTime
                     )
                 }
-                CardWithTitle(title = stringResource(R.string.experience), modifier = Modifier.fillMaxWidth()) {
+
+                CardWithTitle(title = stringResource(R.string.experience)) {
                     var isShowingDropDownMenu by remember { mutableStateOf(false) }
-                    Box(
-                        modifier = Modifier
-                            .wrapContentSize(Alignment.TopEnd)
-                    ) {
+                    Box {
                         OutlinedButton(
                             onClick = { isShowingDropDownMenu = true },
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
                         ) {
                             val selectedExperienceTitle = selectedExperience?.experience?.title
-                            Text(text = if (selectedExperienceTitle != null) stringResource(
-                                R.string.part_of,
-                                selectedExperienceTitle
-                            ) else stringResource(R.string.part_of_new_experience))
+                            Text(
+                                text = if (selectedExperienceTitle != null) stringResource(
+                                    R.string.part_of,
+                                    selectedExperienceTitle
+                                ) else stringResource(R.string.part_of_new_experience),
+                                modifier = Modifier.weight(1f)
+                            )
+                            Icon(Icons.Default.ArrowDropDown, contentDescription = null)
                         }
                         DropdownMenu(
                             expanded = isShowingDropDownMenu,
-                            onDismissRequest = { isShowingDropDownMenu = false }
+                            onDismissRequest = { isShowingDropDownMenu = false },
+                            modifier = Modifier.fillMaxWidth(0.8f)
                         ) {
                             experiencesInRange.forEach { experienceWithIngestions ->
                                 val experience = experienceWithIngestions.experience
@@ -296,117 +206,84 @@ fun FinishIngestionScreen(
                                 imeAction = ImeAction.Done,
                                 capitalization = KeyboardCapitalization.Words
                             ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = 3.dp)
+                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
                         )
                     }
                 }
-                ElevatedCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(
-                            horizontal = horizontalPadding,
-                            vertical = 3.dp
-                        )
-                    ) {
-                        Text(
-                            text = stringResource(
-                                R.string.consumed_by,
-                                consumerName.ifBlank { YOU }),
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                        if (consumerNamesSorted.isNotEmpty() || consumerName.isNotBlank()) {
-                            var areConsumerNamesExpanded by remember { mutableStateOf(false) }
-                            TextButton(onClick = { areConsumerNamesExpanded = true }) {
+
+                CardWithTitle(title = stringResource(id = R.string.consumer)) {
+                    var consumerDropdownExpanded by remember { mutableStateOf(false) }
+                    var showNewConsumerField by remember { mutableStateOf(false) }
+
+                    Text(
+                        text = stringResource(R.string.consumed_by, consumerName.ifBlank { YOU }),
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+
+                    if (consumerNamesSorted.isNotEmpty()) {
+                        Box {
+                            TextButton(onClick = { consumerDropdownExpanded = true }) {
                                 Text(text = stringResource(R.string.choose_other_consumer))
                             }
                             DropdownMenu(
-                                expanded = areConsumerNamesExpanded,
-                                onDismissRequest = { areConsumerNamesExpanded = false }
+                                expanded = consumerDropdownExpanded,
+                                onDismissRequest = { consumerDropdownExpanded = false }
                             ) {
                                 DropdownMenuItem(
                                     text = { Text(YOU) },
                                     onClick = {
                                         onChangeOfConsumerName("")
-                                        areConsumerNamesExpanded = false
+                                        consumerDropdownExpanded = false
                                     },
-                                    leadingIcon = {
-                                        Icon(
-                                            Icons.Default.Person,
-                                            contentDescription = stringResource(R.string.consumer)
-                                        )
-                                    }
+                                    leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) }
                                 )
-                                consumerNamesSorted.forEach { consumerName ->
+                                consumerNamesSorted.forEach { name ->
                                     DropdownMenuItem(
-                                        text = { Text(consumerName) },
+                                        text = { Text(name) },
                                         onClick = {
-                                            onChangeOfConsumerName(consumerName)
-                                            areConsumerNamesExpanded = false
+                                            onChangeOfConsumerName(name)
+                                            consumerDropdownExpanded = false
                                         },
-                                        leadingIcon = {
-                                            Icon(
-                                                Icons.Default.Person,
-                                                contentDescription = stringResource(R.string.consumer)
-                                            )
-                                        }
+                                        leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) }
                                     )
                                 }
                             }
                         }
-                        var showNewConsumerTextField by remember { mutableStateOf(false) }
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Switch(
-                                checked = showNewConsumerTextField,
-                                onCheckedChange = {
-                                    showNewConsumerTextField = !showNewConsumerTextField
-                                })
-                            Text(stringResource(R.string.enter_new_consumer))
-                        }
-                        AnimatedVisibility(visible = showNewConsumerTextField) {
-                            OutlinedTextField(
-                                value = consumerName,
-                                onValueChange = onChangeOfConsumerName,
-                                leadingIcon = {
-                                    Icon(
-                                        imageVector = Icons.Default.Person,
-                                        contentDescription = stringResource(R.string.consumer)
-                                    )
-                                },
-                                keyboardActions = KeyboardActions(onDone = {
-                                    focusManager.clearFocus()
-                                }),
-                                keyboardOptions = KeyboardOptions.Default.copy(
-                                    imeAction = ImeAction.Done,
-                                    capitalization = KeyboardCapitalization.Words
-                                ),
-                                placeholder = { Text(stringResource(R.string.new_consumer_name)) },
-                                singleLine = true,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                            )
-                        }
+                    }
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.clickable { showNewConsumerField = !showNewConsumerField }
+                    ) {
+                        Switch(checked = showNewConsumerField, onCheckedChange = { showNewConsumerField = it })
+                        Spacer(Modifier.width(8.dp))
+                        Text(stringResource(R.string.enter_new_consumer))
+                    }
+
+                    AnimatedVisibility(visible = showNewConsumerField) {
+                        OutlinedTextField(
+                            value = consumerName,
+                            onValueChange = onChangeOfConsumerName,
+                            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
+                            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                            keyboardOptions = KeyboardOptions.Default.copy(
+                                imeAction = ImeAction.Done,
+                                capitalization = KeyboardCapitalization.Words
+                            ),
+                            placeholder = { Text(stringResource(R.string.new_consumer_name)) },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+                        )
                     }
                 }
+
                 CardWithTitle(title = stringResource(R.string.ingestion_note)) {
-                    NoteSection(
-                        previousNotes,
-                        note,
-                        onNoteChange
-                    )
+                    NoteSection(previousNotes, note, onNoteChange)
                 }
+
                 if (isShowingColorPicker) {
-                    CardWithTitle(
-                        title = stringResource(R.string.something_color, substanceName),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
+                    CardWithTitle(title = stringResource(R.string.something_color, substanceName)) {
                         ColorPicker(
                             selectedColor = selectedColor,
                             onChangeOfColor = onChangeColor,
@@ -415,13 +292,11 @@ fun FinishIngestionScreen(
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(70.dp))
             }
         }
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NoteSection(
     previousNotes: List<String>,
@@ -430,9 +305,8 @@ fun NoteSection(
 ) {
     var isShowingSuggestions by remember { mutableStateOf(true) }
     val focusManager = LocalFocusManager.current
-    val coroutineScope = rememberCoroutineScope()
-    val bringIntoViewRequester = BringIntoViewRequester()
-    Column {
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         OutlinedTextField(
             value = note,
             onValueChange = onNoteChange,
@@ -446,43 +320,35 @@ fun NoteSection(
                 capitalization = KeyboardCapitalization.Sentences
             ),
             singleLine = true,
-            modifier = Modifier
-                .fillMaxWidth()
-                .bringIntoViewRequester(bringIntoViewRequester)
-                .onFocusEvent { focusState ->
-                    if (focusState.isFocused && focusState.hasFocus) {
-                        isShowingSuggestions = true
-                        coroutineScope.launch {
-                            bringIntoViewRequester.bringIntoView()
-                        }
-                    }
-                }
-
+            modifier = Modifier.fillMaxWidth()
         )
         if (previousNotes.isNotEmpty() && isShowingSuggestions) {
-            Column {
-                previousNotes.forEach {
-                    Row(
-                        Modifier
-                            .padding(8.dp)
-                            .fillMaxWidth()
-                            .clickable {
+            Text(
+                text = stringResource(R.string.suggestions),
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+            Card {
+                Column {
+                    previousNotes.forEachIndexed { index, item ->
+                        ListItem(
+                            headlineContent = {
+                                Text(text = item, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            },
+                            leadingContent = {
+                                Icon(Icons.Filled.ContentCopy, contentDescription = stringResource(R.string.copy))
+                            },
+                            modifier = Modifier.clickable {
                                 focusManager.clearFocus()
                                 isShowingSuggestions = false
-                                onNoteChange(it)
+                                onNoteChange(item)
                             }
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                Icons.Filled.ContentCopy,
-                                contentDescription = stringResource(R.string.copy),
-                                Modifier.size(15.dp)
-                            )
-                            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                            Text(
-                                text = it,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
+                        )
+                        if (index < previousNotes.lastIndex) {
+                            HorizontalDivider(
+                                modifier = Modifier.padding(horizontal = 16.dp),
+                                thickness = DividerDefaults.Thickness,
+                                color = DividerDefaults.color
                             )
                         }
                     }
@@ -490,4 +356,45 @@ fun NoteSection(
             }
         }
     }
+}
+
+
+@Preview
+@Composable
+fun FinishIngestionScreenPreview() {
+    val alreadyUsedColors = listOf(AdaptiveColor.BLUE, AdaptiveColor.PINK)
+    val otherColors = AdaptiveColor.entries.filter { color ->
+        !alreadyUsedColors.contains(color)
+    }
+    FinishIngestionScreen(
+        createSaveAndDismissAfter = {},
+        ingestionTimePickerOption = IngestionTimePickerOption.POINT_IN_TIME,
+        onChangeTimePickerOption = {},
+        onChangeStartDateOrTime = {},
+        localDateTimeStart = LocalDateTime.now(),
+        localDateTimeEnd = LocalDateTime.now(),
+        onChangeEndDateOrTime = {},
+        isLoadingColor = false,
+        isShowingColorPicker = true,
+        selectedColor = AdaptiveColor.BLUE,
+        onChangeColor = {},
+        alreadyUsedColors = alreadyUsedColors,
+        otherColors = otherColors,
+        previousNotes = listOf(
+            "My previous note where I make some remarks",
+            "Another previous note and this one is very long, such that it doesn't fit on one line"
+        ),
+        note = "",
+        onNoteChange = {},
+        experiencesInRange = emptyList(),
+        selectedExperience = null,
+        onChangeOfSelectedExperience = {},
+        substanceName = "LSD",
+        enteredTitle = "This is my title",
+        onChangeOfEnteredTitle = {},
+        isEnteredTitleOk = true,
+        consumerName = "",
+        onChangeOfConsumerName = {},
+        consumerNamesSorted = listOf("Isaak", "Marc", "Eve")
+    )
 }
