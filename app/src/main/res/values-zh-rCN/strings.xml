@@ -140,7 +140,7 @@
     <string name="hide_dosage_dots">隐藏剂量点</string>
     <string name="hide_timeline">隐藏时间轴</string>
     <string name="independent_substance_heights">独立的物质高度</string>
-    <string name="independent_substance_heights_description">"\n                                    启用此设置后，不同物质和给药途径 (roas) 的时间轴将各自独立。届时，不同物质和给药途径的摄入记录将始终占据时间轴的全部高度。\n                                    \n                                    如果禁用此设置，不同物质的时间轴高度将相互关联。在这种情况下，将使用常见剂量的平均值作为比较基准。\n                                    例如，如果口服 MDMA 的常见平均剂量是 100mg，鼻吸 MDMA 的常见平均剂量是 50mg，那么 100mg 口服 MDMA 的时间轴高度将与 50mg 鼻吸 MDMA 的相同。\n                                    这也适用于不同物质之间。例如，如果口服 2C-B 的常见剂量是 20mg，那么 40mg 口服 2C-B 的时间轴高度将是 100mg 口服 MDMA 的两倍。\n                                "</string>
+    <string name="independent_substance_heights_description">"启用此设置后，不同物质和给药途径 (roas) 的时间轴将各自独立。届时，不同物质和给药途径的摄入记录将始终占据时间轴的全部高度。\n\n如果禁用此设置，不同物质的时间轴高度将相互关联。在这种情况下，将使用常见剂量的平均值作为比较基准。\n例如，如果口服 MDMA 的常见平均剂量是 100mg，鼻吸 MDMA 的常见平均剂量是 50mg，那么 100mg 口服 MDMA 的时间轴高度将与 50mg 鼻吸 MDMA 的相同。\n这也适用于不同物质之间。例如，如果口服 2C-B 的常见剂量是 20mg，那么 40mg 口服 2C-B 的时间轴高度将是 100mg 口服 MDMA 的两倍。"</string>
     <string name="app_data">应用数据</string>
     <string name="want_to_export">要导出吗？</string>
     <string name="export_description">这将把您应用中的所有数据导出到一个文件中，您可以将其发送给他人或在新手机上再次导入。</string>
@@ -229,4 +229,9 @@
     <string name="safer_hallucinogen_use">更安全地使用致幻剂</string>
     <string name="see_also">参见</string>
     <string name="safer_stimulant_use">更安全地使用兴奋剂</string>
+    <string name="hide_dosage_dots_summary">隐藏时间线图表上的小圆点。</string>
+    <string name="hide_timeline_summary">在体验详情页隐藏时间线图表。</string>
+    <string name="export_description_short">将您的所有数据保存到一个 JSON 文件。</string>
+    <string name="import_description_short">从之前导出的 JSON 文件导入数据。</string>
+    <string name="delete_everything_description_short">永久删除您的所有数据。此操作无法撤销。</string>
 </resources>

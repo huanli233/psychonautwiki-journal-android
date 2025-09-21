@@ -140,7 +140,7 @@
     <string name="hide_dosage_dots">Hide dosage dots</string>
     <string name="hide_timeline">Hide timeline</string>
     <string name="independent_substance_heights">Independent substance heights</string>
-    <string name="independent_substance_heights_description">"\n                                    Enable this setting if you want the timeline of different substances and routes of administration (roas) to be independent. Then ingestions of different substances and roas will always take the full height of the timeline.\n                                    \n                                    If this setting is disabled then timelines of different substances have a height relative to each other. In that case the average of the common dose is used as the point to compare it to.\n                                    E.g. if the oral average common dose of MDMA is 100mg and the average common dose of insufflated MDMA is 50mg then the timeline for 100mg of oral MDMA is the same height as for 50mg of insufflated MDMA.\n                                    This is also applied across substances. E.g. if the common dose of oral 2C-B is 20mg then the timeline of 40mg oral 2C-B will be twice as high as 100mg of oral MDMA.\n                                "</string>
+    <string name="independent_substance_heights_description">"Enable this setting if you want the timeline of different substances and routes of administration (roas) to be independent. Then ingestions of different substances and roas will always take the full height of the timeline.\n\nIf this setting is disabled then timelines of different substances have a height relative to each other. In that case the average of the common dose is used as the point to compare it to.\nE.g. if the oral average common dose of MDMA is 100mg and the average common dose of insufflated MDMA is 50mg then the timeline for 100mg of oral MDMA is the same height as for 50mg of insufflated MDMA.\nThis is also applied across substances. E.g. if the common dose of oral 2C-B is 20mg then the timeline of 40mg oral 2C-B will be twice as high as 100mg of oral MDMA.\n                                "</string>
     <string name="app_data">App data</string>
     <string name="want_to_export">Export?</string>
     <string name="export_description">This will export all your data from the app into a file so you can send it to someone or import it again on a new phone</string>
@@ -236,4 +236,9 @@
     <string name="routes_of_administration">Routes of Administration</string>
     <string name="default_units">Default Units</string>
     <string name="name">Name</string>
+    <string name="hide_dosage_dots_summary">Hides the small dots on the timeline graph.</string>
+    <string name="hide_timeline_summary">Hides the timeline graph on the experience detail screen.</string>
+    <string name="export_description_short">Save all your data to a JSON file.</string>
+    <string name="import_description_short">Import data from a previously exported JSON file.</string>
+    <string name="delete_everything_description_short">Permanently removes all your data. This cannot be undone.</string>
 </resources>

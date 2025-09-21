@@ -23,9 +23,7 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -37,10 +35,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ContactSupport
+import androidx.compose.material.icons.automirrored.outlined.Article
+import androidx.compose.material.icons.automirrored.outlined.HelpOutline
+import androidx.compose.material.icons.automirrored.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.AdUnits
 import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.outlined.DeleteForever
@@ -50,17 +48,17 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.Medication
 import androidx.compose.material.icons.outlined.Palette
-import androidx.compose.material.icons.outlined.QuestionAnswer
 import androidx.compose.material.icons.outlined.Share
+import androidx.compose.material.icons.outlined.Timeline
+import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material.icons.outlined.VolunteerActivism
 import androidx.compose.material.icons.outlined.WarningAmber
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -70,7 +68,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -84,26 +81,22 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.os.LocaleListCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.isaakhanimann.journal.JournalApp
 import com.isaakhanimann.journal.MainActivity
 import com.isaakhanimann.journal.R
 import com.isaakhanimann.journal.ui.VERSION_NAME
-import com.isaakhanimann.journal.ui.tabs.journal.experience.components.CardWithTitle
-import com.isaakhanimann.journal.ui.theme.horizontalPadding
 import com.isaakhanimann.journal.ui.utils.getStringOfPattern
 import com.isaakhanimann.journal.util.LangList
 import com.isaakhanimann.journal.util.LocaleDelegate
-import com.isaakhanimann.journal.util.LocaleDelegate.Companion.defaultLocale
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.time.Instant
 import java.util.Locale
-
 
 @Preview
 @Composable
@@ -185,6 +178,13 @@ fun SettingsScreen(
     saveAreSubstanceHeightsIndependent: (Boolean) -> Unit,
 ) {
     val context = LocalContext.current
+    val uriHandler = LocalUriHandler.current
+
+    // State for dialogs
+    var showExportDialog by remember { mutableStateOf(false) }
+    var showImportDialog by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -193,347 +193,464 @@ fun SettingsScreen(
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { padding ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .padding(padding)
-                .padding(horizontal = horizontalPadding)
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
         ) {
-            CardWithTitle(title = stringResource(R.string.ui), innerPaddingHorizontal = 0.dp) {
+            // UI Category
+            item { PreferenceCategory(title = stringResource(R.string.ui)) }
+
+            item {
                 LanguagePreference(
                     currentLanguageTag = language,
                     onLanguageSelected = { newLanguageTag ->
-                        runBlocking {
-                            saveLanguage(newLanguageTag)
-                        }
+                        runBlocking { saveLanguage(newLanguageTag) }
                         applyLanguage(newLanguageTag)
-
                         (context as? MainActivity)?.recreate()
                     }
                 )
-                HorizontalDivider()
-                SettingsButton(
-                    imageVector = Icons.Outlined.AdUnits,
-                    text = stringResource(R.string.custom_units)
-                ) {
-                    navigateToCustomUnits()
-                }
-                HorizontalDivider()
-                SettingsButton(
-                    imageVector = Icons.Outlined.Medication,
-                    text = stringResource(R.string.custom_substances)
-                ) {
-                    navigateToCustomSubstances()
-                }
-                HorizontalDivider()
-                SettingsButton(
-                    imageVector = Icons.Outlined.Palette,
-                    text = stringResource(R.string.substance_colors)
-                ) {
-                    navigateToSubstanceColors()
-                }
-                HorizontalDivider()
-                SettingsButton(
-                    imageVector = Icons.Outlined.WarningAmber,
-                    text = stringResource(R.string.interaction_settings)
-                ) {
-                    navigateToComboSettings()
-                }
-                HorizontalDivider()
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            saveDosageDotsAreHidden(!areDosageDotsHidden)
-                        }
-                        .padding(horizontal = horizontalPadding, vertical = 3.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(text = stringResource(R.string.hide_dosage_dots))
-                    Switch(
-                        checked = areDosageDotsHidden,
-                        onCheckedChange = saveDosageDotsAreHidden
-                    )
-                }
-                HorizontalDivider()
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            saveIsTimelineHidden(!isTimelineHidden)
-                        }
-                        .padding(horizontal = horizontalPadding, vertical = 3.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(text = stringResource(R.string.hide_timeline))
-                    Switch(
-                        checked = isTimelineHidden,
-                        onCheckedChange = saveIsTimelineHidden
-                    )
-                }
-                HorizontalDivider()
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            saveAreSubstanceHeightsIndependent(!areSubstanceHeightsIndependent)
-                        }
-                        .padding(horizontal = horizontalPadding, vertical = 3.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-                    var showBottomSheet by remember { mutableStateOf(false) }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(5.dp),
-                        modifier = Modifier
-                            .clickable {
-                                showBottomSheet = true
-                            }
-                            .padding(end = ButtonDefaults.IconSpacing)
-                    ) {
-                        Text(text = stringResource(R.string.independent_substance_heights))
-                        if (showBottomSheet) {
-                            ModalBottomSheet(
-                                onDismissRequest = {
-                                    showBottomSheet = false
-                                },
-                                sheetState = sheetState
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.independent_substance_heights_description).trimIndent(),
-                                    modifier = Modifier
-                                        .padding(horizontal = horizontalPadding)
-                                        .padding(bottom = 15.dp)
-                                        .verticalScroll(state = rememberScrollState())
-                                )
-                            }
-                        }
-                        Icon(Icons.Outlined.Info, contentDescription = "Show more info")
-                    }
-                    Switch(
-                        checked = areSubstanceHeightsIndependent,
-                        onCheckedChange = saveAreSubstanceHeightsIndependent
-                    )
-                }
             }
-            CardWithTitle(title = stringResource(R.string.app_data), innerPaddingHorizontal = 0.dp) {
-                var isShowingExportDialog by remember { mutableStateOf(false) }
-                SettingsButton(imageVector = Icons.Outlined.FileUpload, text = stringResource(R.string.export_file)) {
-                    isShowingExportDialog = true
-                }
-                val jsonMIMEType = "application/json"
-                val launcherExport =
-                    rememberLauncherForActivityResult(
-                        contract = ActivityResultContracts.CreateDocument(
-                            mimeType = jsonMIMEType
-                        )
-                    ) { uri ->
-                        if (uri != null) {
-                            exportFile(uri)
-                        }
-                    }
-                AnimatedVisibility(visible = isShowingExportDialog) {
-                    AlertDialog(
-                        onDismissRequest = { isShowingExportDialog = false },
-                        title = {
-                            Text(text = stringResource(R.string.want_to_export))
-                        },
-                        text = {
-                            Text(stringResource(R.string.export_description))
-                        },
-                        confirmButton = {
-                            TextButton(
-                                onClick = {
-                                    isShowingExportDialog = false
-                                    launcherExport.launch(
-                                        "Journal ${
-                                            Instant.now().getStringOfPattern("dd MMM yyyy")
-                                        }.json"
-                                    )
-                                }
-                            ) {
-                                Text(stringResource(R.string.export))
-                            }
-                        },
-                        dismissButton = {
-                            TextButton(
-                                onClick = { isShowingExportDialog = false }
-                            ) {
-                                Text(stringResource(R.string.cancel))
-                            }
-                        }
-                    )
-                }
-                HorizontalDivider()
-                var isShowingImportDialog by remember { mutableStateOf(false) }
-                SettingsButton(imageVector = Icons.Outlined.FileDownload, text = stringResource(R.string.import_file_title)) {
-                    isShowingImportDialog = true
-                }
-                val launcherImport =
-                    rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri ->
-                        if (uri != null) {
-                            importFile(uri)
-                        }
-                    }
-                AnimatedVisibility(visible = isShowingImportDialog) {
-                    AlertDialog(
-                        onDismissRequest = { isShowingImportDialog = false },
-                        title = {
-                            Text(text = stringResource(R.string.want_to_import_file))
-                        },
-                        text = {
-                            Text(stringResource(R.string.import_description))
-                        },
-                        confirmButton = {
-                            TextButton(
-                                onClick = {
-                                    isShowingImportDialog = false
-                                    launcherImport.launch(jsonMIMEType)
-                                }
-                            ) {
-                                Text(stringResource(R.string.import_file))
-                            }
-                        },
-                        dismissButton = {
-                            TextButton(
-                                onClick = { isShowingImportDialog = false }
-                            ) {
-                                Text(stringResource(R.string.cancel))
-                            }
-                        }
-                    )
-                }
-                HorizontalDivider()
-                var isShowingDeleteDialog by remember { mutableStateOf(false) }
-                SettingsButton(
-                    imageVector = Icons.Outlined.DeleteForever,
-                    text = stringResource(R.string.delete_everything)
-                ) {
-                    isShowingDeleteDialog = true
-                }
-                val scope = rememberCoroutineScope()
-                AnimatedVisibility(visible = isShowingDeleteDialog) {
-                    AlertDialog(
-                        onDismissRequest = { isShowingDeleteDialog = false },
-                        title = {
-                            Text(text = stringResource(R.string.delete_everything))
-                        },
-                        text = {
-                            Text(stringResource(R.string.delete_everything_description))
-                        },
-                        confirmButton = {
-                            TextButton(
-                                onClick = {
-                                    isShowingDeleteDialog = false
-                                    deleteEverything()
-                                    scope.launch {
-                                        snackbarHostState.showSnackbar(
-                                            message = context.getString(R.string.deleted_everything),
-                                            duration = SnackbarDuration.Short
-                                        )
-                                    }
-                                }
-                            ) {
-                                Text(stringResource(R.string.delete))
-                            }
-                        },
-                        dismissButton = {
-                            TextButton(
-                                onClick = { isShowingDeleteDialog = false }
-                            ) {
-                                Text(stringResource(R.string.cancel))
-                            }
-                        }
-                    )
-                }
+            item {
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    thickness = DividerDefaults.Thickness,
+                    color = DividerDefaults.color
+                )
             }
-            val uriHandler = LocalUriHandler.current
-            CardWithTitle(title = stringResource(R.string.feedback), innerPaddingHorizontal = 0.dp) {
-                SettingsButton(imageVector = Icons.Outlined.QuestionAnswer, text = "FAQ") {
-                    navigateToFAQ()
-                }
-                HorizontalDivider()
-                SettingsButton(
-                    imageVector = Icons.AutoMirrored.Outlined.ContactSupport,
-                    text = stringResource(R.string.question_bug_report)
-                ) {
-                    uriHandler.openUri("https://t.me/+ss8uZhBF6g00MTY8")
-                }
-                HorizontalDivider()
-                SettingsButton(imageVector = Icons.Outlined.VolunteerActivism, text = "Donate") {
-                    navigateToDonate()
-                }
+
+            item {
+                Preference(
+                    title = stringResource(R.string.custom_units),
+                    icon = Icons.Outlined.AdUnits,
+                    onClick = navigateToCustomUnits
+                )
             }
-            CardWithTitle(title = stringResource(R.string.app), innerPaddingHorizontal = 0.dp) {
-                SettingsButton(imageVector = Icons.Outlined.Code, text = stringResource(R.string.source_code)) {
-                    uriHandler.openUri("https://github.com/isaakhanimann/psychonautwiki-journal-android")
-                }
-                HorizontalDivider()
-                val context = LocalContext.current
+            item {
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    thickness = DividerDefaults.Thickness,
+                    color = DividerDefaults.color
+                )
+            }
+
+
+            item {
+                Preference(
+                    title = stringResource(R.string.custom_substances),
+                    icon = Icons.Outlined.Medication,
+                    onClick = navigateToCustomSubstances
+                )
+            }
+            item {
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    thickness = DividerDefaults.Thickness,
+                    color = DividerDefaults.color
+                )
+            }
+
+
+            item {
+                Preference(
+                    title = stringResource(R.string.substance_colors),
+                    icon = Icons.Outlined.Palette,
+                    onClick = navigateToSubstanceColors
+                )
+            }
+            item {
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    thickness = DividerDefaults.Thickness,
+                    color = DividerDefaults.color
+                )
+            }
+
+            item {
+                Preference(
+                    title = stringResource(R.string.interaction_settings),
+                    icon = Icons.Outlined.WarningAmber,
+                    onClick = navigateToComboSettings
+                )
+            }
+            item {
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    thickness = DividerDefaults.Thickness,
+                    color = DividerDefaults.color
+                )
+            }
+
+            item {
+                SwitchPreference(
+                    title = stringResource(R.string.hide_dosage_dots),
+                    summary = stringResource(R.string.hide_dosage_dots_summary),
+                    icon = Icons.Outlined.VisibilityOff,
+                    checked = areDosageDotsHidden,
+                    onCheckedChange = saveDosageDotsAreHidden
+                )
+            }
+            item {
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    thickness = DividerDefaults.Thickness,
+                    color = DividerDefaults.color
+                )
+            }
+
+            item {
+                SwitchPreference(
+                    title = stringResource(R.string.hide_timeline),
+                    summary = stringResource(R.string.hide_timeline_summary),
+                    icon = Icons.Outlined.Timeline,
+                    checked = isTimelineHidden,
+                    onCheckedChange = saveIsTimelineHidden
+                )
+            }
+            item {
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    thickness = DividerDefaults.Thickness,
+                    color = DividerDefaults.color
+                )
+            }
+
+            item {
+                SwitchPreference(
+                    title = stringResource(R.string.independent_substance_heights),
+                    summary = stringResource(R.string.independent_substance_heights_description),
+                    icon = Icons.Outlined.Info,
+                    checked = areSubstanceHeightsIndependent,
+                    onCheckedChange = saveAreSubstanceHeightsIndependent
+                )
+            }
+
+            // App Data Category
+            item { PreferenceCategory(title = stringResource(R.string.app_data)) }
+
+            item {
+                Preference(
+                    title = stringResource(R.string.export_file),
+                    summary = stringResource(R.string.export_description_short),
+                    icon = Icons.Outlined.FileUpload,
+                    onClick = { showExportDialog = true }
+                )
+            }
+            item {
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    thickness = DividerDefaults.Thickness,
+                    color = DividerDefaults.color
+                )
+            }
+
+            item {
+                Preference(
+                    title = stringResource(R.string.import_file_title),
+                    summary = stringResource(R.string.import_description_short),
+                    icon = Icons.Outlined.FileDownload,
+                    onClick = { showImportDialog = true }
+                )
+            }
+            item {
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    thickness = DividerDefaults.Thickness,
+                    color = DividerDefaults.color
+                )
+            }
+
+            item {
+                Preference(
+                    title = stringResource(R.string.delete_everything),
+                    summary = stringResource(R.string.delete_everything_description_short),
+                    icon = Icons.Outlined.DeleteForever,
+                    onClick = { showDeleteDialog = true }
+                )
+            }
+
+            // Feedback Category
+            item { PreferenceCategory(title = stringResource(R.string.feedback)) }
+
+            item {
+                Preference(
+                    title = "FAQ",
+                    icon = Icons.AutoMirrored.Outlined.HelpOutline,
+                    onClick = navigateToFAQ
+                )
+            }
+            item {
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    thickness = DividerDefaults.Thickness,
+                    color = DividerDefaults.color
+                )
+            }
+
+            item {
+                Preference(
+                    title = stringResource(R.string.question_bug_report),
+                    icon = Icons.AutoMirrored.Outlined.OpenInNew,
+                    onClick = { uriHandler.openUri("https://t.me/+ss8uZhBF6g00MTY8") }
+                )
+            }
+            item {
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    thickness = DividerDefaults.Thickness,
+                    color = DividerDefaults.color
+                )
+            }
+
+            item {
+                Preference(
+                    title = "Donate",
+                    icon = Icons.Outlined.VolunteerActivism,
+                    onClick = navigateToDonate
+                )
+            }
+
+            // App Category
+            item { PreferenceCategory(title = stringResource(R.string.app)) }
+
+            item {
+                Preference(
+                    title = stringResource(R.string.source_code),
+                    icon = Icons.Outlined.Code,
+                    onClick = { uriHandler.openUri("https://github.com/isaakhanimann/psychonautwiki-journal-android") }
+                )
+            }
+            item {
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    thickness = DividerDefaults.Thickness,
+                    color = DividerDefaults.color
+                )
+            }
+
+            item {
                 val sendIntent: Intent = Intent().apply {
                     action = Intent.ACTION_SEND
                     putExtra(Intent.EXTRA_TEXT, SHARE_APP_URL)
                     type = "text/plain"
                 }
                 val shareIntent = Intent.createChooser(sendIntent, null)
-                SettingsButton(imageVector = Icons.Outlined.Share, text = stringResource(R.string.share)) {
-                    context.startActivity(shareIntent)
-                }
-                HorizontalDivider()
+                Preference(
+                    title = stringResource(R.string.share),
+                    icon = Icons.Outlined.Share,
+                    onClick = { context.startActivity(shareIntent) }
+                )
+            }
+            item {
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    thickness = DividerDefaults.Thickness,
+                    color = DividerDefaults.color
+                )
+            }
+
+            item {
+                Preference(
+                    title = stringResource(R.string.version, VERSION_NAME),
+                    icon = Icons.Outlined.Info,
+                    onClick = {}
+                )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+        }
+    }
+
+    // --- Dialogs ---
+    val jsonMIMEType = "application/json"
+    val launcherExport = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument(mimeType = jsonMIMEType)
+    ) { uri ->
+        if (uri != null) exportFile(uri)
+    }
+    if (showExportDialog) {
+        AlertDialog(
+            onDismissRequest = { showExportDialog = false },
+            title = { Text(text = stringResource(R.string.want_to_export)) },
+            text = { Text(stringResource(R.string.export_description)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showExportDialog = false
+                        launcherExport.launch("Journal ${Instant.now().getStringOfPattern("dd MMM yyyy")}.json")
+                    }
+                ) { Text(stringResource(R.string.export)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showExportDialog = false }) { Text(stringResource(R.string.cancel)) }
+            }
+        )
+    }
+
+    val launcherImport = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) importFile(uri)
+    }
+    if (showImportDialog) {
+        AlertDialog(
+            onDismissRequest = { showImportDialog = false },
+            title = { Text(text = stringResource(R.string.want_to_import_file)) },
+            text = { Text(stringResource(R.string.import_description)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showImportDialog = false
+                        launcherImport.launch(jsonMIMEType)
+                    }
+                ) { Text(stringResource(R.string.import_file)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showImportDialog = false }) { Text(stringResource(R.string.cancel)) }
+            }
+        )
+    }
+
+    val scope = rememberCoroutineScope()
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text(text = stringResource(R.string.delete_everything)) },
+            text = { Text(stringResource(R.string.delete_everything_description)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                        deleteEverything()
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = context.getString(R.string.deleted_everything),
+                                duration = SnackbarDuration.Short
+                            )
+                        }
+                    }
+                ) { Text(stringResource(R.string.delete)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) { Text(stringResource(R.string.cancel)) }
+            }
+        )
+    }
+}
+
+const val SHARE_APP_URL = "https://psychonautwiki.org/wiki/PsychonautWiki_Journal"
+
+/**
+ * A composable for displaying a category title in a preferences screen.
+ */
+@Composable
+private fun PreferenceCategory(title: String) {
+    Text(
+        text = title,
+        color = MaterialTheme.colorScheme.primary,
+        style = MaterialTheme.typography.labelLarge,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 16.dp)
+    )
+}
+
+/**
+ * A standard preference item with an icon, title, summary, and click action.
+ */
+@Composable
+private fun Preference(
+    title: String,
+    summary: String? = null,
+    icon: ImageVector,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            modifier = Modifier.size(24.dp)
+        )
+        Spacer(Modifier.width(16.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(text = title, style = MaterialTheme.typography.bodyLarge)
+            summary?.let {
+                Spacer(Modifier.height(2.dp))
                 Text(
-                    text = stringResource(R.string.version, VERSION_NAME),
-                    style = MaterialTheme.typography.labelLarge,
-                    modifier = Modifier
-                        .padding(horizontal = 15.dp)
-                        .padding(vertical = 10.dp)
+                    text = it,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
     }
 }
 
-const val SHARE_APP_URL = "https://psychonautwiki.org/wiki/PsychonautWiki_Journal"
-
+/**
+ * A preference item with a switch for boolean settings.
+ */
 @Composable
-private fun getLanguageDisplayName(tag: String): String {
-    return if (tag == "SYSTEM") {
-        stringResource(id = R.string.follow_system)
-    } else {
-        val locale = Locale.forLanguageTag(tag)
-        locale.getDisplayName(locale).replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
+private fun SwitchPreference(
+    title: String,
+    summary: String? = null,
+    icon: ImageVector,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onCheckedChange(!checked) }
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            modifier = Modifier.size(24.dp)
+        )
+        Spacer(Modifier.width(16.dp))
+        Column(
+            modifier = Modifier.weight(1f),
+        ) {
+            Text(text = title, style = MaterialTheme.typography.bodyLarge)
+            summary?.let {
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+        Switch(
+            checked = checked,
+            onCheckedChange = null, // Click is handled by the Row
+            modifier = Modifier.padding(start = 16.dp)
+        )
     }
 }
 
+
 @Composable
-fun LanguagePreference(
+private fun LanguagePreference(
     currentLanguageTag: String,
     onLanguageSelected: (String) -> Unit
 ) {
     var showDialog by remember { mutableStateOf(false) }
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { showDialog = true }
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            imageVector = Icons.Outlined.Language,
-            contentDescription = stringResource(R.string.settings_language),
-            modifier = Modifier.padding(end = 16.dp)
-        )
-        Column(modifier = Modifier.weight(1f)) {
-            Text(stringResource(R.string.settings_language), fontSize = 16.sp)
-            Spacer(Modifier.height(2.dp))
-            Text(getLanguageDisplayName(tag = currentLanguageTag), fontSize = 14.sp)
-        }
-    }
+    Preference(
+        title = stringResource(R.string.settings_language),
+        summary = getLanguageDisplayName(tag = currentLanguageTag),
+        icon = Icons.Outlined.Language,
+        onClick = { showDialog = true }
+    )
 
     if (showDialog) {
         AlertDialog(
@@ -550,7 +667,7 @@ fun LanguagePreference(
                                     onLanguageSelected(tag)
                                     showDialog = false
                                 }
-                                .padding(vertical = 12.dp),
+                                .padding(vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             RadioButton(
@@ -572,6 +689,19 @@ fun LanguagePreference(
     }
 }
 
+
+@Composable
+private fun getLanguageDisplayName(tag: String): String {
+    return if (tag == "SYSTEM") {
+        stringResource(id = R.string.follow_system)
+    } else {
+        val locale = Locale.forLanguageTag(tag)
+        locale.getDisplayName(locale)
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
+    }
+}
+
+
 fun applyLanguage(tag: String) {
     val localeList = if (tag == "SYSTEM") {
         LocaleListCompat.getEmptyLocaleList()
@@ -584,25 +714,9 @@ fun applyLanguage(tag: String) {
     val config = res.configuration
     config.setLocale(locale)
     if (locale != null) {
-        defaultLocale = locale
+        LocaleDelegate.defaultLocale = locale
     }
     @Suppress("DEPRECATION")
     res.updateConfiguration(config, res.displayMetrics);
     AppCompatDelegate.setApplicationLocales(localeList)
-}
-
-@Composable
-fun SettingsButton(imageVector: ImageVector, text: String, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier.clickable { onClick() }.padding(horizontal = 12.dp, vertical = 15.dp)
-    ) {
-        Icon(
-            imageVector,
-            contentDescription = imageVector.name,
-            modifier = Modifier.size(ButtonDefaults.IconSize).align(Alignment.CenterVertically),
-        )
-        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-        Text(text, Modifier.align(Alignment.CenterVertically), color = MaterialTheme.colorScheme.primary)
-        Spacer(modifier = Modifier.weight(1f))
-    }
 }
