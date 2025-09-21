@@ -106,9 +106,10 @@ fun TimedNoteScreenContent(
     }
     Column(
         modifier = modifier
-            .padding(10.dp)
+            .padding(16.dp)
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         OutlinedTextField(
             value = note,
@@ -126,19 +127,16 @@ fun TimedNoteScreenContent(
                 .fillMaxWidth()
                 .focusRequester(focusRequester)
         )
-        Spacer(modifier = Modifier.height(5.dp))
+
         CardWithTitle(title = "Show on timeline") {
             Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Switch(checked = isPartOfTimeline, onCheckedChange = onChangeOfIsPartOfTimeline)
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp),
-                    horizontalArrangement = Arrangement.Center
+                Box(
+                    modifier = Modifier.weight(1f),
+                    contentAlignment = Alignment.Center
                 ) {
                     ColorPicker(
                         selectedColor = color,
