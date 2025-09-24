@@ -400,6 +400,7 @@ interface ExperienceDao {
                     experienceId = experienceID,
                     isPartOfTimeline = timedNoteSerializable.isPartOfTimeline,
                     color = timedNoteSerializable.color,
+                    customColor = timedNoteSerializable.customColor,
                     note = timedNoteSerializable.note
                 )
                 insert(newTimedNote)

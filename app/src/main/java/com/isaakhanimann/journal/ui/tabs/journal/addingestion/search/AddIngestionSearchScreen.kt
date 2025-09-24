@@ -31,6 +31,7 @@ import com.isaakhanimann.journal.R
 import com.isaakhanimann.journal.data.room.experiences.entities.AdaptiveColor
 import com.isaakhanimann.journal.data.room.experiences.entities.CustomSubstance
 import com.isaakhanimann.journal.data.room.experiences.entities.CustomUnit
+import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
 import com.isaakhanimann.journal.data.substances.AdministrationRoute
 import com.isaakhanimann.journal.ui.tabs.journal.addingestion.search.suggestion.SuggestionRow
 import com.isaakhanimann.journal.ui.tabs.journal.addingestion.search.suggestion.models.Suggestion
@@ -250,11 +251,10 @@ fun SectionHeader(title: String) {
 }
 
 @Composable
-fun ColorCircle(adaptiveColor: AdaptiveColor) {
-    val isDarkTheme = isSystemInDarkTheme()
+fun ColorCircle(color: SubstanceColor) {
     Surface(
         shape = CircleShape,
-        color = adaptiveColor.getComposeColor(isDarkTheme),
+        color = color.toColor(),
         modifier = Modifier.size(25.dp)
     ) {}
 }

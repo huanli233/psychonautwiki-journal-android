@@ -22,6 +22,7 @@ import com.isaakhanimann.journal.data.room.experiences.entities.AdaptiveColor
 import com.isaakhanimann.journal.data.room.experiences.entities.CustomSubstance
 import com.isaakhanimann.journal.data.room.experiences.entities.CustomUnit
 import com.isaakhanimann.journal.data.room.experiences.entities.PluralizableUnit
+import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
 import com.isaakhanimann.journal.data.substances.AdministrationRoute
 import com.isaakhanimann.journal.ui.tabs.search.substance.roa.toReadableString
 import java.time.Instant
@@ -35,7 +36,7 @@ sealed class Suggestion(open val sortInstant: Instant) {
     data class PureSubstanceSuggestion(
         val administrationRoute: AdministrationRoute,
         val substanceName: String,
-        val adaptiveColor: AdaptiveColor,
+        val color: SubstanceColor,
         val dosesAndUnit: List<DoseAndUnit>,
         override val sortInstant: Instant
     ) : Suggestion(sortInstant = sortInstant) {
@@ -46,7 +47,7 @@ sealed class Suggestion(open val sortInstant: Instant) {
 
     data class CustomUnitSuggestion(
         val customUnit: CustomUnit,
-        val adaptiveColor: AdaptiveColor,
+        val color: SubstanceColor,
         val dosesAndUnit: List<CustomUnitDoseSuggestion>,
         override val sortInstant: Instant
     ) : Suggestion(sortInstant = sortInstant) {
@@ -70,7 +71,7 @@ sealed class Suggestion(open val sortInstant: Instant) {
     data class CustomSubstanceSuggestion(
         val administrationRoute: AdministrationRoute,
         val customSubstance: CustomSubstance,
-        val adaptiveColor: AdaptiveColor,
+        val color: SubstanceColor,
         val dosesAndUnit: List<DoseAndUnit>,
         override val sortInstant: Instant
     ) : Suggestion(sortInstant = sortInstant) {

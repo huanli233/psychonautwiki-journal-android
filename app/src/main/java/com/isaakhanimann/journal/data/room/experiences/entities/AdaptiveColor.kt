@@ -18,6 +18,8 @@
 
 package com.isaakhanimann.journal.data.room.experiences.entities
 
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 enum class AdaptiveColor {
@@ -585,4 +587,9 @@ enum class AdaptiveColor {
 
     abstract fun getComposeColor(isDarkTheme: Boolean): Color
     abstract val isPreferred: Boolean
+}
+
+@Composable
+fun AdaptiveColor.getColor(): Color {
+    return getComposeColor(isSystemInDarkTheme())
 }

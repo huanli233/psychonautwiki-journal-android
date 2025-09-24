@@ -22,6 +22,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.isaakhanimann.journal.data.room.experiences.ExperienceRepository
 import com.isaakhanimann.journal.data.room.experiences.entities.AdaptiveColor
+import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
 import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceCompanion
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -52,13 +53,22 @@ class SubstanceColorsViewModel @Inject constructor(
         experienceRepository.deleteUnusedSubstanceCompanions()
     }
 
-    fun updateColor(color: AdaptiveColor, substanceName: String) {
+    fun updateColor(color: SubstanceColor, substanceName: String) {
         viewModelScope.launch {
             val updatedList = _substanceCompanionsFlow.value.map { companion ->
                 if (companion.substanceName == substanceName) {
-                    companion.copy(color = color).also {
-                        experienceRepository.update(it)
+                    val updatedCompanion = when (color) {
+                        is SubstanceColor.Predefined -> companion.copy(
+                            color = color.color,
+                            customColor = null
+                        )
+                        is SubstanceColor.Custom -> companion.copy(
+                            color = null,
+                            customColor = color.value
+                        )
                     }
+                    experienceRepository.update(updatedCompanion)
+                    updatedCompanion
                 } else {
                     companion
                 }
@@ -69,7 +79,7 @@ class SubstanceColorsViewModel @Inject constructor(
 
     val alreadyUsedColorsFlow: StateFlow<List<AdaptiveColor>> =
         _substanceCompanionsFlow.map { companions ->
-            companions.map { it.color }.distinct()
+            companions.mapNotNull { it.color }.distinct()
         }.stateIn(
             initialValue = emptyList(),
             scope = viewModelScope,

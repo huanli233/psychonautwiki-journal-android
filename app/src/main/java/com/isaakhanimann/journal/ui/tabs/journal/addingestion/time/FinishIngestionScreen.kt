@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2022. Isaak Hanimann.
+ * This file is part of PsychonautWiki Journal.
+ *
+ * PsychonautWiki Journal is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * PsychonautWiki Journal is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with PsychonautWiki Journal.  If not, see https://www.gnu.org/licenses/gpl-3.0.en.html.
+ */
+
 package com.isaakhanimann.journal.ui.tabs.journal.addingestion.time
 
 import androidx.compose.animation.AnimatedVisibility
@@ -28,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.isaakhanimann.journal.R
 import com.isaakhanimann.journal.data.room.experiences.entities.AdaptiveColor
+import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
 import com.isaakhanimann.journal.data.room.experiences.relations.ExperienceWithIngestions
 import com.isaakhanimann.journal.ui.YOU
 import com.isaakhanimann.journal.ui.tabs.journal.experience.components.CardWithTitle
@@ -51,7 +70,6 @@ fun FinishIngestionScreen(
         localDateTimeEnd = viewModel.localDateTimeEndFlow.collectAsState().value,
         onChangeEndDateOrTime = viewModel::onChangeEndDateOrTime,
         isLoadingColor = viewModel.isLoadingColor,
-        isShowingColorPicker = viewModel.isShowingColorPicker,
         selectedColor = viewModel.selectedColor,
         onChangeColor = { viewModel.selectedColor = it },
         alreadyUsedColors = viewModel.alreadyUsedColorsFlow.collectAsState().value,
@@ -85,9 +103,8 @@ fun FinishIngestionScreen(
     onChangeEndDateOrTime: (LocalDateTime) -> Unit,
     localDateTimeEnd: LocalDateTime,
     isLoadingColor: Boolean,
-    isShowingColorPicker: Boolean,
-    selectedColor: AdaptiveColor,
-    onChangeColor: (AdaptiveColor) -> Unit,
+    selectedColor: SubstanceColor,
+    onChangeColor: (SubstanceColor) -> Unit,
     alreadyUsedColors: List<AdaptiveColor>,
     otherColors: List<AdaptiveColor>,
     previousNotes: List<String>,
@@ -206,7 +223,9 @@ fun FinishIngestionScreen(
                                 imeAction = ImeAction.Done,
                                 capitalization = KeyboardCapitalization.Words
                             ),
-                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp)
                         )
                     }
                 }
@@ -273,7 +292,9 @@ fun FinishIngestionScreen(
                             ),
                             placeholder = { Text(stringResource(R.string.new_consumer_name)) },
                             singleLine = true,
-                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp)
                         )
                     }
                 }
@@ -282,15 +303,13 @@ fun FinishIngestionScreen(
                     NoteSection(previousNotes, note, onNoteChange)
                 }
 
-                if (isShowingColorPicker) {
-                    CardWithTitle(title = stringResource(R.string.something_color, substanceName)) {
-                        ColorPicker(
-                            selectedColor = selectedColor,
-                            onChangeOfColor = onChangeColor,
-                            alreadyUsedColors = alreadyUsedColors,
-                            otherColors = otherColors
-                        )
-                    }
+                CardWithTitle(title = stringResource(R.string.something_color, substanceName)) {
+                    SubstanceColorPicker(
+                        selectedColor = selectedColor,
+                        onChangeOfColor = onChangeColor,
+                        alreadyUsedColors = alreadyUsedColors,
+                        otherColors = otherColors
+                    )
                 }
             }
         }
@@ -375,8 +394,7 @@ fun FinishIngestionScreenPreview() {
         localDateTimeEnd = LocalDateTime.now(),
         onChangeEndDateOrTime = {},
         isLoadingColor = false,
-        isShowingColorPicker = true,
-        selectedColor = AdaptiveColor.BLUE,
+        selectedColor = SubstanceColor.Predefined(AdaptiveColor.BLUE),
         onChangeColor = {},
         alreadyUsedColors = alreadyUsedColors,
         otherColors = otherColors,

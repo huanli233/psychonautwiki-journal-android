@@ -23,6 +23,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.isaakhanimann.journal.data.room.experiences.ExperienceRepository
+import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
 import com.isaakhanimann.journal.data.substances.repositories.SubstanceRepository
 import com.isaakhanimann.journal.ui.main.navigation.graphs.SubstanceRoute
 import com.isaakhanimann.journal.ui.tabs.journal.experience.TimelineDisplayOption
@@ -89,7 +90,7 @@ class SubstanceViewModel @Inject constructor(
                 height = roa.roaDose?.getStrengthRelativeToCommonDose(firstAverageCommonDose)
                     ?.toFloat() ?: 1f,
                 horizontalWeight = 0.5f,
-                color = roa.route.color,
+                color = SubstanceColor.Predefined(roa.route.color),
                 startTime = ingestionTime.getInstant(),
                 endTime = null,
             )

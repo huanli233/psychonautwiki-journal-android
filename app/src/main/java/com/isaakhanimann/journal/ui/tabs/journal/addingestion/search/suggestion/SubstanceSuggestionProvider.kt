@@ -21,6 +21,7 @@ package com.isaakhanimann.journal.ui.tabs.journal.addingestion.search.suggestion
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.isaakhanimann.journal.data.room.experiences.entities.AdaptiveColor
 import com.isaakhanimann.journal.data.room.experiences.entities.CustomUnit
+import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
 import com.isaakhanimann.journal.data.substances.AdministrationRoute
 import com.isaakhanimann.journal.ui.tabs.journal.addingestion.search.suggestion.models.CustomUnitDoseSuggestion
 import com.isaakhanimann.journal.ui.tabs.journal.addingestion.search.suggestion.models.DoseAndUnit
@@ -30,7 +31,7 @@ import com.isaakhanimann.journal.ui.utils.getInstant
 class SubstanceSuggestionProvider : PreviewParameterProvider<Suggestion> {
     override val values: Sequence<Suggestion> = sequenceOf(
         Suggestion.PureSubstanceSuggestion(
-            adaptiveColor = AdaptiveColor.PINK,
+            color = SubstanceColor.Predefined(AdaptiveColor.PINK),
             administrationRoute = AdministrationRoute.ORAL,
             substanceName = "MDMA",
             dosesAndUnit = listOf(
@@ -57,7 +58,7 @@ class SubstanceSuggestionProvider : PreviewParameterProvider<Suggestion> {
         ),
         Suggestion.CustomUnitSuggestion(
             customUnit = CustomUnit.mdmaSample,
-            adaptiveColor = AdaptiveColor.PINK,
+            color = SubstanceColor.Predefined(AdaptiveColor.PINK),
             dosesAndUnit = listOf(
                 CustomUnitDoseSuggestion(
                     dose = 2.0,

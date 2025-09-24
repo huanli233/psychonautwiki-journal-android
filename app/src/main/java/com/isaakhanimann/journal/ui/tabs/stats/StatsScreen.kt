@@ -238,7 +238,7 @@ private fun StatItemRow(subStat: StatItem, onClick: () -> Unit) {
         leadingContent = {
             Surface(
                 shape = RoundedCornerShape(4.dp),
-                color = subStat.color.getComposeColor(isDarkTheme),
+                color = subStat.color.toColor(),
                 modifier = Modifier
                     .width(8.dp)
                     .height(40.dp)

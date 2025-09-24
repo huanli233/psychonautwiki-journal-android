@@ -60,6 +60,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.isaakhanimann.journal.data.room.experiences.entities.AdaptiveColor
+import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
 import com.isaakhanimann.journal.data.room.experiences.relations.ExperienceWithIngestionsCompanionsAndRatings
 import com.isaakhanimann.journal.ui.tabs.journal.components.ExperienceRow
 import com.isaakhanimann.journal.ui.theme.JournalTheme
@@ -72,6 +73,7 @@ import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.YearMonth
+import kotlin.collections.first
 
 @Preview
 @Composable
@@ -285,12 +287,11 @@ fun Day(
 @Composable
 fun HorizontalColorRectangle(
     modifier: Modifier,
-    colors: List<AdaptiveColor>
+    colors: List<SubstanceColor>
 ) {
-    val isDarkTheme = isSystemInDarkTheme()
     if (colors.size >= 2) {
+        val composeColors = colors.map { it.toColor() }
         val brush = remember(colors) {
-            val composeColors = colors.map { it.getComposeColor(isDarkTheme) }
             Brush.horizontalGradient(colors = composeColors)
         }
         Box(
@@ -301,7 +302,7 @@ fun HorizontalColorRectangle(
         Box(
             modifier = modifier
                 .background(
-                    colors.first().getComposeColor(isDarkTheme)
+                    colors.first().toColor()
                 ),
         ) {}
     } else {

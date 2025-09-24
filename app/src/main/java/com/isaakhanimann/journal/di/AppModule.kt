@@ -28,6 +28,8 @@ import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
 import com.isaakhanimann.journal.data.room.AppDatabase
 import com.isaakhanimann.journal.data.room.AppDatabase.Companion.MIGRATION_7_8
+import com.isaakhanimann.journal.data.room.AppDatabase.Companion.MIGRATION_8_9
+import com.isaakhanimann.journal.data.room.AppDatabase.Companion.MIGRATION_9_10
 import com.isaakhanimann.journal.data.room.experiences.ExperienceDao
 import dagger.Module
 import dagger.Provides
@@ -52,7 +54,7 @@ object AppModule {
             context,
             AppDatabase::class.java,
             "experiences_db"
-        ).addMigrations(MIGRATION_7_8).build()
+        ).addMigrations(MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10).build()
 
     @Singleton
     @Provides

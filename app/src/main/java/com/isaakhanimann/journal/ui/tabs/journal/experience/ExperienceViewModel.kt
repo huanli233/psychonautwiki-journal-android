@@ -24,8 +24,10 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.isaakhanimann.journal.data.room.experiences.ExperienceRepository
 import com.isaakhanimann.journal.data.room.experiences.entities.AdaptiveColor
+import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
 import com.isaakhanimann.journal.data.room.experiences.entities.custom.toRoaDose
 import com.isaakhanimann.journal.data.room.experiences.entities.custom.toRoaDuration
+import com.isaakhanimann.journal.data.room.experiences.entities.getSubstanceColor
 import com.isaakhanimann.journal.data.room.experiences.relations.IngestionWithCompanionAndCustomUnit
 import com.isaakhanimann.journal.data.substances.classes.Substance
 import com.isaakhanimann.journal.data.substances.classes.roa.RoaDose
@@ -442,7 +444,9 @@ class ExperienceViewModel @Inject constructor(
             val dataForTimedNotes =
                 timedNotesSorted.filter { it.isPartOfTimeline }
                     .map {
-                        DataForOneTimedNote(time = it.time, color = it.color)
+                        val substanceColor = it.customColor?.let { custom -> SubstanceColor.Custom(custom) }
+                            ?: it.color?.let { adaptive -> SubstanceColor.Predefined(adaptive) }
+                        DataForOneTimedNote(time = it.time, color = substanceColor)
                     }
             val isWorthDrawing =
                 ingestionElements.isNotEmpty() && !(ingestionElements.all { it.roaDuration == null } && dataForRatings.isEmpty() && dataForTimedNotes.isEmpty())
@@ -491,12 +495,13 @@ class ExperienceViewModel @Inject constructor(
                             ?.getRoa(ingestion.administrationRoute)?.roaDose
                     ).toFloat(),
                     horizontalWeight = horizontalWeight,
-                    color = oneElement.ingestionWithCompanionAndCustomUnit.substanceCompanion?.color
-                        ?: AdaptiveColor.RED,
+                    color = oneElement.ingestionWithCompanionAndCustomUnit.substanceCompanion?.getSubstanceColor()
+                        ?: SubstanceColor.Predefined(AdaptiveColor.RED),
                     startTime = ingestion.time,
                     endTime = ingestion.endTime
                 )
             }
+
 
         fun getCumulativeDoses(ingestions: List<IngestionWithAssociatedData>): List<CumulativeDose> {
             return ingestions.groupBy { it.ingestionWithCompanionAndCustomUnit.ingestion.substanceName }

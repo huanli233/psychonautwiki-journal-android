@@ -18,10 +18,10 @@
 
 package com.isaakhanimann.journal.ui.tabs.journal.experience.timeline
 
-import com.isaakhanimann.journal.data.room.experiences.entities.AdaptiveColor
+import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
 import java.time.Instant
 
 data class DataForOneTimedNote(
     val time: Instant,
-    val color: AdaptiveColor
+    val color: SubstanceColor?
 )

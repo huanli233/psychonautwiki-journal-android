@@ -23,6 +23,8 @@ import androidx.lifecycle.viewModelScope
 import com.isaakhanimann.journal.data.room.experiences.ExperienceRepository
 import com.isaakhanimann.journal.data.room.experiences.entities.AdaptiveColor
 import com.isaakhanimann.journal.data.room.experiences.entities.CustomSubstance
+import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
+import com.isaakhanimann.journal.data.room.experiences.entities.getSubstanceColor
 import com.isaakhanimann.journal.data.room.experiences.relations.IngestionWithCompanionAndCustomUnit
 import com.isaakhanimann.journal.data.substances.AdministrationRoute
 import com.isaakhanimann.journal.data.substances.classes.Substance
@@ -151,7 +153,7 @@ class AddIngestionSearchViewModel @Inject constructor(
         customSubstances: List<CustomSubstance>
     ): List<Suggestion> {
         val color =
-            ingestionsGroupedBySubstance.firstOrNull()?.substanceCompanion?.color
+            ingestionsGroupedBySubstance.firstOrNull()?.substanceCompanion?.getSubstanceColor()
                 ?: return emptyList()
         val substance = substanceRepo.getSubstance(substanceName)
         val isPredefinedSubstance = substance != null
@@ -201,7 +203,7 @@ class AddIngestionSearchViewModel @Inject constructor(
 
     private fun getCustomUnitSuggestionsForSubstance(
         ingestionsForSubstanceAndRoute: List<IngestionWithCompanionAndCustomUnit>,
-        color: AdaptiveColor
+        color: SubstanceColor
     ): List<Suggestion.CustomUnitSuggestion> {
         val groupedByUnit = ingestionsForSubstanceAndRoute.filter { it.customUnit != null && !(it.customUnit?.isArchived ?: true) }
             .groupBy { it.customUnit }
@@ -220,7 +222,7 @@ class AddIngestionSearchViewModel @Inject constructor(
             }
             return@mapNotNull Suggestion.CustomUnitSuggestion(
                 customUnit = customUnit,
-                adaptiveColor = color,
+                color = color,
                 dosesAndUnit = dosesAndUnit,
                 sortInstant = ingestionsWithUnit.mapNotNull { it.ingestion.creationDate }
                     .maxOfOrNull { it } ?: Instant.MIN
@@ -232,7 +234,7 @@ class AddIngestionSearchViewModel @Inject constructor(
         ingestionsForSubstanceAndRoute: List<IngestionWithCompanionAndCustomUnit>,
         substance: Substance,
         administrationRoute: AdministrationRoute,
-        color: AdaptiveColor
+        color: SubstanceColor
     ): Suggestion.PureSubstanceSuggestion? {
         val ingestionsToConsider = ingestionsForSubstanceAndRoute.filter { it.customUnit == null }
             .map { it.ingestion }
@@ -240,19 +242,19 @@ class AddIngestionSearchViewModel @Inject constructor(
             return null
         }
         val dosesAndUnit = ingestionsToConsider
-                .mapNotNull { ingestion ->
-                    val unit = ingestion.units ?: return@mapNotNull null
-                    return@mapNotNull DoseAndUnit(
-                        dose = ingestion.dose,
-                        unit = unit,
-                        isEstimate = ingestion.isDoseAnEstimate,
-                        estimatedDoseStandardDeviation = ingestion.estimatedDoseStandardDeviation
-                    )
-                }.distinctBy { it.comparatorValue }.take(8)
+            .mapNotNull { ingestion ->
+                val unit = ingestion.units ?: return@mapNotNull null
+                return@mapNotNull DoseAndUnit(
+                    dose = ingestion.dose,
+                    unit = unit,
+                    isEstimate = ingestion.isDoseAnEstimate,
+                    estimatedDoseStandardDeviation = ingestion.estimatedDoseStandardDeviation
+                )
+            }.distinctBy { it.comparatorValue }.take(8)
         return Suggestion.PureSubstanceSuggestion(
             administrationRoute = administrationRoute,
             substanceName = substance.name,
-            adaptiveColor = color,
+            color = color,
             dosesAndUnit = dosesAndUnit,
             sortInstant = ingestionsToConsider.mapNotNull { it.creationDate }
                 .maxOfOrNull { it } ?: Instant.MIN
@@ -263,7 +265,7 @@ class AddIngestionSearchViewModel @Inject constructor(
         ingestionsForSubstanceAndRoute: List<IngestionWithCompanionAndCustomUnit>,
         customSubstance: CustomSubstance,
         administrationRoute: AdministrationRoute,
-        color: AdaptiveColor
+        color: SubstanceColor
     ): Suggestion.CustomSubstanceSuggestion? {
         val ingestionsToConsider = ingestionsForSubstanceAndRoute.filter { it.customUnit == null }
             .map { it.ingestion }
@@ -271,19 +273,19 @@ class AddIngestionSearchViewModel @Inject constructor(
             return null
         }
         val dosesAndUnit = ingestionsToConsider
-                .mapNotNull { ingestion ->
-                    val unit = ingestion.units ?: return@mapNotNull null
-                    return@mapNotNull DoseAndUnit(
-                        dose = ingestion.dose,
-                        unit = unit,
-                        isEstimate = ingestion.isDoseAnEstimate,
-                        estimatedDoseStandardDeviation = ingestion.estimatedDoseStandardDeviation
-                    )
-                }.distinctBy { it.comparatorValue }.take(8)
+            .mapNotNull { ingestion ->
+                val unit = ingestion.units ?: return@mapNotNull null
+                return@mapNotNull DoseAndUnit(
+                    dose = ingestion.dose,
+                    unit = unit,
+                    isEstimate = ingestion.isDoseAnEstimate,
+                    estimatedDoseStandardDeviation = ingestion.estimatedDoseStandardDeviation
+                )
+            }.distinctBy { it.comparatorValue }.take(8)
         return Suggestion.CustomSubstanceSuggestion(
             administrationRoute = administrationRoute,
             customSubstance = customSubstance,
-            adaptiveColor = color,
+            color = color,
             dosesAndUnit = dosesAndUnit,
             sortInstant = ingestionsToConsider.mapNotNull { it.creationDate }
                 .maxOfOrNull { it } ?: Instant.MIN

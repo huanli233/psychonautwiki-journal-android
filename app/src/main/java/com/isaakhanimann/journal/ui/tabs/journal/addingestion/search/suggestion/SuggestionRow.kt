@@ -96,7 +96,7 @@ fun PureSubstanceSuggestionRow(
             .padding(horizontal = horizontalPadding)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            ColorCircle(adaptiveColor = pureSubstanceSuggestion.adaptiveColor)
+            ColorCircle(color = pureSubstanceSuggestion.color)
             Text(
                 text = pureSubstanceSuggestion.substanceName + " " + pureSubstanceSuggestion.administrationRoute.displayText.lowercase(),
                 style = MaterialTheme.typography.titleMedium
@@ -171,7 +171,7 @@ fun CustomUnitSuggestionRow(
     ) {
         val customUnit = customUnitSuggestion.customUnit
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            ColorCircle(adaptiveColor = customUnitSuggestion.adaptiveColor)
+            ColorCircle(color = customUnitSuggestion.color)
             Text(
                 text = customUnit.substanceName + " " + customUnit.administrationRoute.displayText.lowercase() + ", " + customUnit.name,
                 style = MaterialTheme.typography.titleMedium
@@ -221,7 +221,7 @@ fun CustomSubstanceSuggestionRow(
             .padding(horizontal = horizontalPadding)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            ColorCircle(adaptiveColor = customSubstanceSuggestion.adaptiveColor)
+            ColorCircle(color = customSubstanceSuggestion.color)
             Text(
                 text = customSubstanceSuggestion.customSubstance.name + " " + customSubstanceSuggestion.administrationRoute.displayText.lowercase(),
                 style = MaterialTheme.typography.titleMedium

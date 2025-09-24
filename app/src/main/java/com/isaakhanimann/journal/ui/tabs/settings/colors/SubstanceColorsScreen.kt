@@ -18,22 +18,35 @@
 
 package com.isaakhanimann.journal.ui.tabs.settings.colors
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -42,8 +55,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.isaakhanimann.journal.R
 import com.isaakhanimann.journal.data.room.experiences.entities.AdaptiveColor
+import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
 import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceCompanion
+import com.isaakhanimann.journal.data.room.experiences.entities.getSubstanceColor
 import com.isaakhanimann.journal.ui.tabs.journal.addingestion.time.ColorPicker
+import com.isaakhanimann.journal.ui.tabs.journal.addingestion.time.SubstanceColorPicker
 import com.isaakhanimann.journal.ui.theme.horizontalPadding
 
 @Composable
@@ -87,10 +103,16 @@ fun SubstanceColorsScreenPreview() {
 @Composable
 fun SubstanceColorsScreenContent(
     substanceCompanions: List<SubstanceCompanion>,
-    updateColor: (color: AdaptiveColor, substanceName: String) -> Unit,
+    updateColor: (color: SubstanceColor, substanceName: String) -> Unit,
     alreadyUsedColors: List<AdaptiveColor>,
     otherColors: List<AdaptiveColor>
 ) {
+    var substanceNameToEdit by remember { mutableStateOf<String?>(null) }
+
+    val companionToEdit = substanceNameToEdit?.let { name ->
+        substanceCompanions.find { it.substanceName == name }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(title = { Text(stringResource(R.string.substance_colors)) })
@@ -106,25 +128,52 @@ fun SubstanceColorsScreenContent(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 5.dp),
+                        .clickable { substanceNameToEdit = substanceCompanion.substanceName }
+                        .padding(vertical = 12.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         text = substanceCompanion.substanceName,
-                        style = MaterialTheme.typography.titleMedium
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f)
                     )
-                    ColorPicker(
-                        selectedColor = substanceCompanion.color,
-                        onChangeOfColor = {
-                            updateColor(it, substanceCompanion.substanceName)
-                        },
-                        alreadyUsedColors = alreadyUsedColors,
-                        otherColors = otherColors
-                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    ColorCircleDisplay(color = substanceCompanion.getSubstanceColor())
                 }
                 HorizontalDivider()
             }
         }
+
+        if (companionToEdit != null) {
+            AlertDialog(
+                onDismissRequest = { substanceNameToEdit = null },
+                title = { Text(text = stringResource(R.string.something_color, companionToEdit.substanceName)) },
+                text = {
+                    SubstanceColorPicker(
+                        selectedColor = companionToEdit.getSubstanceColor(),
+                        onChangeOfColor = { newColor ->
+                            updateColor(newColor, companionToEdit.substanceName)
+                        },
+                        alreadyUsedColors = alreadyUsedColors,
+                        otherColors = otherColors
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = { substanceNameToEdit = null }) {
+                        Text(stringResource(R.string.close))
+                    }
+                }
+            )
+        }
     }
+}
+
+@Composable
+private fun ColorCircleDisplay(color: SubstanceColor) {
+    Box(
+        modifier = Modifier
+            .size(32.dp)
+            .background(color.toColor(), CircleShape)
+    )
 }

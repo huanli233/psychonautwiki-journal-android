@@ -22,7 +22,7 @@ import androidx.annotation.Keep
 import com.isaakhanimann.journal.data.room.experiences.entities.AdaptiveColor
 import kotlinx.serialization.Serializable
 
-@Keep // to fix this issue: https://issuetracker.google.com/issues/358137294. Apparently all enums used as navigation args are getting their metadata removed in minified builds.
+@Keep
 @Serializable
 enum class AdministrationRoute {
     ORAL {

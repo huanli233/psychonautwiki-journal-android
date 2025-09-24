@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.unit.Density
 import com.isaakhanimann.journal.data.room.experiences.entities.AdaptiveColor
+import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
 import com.isaakhanimann.journal.data.substances.classes.roa.RoaDuration
 import com.isaakhanimann.journal.ui.tabs.journal.experience.timeline.WeightedLine
 import com.isaakhanimann.journal.ui.tabs.journal.experience.timeline.drawTimeRange
@@ -32,7 +33,7 @@ import kotlin.math.max
 
 class GroupDrawable(
     val startTimeGraph: Instant,
-    val color: AdaptiveColor,
+    val color: SubstanceColor,
     roaDuration: RoaDuration?,
     weightedLines: List<WeightedLine>,
     val areSubstanceHeightsIndependent: Boolean,

@@ -20,6 +20,7 @@ package com.isaakhanimann.journal.ui.tabs.stats
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.isaakhanimann.journal.data.room.experiences.entities.AdaptiveColor
+import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
 import com.isaakhanimann.journal.data.substances.AdministrationRoute
 
 class StatsPreviewProvider : PreviewParameterProvider<StatsModel> {
@@ -32,7 +33,7 @@ class StatsPreviewProvider : PreviewParameterProvider<StatsModel> {
             statItems = listOf(
                 StatItem(
                     substanceName = "LSD",
-                    color = AdaptiveColor.BLUE,
+                    color = SubstanceColor.Predefined(AdaptiveColor.BLUE),
                     experienceCount = 3,
                     ingestionCount = 3,
                     routeCounts = listOf(
@@ -50,7 +51,7 @@ class StatsPreviewProvider : PreviewParameterProvider<StatsModel> {
                 ),
                 StatItem(
                     substanceName = "MDMA",
-                    color = AdaptiveColor.PINK,
+                    color = SubstanceColor.Predefined(AdaptiveColor.PINK),
                     ingestionCount = 8,
                     experienceCount = 2,
                     routeCounts = listOf(
@@ -72,7 +73,7 @@ class StatsPreviewProvider : PreviewParameterProvider<StatsModel> {
                 ),
                 StatItem(
                     substanceName = "Cocaine",
-                    color = AdaptiveColor.ORANGE,
+                    color = SubstanceColor.Predefined(AdaptiveColor.ORANGE),
                     ingestionCount = 11,
                     experienceCount = 1,
                     routeCounts = listOf(
@@ -85,7 +86,7 @@ class StatsPreviewProvider : PreviewParameterProvider<StatsModel> {
                 ),
                 StatItem(
                     substanceName = "Ketamine",
-                    color = AdaptiveColor.PURPLE,
+                    color = SubstanceColor.Predefined(AdaptiveColor.PURPLE),
                     experienceCount = 1,
                     ingestionCount = 1,
                     routeCounts = listOf(
@@ -105,11 +106,11 @@ class StatsPreviewProvider : PreviewParameterProvider<StatsModel> {
             chartBuckets = listOf(
                 listOf(
                     ColorCount(
-                        color = AdaptiveColor.PINK,
+                        color = SubstanceColor.Predefined(AdaptiveColor.PINK),
                         count = 2
                     ),
                     ColorCount(
-                        color = AdaptiveColor.BLUE,
+                        color = SubstanceColor.Predefined(AdaptiveColor.BLUE),
                         count = 3
                     ),
                 ),
@@ -119,13 +120,13 @@ class StatsPreviewProvider : PreviewParameterProvider<StatsModel> {
                 listOf(),
                 listOf(
                     ColorCount(
-                        color = AdaptiveColor.ORANGE,
+                        color = SubstanceColor.Predefined(AdaptiveColor.ORANGE),
                         count = 1
                     ),
                 ),
                 listOf(
                     ColorCount(
-                        color = AdaptiveColor.PURPLE,
+                        color = SubstanceColor.Predefined(AdaptiveColor.PURPLE),
                         count = 1
                     )
                 )

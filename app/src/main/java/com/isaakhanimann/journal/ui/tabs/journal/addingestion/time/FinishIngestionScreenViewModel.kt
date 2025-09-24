@@ -29,7 +29,9 @@ import com.isaakhanimann.journal.data.room.experiences.ExperienceRepository
 import com.isaakhanimann.journal.data.room.experiences.entities.AdaptiveColor
 import com.isaakhanimann.journal.data.room.experiences.entities.Experience
 import com.isaakhanimann.journal.data.room.experiences.entities.Ingestion
+import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
 import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceCompanion
+import com.isaakhanimann.journal.data.room.experiences.entities.getSubstanceColor
 import com.isaakhanimann.journal.data.room.experiences.relations.ExperienceWithIngestions
 import com.isaakhanimann.journal.data.substances.AdministrationRoute
 import com.isaakhanimann.journal.ui.main.navigation.graphs.FinishIngestionRoute
@@ -56,6 +58,8 @@ import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 
+// ... (const and enum definitions remain the same) ...
+
 const val hourLimitToSeparateIngestions: Long = 12
 
 enum class IngestionTimePickerOption {
@@ -78,7 +82,7 @@ class FinishIngestionScreenViewModel @Inject constructor(
     val isEnteredTitleOk get() = enteredTitle.isNotEmpty()
     var consumerName by mutableStateOf("")
 
-
+    // ... (unchanged functions like onChangeTimePickerOption) ...
     fun onChangeTimePickerOption(ingestionTimePickerOption: IngestionTimePickerOption) =
         viewModelScope.launch {
             ingestionTimePickerOptionFlow.emit(ingestionTimePickerOption)
@@ -96,8 +100,7 @@ class FinishIngestionScreenViewModel @Inject constructor(
         )
 
     var isLoadingColor by mutableStateOf(true)
-    var isShowingColorPicker by mutableStateOf(false)
-    var selectedColor by mutableStateOf(AdaptiveColor.BLUE)
+    var selectedColor by mutableStateOf<SubstanceColor>(SubstanceColor.Predefined(AdaptiveColor.BLUE))
     var note by mutableStateOf("")
     private var hasTitleBeenChanged = false
 
@@ -131,13 +134,14 @@ class FinishIngestionScreenViewModel @Inject constructor(
 
     val alreadyUsedColorsFlow: StateFlow<List<AdaptiveColor>> =
         companionFlow.map { companions ->
-            companions.map { it.color }.distinct()
+            companions.mapNotNull { it.color }.distinct()
         }.stateIn(
             initialValue = emptyList(),
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000)
         )
 
+    // ... (rest of the ViewModel is mostly the same, only createAndSaveIngestion changes) ...
     val otherColorsFlow: StateFlow<List<AdaptiveColor>> =
         alreadyUsedColorsFlow.map { alreadyUsedColors ->
             AdaptiveColor.entries.filter {
@@ -190,14 +194,12 @@ class FinishIngestionScreenViewModel @Inject constructor(
             val allCompanions = experienceRepo.getAllSubstanceCompanionsFlow().first()
             val thisCompanion = allCompanions.firstOrNull { it.substanceName == substanceName }
             substanceCompanion = thisCompanion
-            if (thisCompanion == null) {
-                isShowingColorPicker = true
-                val alreadyUsedColors = allCompanions.map { it.color }
+            selectedColor = thisCompanion?.getSubstanceColor() ?: run {
+                val alreadyUsedColors = allCompanions.mapNotNull { it.color }
                 val otherColors = AdaptiveColor.entries.filter { !alreadyUsedColors.contains(it) }
-                selectedColor = otherColors.filter { it.isPreferred }.randomOrNull()
+                val randomColor = otherColors.filter { it.isPreferred }.randomOrNull()
                     ?: otherColors.randomOrNull() ?: AdaptiveColor.entries.random()
-            } else {
-                selectedColor = thisCompanion.color
+                SubstanceColor.Predefined(randomColor)
             }
             isLoadingColor = false
         }
@@ -272,10 +274,18 @@ class FinishIngestionScreenViewModel @Inject constructor(
     }
 
     private suspend fun createAndSaveIngestion() {
-        val substanceCompanion = SubstanceCompanion(
-            substanceName,
-            color = selectedColor
-        )
+        val substanceCompanion = when(val color = selectedColor) {
+            is SubstanceColor.Predefined -> SubstanceCompanion(
+                substanceName = substanceName,
+                color = color.color,
+                customColor = null
+            )
+            is SubstanceColor.Custom -> SubstanceCompanion(
+                substanceName = substanceName,
+                color = null,
+                customColor = color.value
+            )
+        }
         val oldIdToUse = selectedExperienceFlow.firstOrNull()?.experience?.id
         if (oldIdToUse == null) {
             val newIdToUse = newExperienceIdToUseFlow.firstOrNull() ?: 1
@@ -287,7 +297,7 @@ class FinishIngestionScreenViewModel @Inject constructor(
                 text = "",
                 creationDate = Instant.now(),
                 sortDate = ingestionTime,
-                location = null // todo: allow to add real location
+                location = null
             )
             val newIngestion = createNewIngestion(newExperience.id)
             experienceRepo.insertIngestionExperienceAndCompanion(
@@ -303,7 +313,6 @@ class FinishIngestionScreenViewModel @Inject constructor(
             )
         }
     }
-
     private suspend fun createNewIngestion(experienceId: Int): Ingestion {
         val time = localDateTimeStartFlow.first().atZone(ZoneId.systemDefault()).toInstant()
         val ingestionTimePickerOption = ingestionTimePickerOptionFlow.first()
@@ -323,7 +332,7 @@ class FinishIngestionScreenViewModel @Inject constructor(
             units = units,
             experienceId = experienceId,
             notes = note,
-            stomachFullness = null, // todo: allow to add real stomach fullness
+            stomachFullness = null,
             consumerName = consumerName.ifBlank {
                 null
             },

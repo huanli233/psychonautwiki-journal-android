@@ -23,6 +23,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.isaakhanimann.journal.data.room.experiences.ExperienceRepository
+import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
 import com.isaakhanimann.journal.data.room.experiences.entities.custom.toRoaDose
 import com.isaakhanimann.journal.data.room.experiences.entities.custom.toRoaDuration
 import com.isaakhanimann.journal.data.room.experiences.relations.IngestionWithCompanionAndCustomUnit
@@ -213,7 +214,9 @@ class TimelineScreenViewModel @Inject constructor(
             val dataForTimedNotes =
                 newTimedNotes.filter { it.isPartOfTimeline }
                     .map {
-                        DataForOneTimedNote(time = it.time, color = it.color)
+                        val substanceColor = it.customColor?.let { custom -> SubstanceColor.Custom(custom) }
+                            ?: it.color?.let { adaptive -> SubstanceColor.Predefined(adaptive) }
+                        DataForOneTimedNote(time = it.time, color = substanceColor)
                     }
             val isWorthDrawing =
                 dataForEffectLines.isNotEmpty() && !(dataForEffectLines.all { it.roaDuration == null } && newRatings.isEmpty() && newTimedNotes.isEmpty())
@@ -231,10 +234,10 @@ class TimelineScreenViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.Default)
         .stateIn(
-        initialValue = TimelineDisplayOption.Loading,
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000)
-    )
+            initialValue = TimelineDisplayOption.Loading,
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000)
+        )
 
     private fun getIngestionElements(sortedIngestionsWith: List<IngestionWithAssociatedData>): List<IngestionElement> {
         return sortedIngestionsWith.map { ingestionWith ->

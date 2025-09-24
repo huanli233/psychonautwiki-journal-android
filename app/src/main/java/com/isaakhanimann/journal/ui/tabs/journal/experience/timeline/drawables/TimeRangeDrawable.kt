@@ -1,10 +1,11 @@
 package com.isaakhanimann.journal.ui.tabs.journal.experience.timeline.drawables
 
 import com.isaakhanimann.journal.data.room.experiences.entities.AdaptiveColor
+import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
 import com.isaakhanimann.journal.data.substances.classes.roa.RoaDuration
 
 data class TimeRangeDrawable(
-    val color: AdaptiveColor,
+    val color: SubstanceColor,
     val ingestionStartInSeconds: Float,
     val ingestionEndInSeconds: Float,
     val intersectionCountWithPreviousRanges: Int,

@@ -10,8 +10,7 @@
  * PsychonautWiki Journal is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
+ * GNU General Public License for more details *
  * You should have received a copy of the GNU General Public License
  * along with PsychonautWiki Journal.  If not, see https://www.gnu.org/licenses/gpl-3.0.en.html.
  */
@@ -21,9 +20,10 @@ package com.isaakhanimann.journal.ui.tabs.stats
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.isaakhanimann.journal.data.room.experiences.ExperienceRepository
-import com.isaakhanimann.journal.data.room.experiences.entities.AdaptiveColor
 import com.isaakhanimann.journal.data.room.experiences.entities.Ingestion
+import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
 import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceCompanion
+import com.isaakhanimann.journal.data.room.experiences.entities.getSubstanceColor
 import com.isaakhanimann.journal.data.room.experiences.relations.ExperienceWithIngestionsAndCompanions
 import com.isaakhanimann.journal.data.room.experiences.relations.IngestionWithCompanionAndCustomUnit
 import com.isaakhanimann.journal.data.substances.AdministrationRoute
@@ -138,7 +138,7 @@ class StatsViewModel @Inject constructor(
                 val oneCompanion =
                     companions.firstOrNull { it.substanceName == name } ?: return@mapNotNull null
                 return@mapNotNull ColorCount(
-                    color = oneCompanion.color,
+                    color = oneCompanion.getSubstanceColor(),
                     count = sameNames.size
                 )
             }.sortedByDescending { it.count }
@@ -164,7 +164,7 @@ class StatsViewModel @Inject constructor(
             val experienceCounts = experienceNamesMap[name]?.size ?: 0
             StatItem(
                 substanceName = name,
-                color = oneCompanion.color,
+                color = oneCompanion.getSubstanceColor(),
                 experienceCount = experienceCounts,
                 ingestionCount = groupedIngestions.size,
                 routeCounts = getRouteCounts(groupedIngestions.map { it.ingestion }),
@@ -245,13 +245,13 @@ data class StatsModel(
 )
 
 data class ColorCount(
-    val color: AdaptiveColor,
+    val color: SubstanceColor,
     val count: Int
 )
 
 data class StatItem(
     val substanceName: String,
-    val color: AdaptiveColor,
+    val color: SubstanceColor,
     val experienceCount: Int,
     val ingestionCount: Int,
     val routeCounts: List<RouteCount>,
@@ -293,7 +293,7 @@ enum class TimePickerOption {
         override val tabIndex = 2
         override val bucketCount = 26
         override val oneBucketSize: Period =
-            Period.ofDays(7) // the max time unit that can be used for subtraction is days
+            Period.ofDays(7)
         override val allBucketSizes: Period = Period.ofDays(7 * bucketCount)
     },
     MONTHS_12 {
@@ -323,6 +323,6 @@ enum class TimePickerOption {
 
 fun Instant.getEndOfDay(): Instant {
     return this.atOffset(ZoneOffset.UTC)
-        .with(LocalTime.of(23,59,59, this.nano))
+        .with(LocalTime.of(23, 59, 59, this.nano))
         .toInstant()
 }

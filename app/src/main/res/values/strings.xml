@@ -395,4 +395,9 @@
     <string name="edit_custom_unit">Edit custom unit</string>
     <string name="archive_title">Archive</string>
     <string name="clear_search">Clear search</string>
+    <string name="already_used">Already used</string>
+    <string name="other_colors">Other colors</string>
+    <string name="add_custom_color">Add custom color</string>
+    <string name="select_color">Select color</string>
+    <string name="ok">OK</string>
 </resources>

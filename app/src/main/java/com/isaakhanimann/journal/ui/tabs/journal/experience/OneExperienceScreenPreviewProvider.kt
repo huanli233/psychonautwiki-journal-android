@@ -147,6 +147,7 @@ class OneExperienceScreenPreviewProvider :
                     )!!,
                     note = "Onset start",
                     color = AdaptiveColor.PURPLE,
+                    customColor = null,
                     experienceId = 0,
                     isPartOfTimeline = true
                 ),

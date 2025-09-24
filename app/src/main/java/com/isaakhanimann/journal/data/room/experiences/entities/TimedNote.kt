@@ -29,7 +29,8 @@ data class TimedNote(
     var creationDate: Instant = Instant.now(),
     var time: Instant,
     var note: String,
-    var color: AdaptiveColor,
+    var color: AdaptiveColor?,
+    var customColor: Int? = null,
     var experienceId: Int,
     var isPartOfTimeline: Boolean
 )

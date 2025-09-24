@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -23,6 +24,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
 import com.isaakhanimann.journal.data.room.experiences.entities.TimedNote
 
 @Preview(showBackground = true)
@@ -48,16 +50,23 @@ fun TimedNoteRow(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         modifier = modifier.height(intrinsicSize = IntrinsicSize.Min)
     ) {
-        val isDarkTheme = isSystemInDarkTheme()
         val strokeWidth = 2.dp
+
+        // 从 TimedNote 实体中获取 SubstanceColor
+        val substanceColor = remember(timedNote) {
+            timedNote.customColor?.let { SubstanceColor.Custom(it) }
+                ?: timedNote.color?.let { SubstanceColor.Predefined(it) }
+        }
+
+        val color = substanceColor?.toColor()
         Canvas(modifier = Modifier
             .fillMaxHeight()
             .width(strokeWidth)
             .padding(vertical = 4.dp)) {
-            if (timedNote.isPartOfTimeline) {
+            if (timedNote.isPartOfTimeline && substanceColor != null) {
                 val strokeWidthPx = strokeWidth.toPx()
                 drawLine(
-                    color = timedNote.color.getComposeColor(isDarkTheme),
+                    color = color!!,
                     start = Offset(x = center.x, y = 0f),
                     end = Offset(x = center.x, y = size.height),
                     strokeWidth = strokeWidthPx,

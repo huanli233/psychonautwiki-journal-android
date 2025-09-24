@@ -27,7 +27,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.isaakhanimann.journal.data.room.experiences.ExperienceRepository
 import com.isaakhanimann.journal.data.room.experiences.entities.AdaptiveColor
+import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
 import com.isaakhanimann.journal.data.room.experiences.entities.TimedNote
+import com.isaakhanimann.journal.data.room.experiences.entities.getSubstanceColor
 import com.isaakhanimann.journal.ui.main.navigation.graphs.EditTimedNoteRoute
 import com.isaakhanimann.journal.ui.utils.getInstant
 import com.isaakhanimann.journal.ui.utils.getLocalDateTime
@@ -49,7 +51,7 @@ class EditTimedNoteViewModel @Inject constructor(
     state: SavedStateHandle
 ) : ViewModel() {
     var note by mutableStateOf("")
-    var color by mutableStateOf(AdaptiveColor.BLUE)
+    var color by mutableStateOf<SubstanceColor>(SubstanceColor.Predefined(AdaptiveColor.BLUE))
     var isPartOfTimeline by mutableStateOf(true)
     var localDateTimeFlow = MutableStateFlow(LocalDateTime.now())
     private var timedNote: TimedNote? = null
@@ -68,7 +70,9 @@ class EditTimedNoteViewModel @Inject constructor(
                 localDateTimeFlow.emit(time.getLocalDateTime())
             }
             note = loadedNote.note
-            color = loadedNote.color
+            color = loadedNote.customColor?.let { SubstanceColor.Custom(it) }
+                ?: loadedNote.color?.let { SubstanceColor.Predefined(it) }
+                        ?: SubstanceColor.Predefined(AdaptiveColor.BLUE)
             isPartOfTimeline = loadedNote.isPartOfTimeline
         }
     }
@@ -88,7 +92,7 @@ class EditTimedNoteViewModel @Inject constructor(
         note = newNote
     }
 
-    fun onChangeColor(newColor: AdaptiveColor) {
+    fun onChangeColor(newColor: SubstanceColor) {
         color = newColor
     }
 
@@ -97,9 +101,15 @@ class EditTimedNoteViewModel @Inject constructor(
 
     val alreadyUsedColorsFlow: StateFlow<List<AdaptiveColor>> =
         ingestionsFlow.combine(timedNotesFlow) { ingestions, notes ->
-            val companionColors = ingestions.mapNotNull { it.substanceCompanion?.color }
-            val noteColors = notes.map { it.color }
-            return@combine (companionColors + noteColors).distinct()
+            val companionSubstanceColors = ingestions.mapNotNull { it.substanceCompanion?.getSubstanceColor() }
+            val noteSubstanceColors = notes.map { timedNote ->
+                timedNote.customColor?.let { SubstanceColor.Custom(it) }
+                    ?: timedNote.color?.let { SubstanceColor.Predefined(it) }
+                    ?: SubstanceColor.Predefined(AdaptiveColor.BLUE)
+            }
+            return@combine (companionSubstanceColors + noteSubstanceColors)
+                .mapNotNull { (it as? SubstanceColor.Predefined)?.color }
+                .distinct()
         }.stateIn(
             initialValue = emptyList(),
             scope = viewModelScope,
@@ -129,9 +139,14 @@ class EditTimedNoteViewModel @Inject constructor(
         viewModelScope.launch {
             val selectedInstant = localDateTimeFlow.firstOrNull()?.getInstant() ?: return@launch
             timedNote?.let {
+                val (adaptiveColor, customColor) = when (val c = color) {
+                    is SubstanceColor.Predefined -> Pair(c.color, null)
+                    is SubstanceColor.Custom -> Pair(null, c.value)
+                }
                 it.time = selectedInstant
                 it.note = note
-                it.color = color
+                it.color = adaptiveColor
+                it.customColor = customColor
                 it.isPartOfTimeline = isPartOfTimeline
                 experienceRepo.update(it)
             }

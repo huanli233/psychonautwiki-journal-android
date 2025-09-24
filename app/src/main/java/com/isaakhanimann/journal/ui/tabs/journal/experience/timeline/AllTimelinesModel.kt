@@ -18,7 +18,7 @@
 
 package com.isaakhanimann.journal.ui.tabs.journal.experience.timeline
 
-import com.isaakhanimann.journal.data.room.experiences.entities.AdaptiveColor
+import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
 import com.isaakhanimann.journal.data.substances.classes.roa.RoaDuration
 import com.isaakhanimann.journal.ui.tabs.journal.experience.components.DataForOneEffectLine
 import com.isaakhanimann.journal.ui.tabs.journal.experience.timeline.drawables.AxisDrawable
@@ -40,7 +40,7 @@ class AllTimelinesModel(
     val axisDrawable: AxisDrawable
 
     data class RoaGroup(
-        val color: AdaptiveColor,
+        val color: SubstanceColor,
         val roaDuration: RoaDuration?,
         val weightedLines: List<WeightedLine>
     )
@@ -48,10 +48,10 @@ class AllTimelinesModel(
     init {
         val ratingTimes = dataForRatings.map { it.time }
         val ingestionTimes = dataForLines.map { it.startTime }
-        val noteTimes = timedNotes.map { it.time }
+        val noteTimes = timedNotes.mapNotNull { it.time }
         val allStartTimeCandidates = ratingTimes + ingestionTimes + noteTimes
         startTime =
-            allStartTimeCandidates.reduce { acc, date -> if (acc.isBefore(date)) acc else date }
+            allStartTimeCandidates.reduceOrNull { acc, date -> if (acc.isBefore(date)) acc else date } ?: Instant.now()
         val roaGroups = dataForLines.groupBy { it.substanceName }
             .flatMap { substanceGroup ->
                 val linesPerSubstance = substanceGroup.value

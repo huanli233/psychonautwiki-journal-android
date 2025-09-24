@@ -99,4 +99,5 @@ dependencies {
 
     implementation(libs.androidx.core.splashscreen)
 
+    implementation("com.github.skydoves:colorpicker-compose:1.1.2")
 }

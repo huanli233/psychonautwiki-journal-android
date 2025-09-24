@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import com.isaakhanimann.journal.data.room.experiences.entities.getSubstanceColor
 import com.isaakhanimann.journal.data.room.experiences.relations.ExperienceWithIngestionsCompanionsAndRatings
 import com.isaakhanimann.journal.data.room.experiences.relations.IngestionWithCompanionAndCustomUnit
 import com.isaakhanimann.journal.ui.utils.getDateWithWeekdayText
@@ -121,9 +122,9 @@ fun ExperienceRow(
 }
 
 
+
 @Composable
 fun ColorRectangle(ingestions: List<IngestionWithCompanionAndCustomUnit>) {
-    val isDarkTheme = isSystemInDarkTheme()
     val width = 6.dp
     val cornerRadius = 3.dp
 
@@ -134,14 +135,16 @@ fun ColorRectangle(ingestions: List<IngestionWithCompanionAndCustomUnit>) {
 
     when {
         ingestions.size >= 2 -> {
-            val brush = remember(ingestions, isDarkTheme) {
-                val colors = ingestions.map { it.substanceCompanion?.color?.getComposeColor(isDarkTheme) ?: Color.Gray }
+            val colors = ingestions.map {
+                it.substanceCompanion?.getSubstanceColor()?.toColor() ?: Color.Gray
+            }
+            val brush = remember(ingestions) {
                 Brush.verticalGradient(colors = colors)
             }
             Box(modifier = modifier.background(brush))
         }
         ingestions.size == 1 -> {
-            val color = ingestions.first().substanceCompanion?.color?.getComposeColor(isDarkTheme) ?: Color.Gray
+            val color = ingestions.first().substanceCompanion?.getSubstanceColor()?.toColor() ?: Color.Gray
             Box(modifier = modifier.background(color))
         }
         else -> {

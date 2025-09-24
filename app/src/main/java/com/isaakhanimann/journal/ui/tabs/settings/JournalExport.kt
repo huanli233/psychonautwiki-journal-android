@@ -101,6 +101,7 @@ data class TimedNoteSerializable(
     @Serializable(with= InstantSerializer::class) var creationDate: Instant,
     @Serializable(with= InstantSerializer::class) var time: Instant,
     var note: String,
-    var color: AdaptiveColor,
+    var color: AdaptiveColor?,
+    var customColor: Int? = null,
     var isPartOfTimeline: Boolean
 )

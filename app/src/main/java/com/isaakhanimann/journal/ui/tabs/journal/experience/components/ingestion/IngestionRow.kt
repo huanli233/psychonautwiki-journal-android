@@ -18,6 +18,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import com.isaakhanimann.journal.data.room.experiences.entities.AdaptiveColor
+import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
+import com.isaakhanimann.journal.data.room.experiences.entities.getSubstanceColor
 import com.isaakhanimann.journal.ui.tabs.journal.experience.components.DotRows
 import com.isaakhanimann.journal.ui.tabs.journal.experience.models.IngestionElement
 
@@ -39,7 +41,7 @@ fun IngestionRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        VerticalLine(color = ingestionWithCompanionAndCustomUnit.substanceCompanion?.color ?: AdaptiveColor.RED)
+        VerticalLine(color = ingestionWithCompanionAndCustomUnit.substanceCompanion?.getSubstanceColor() ?: SubstanceColor.Predefined(AdaptiveColor.RED))
 
         Column(
             modifier = Modifier.weight(1f),

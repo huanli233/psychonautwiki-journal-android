@@ -9,14 +9,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.isaakhanimann.journal.data.room.experiences.entities.AdaptiveColor
-
+import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
 
 @Composable
-fun VerticalLine(color: AdaptiveColor) {
-    val isDarkTheme = isSystemInDarkTheme()
+fun VerticalLine(color: SubstanceColor) {
     Surface(
         shape = RoundedCornerShape(percent = 50),
-        color = color.getComposeColor(isDarkTheme),
+        color = color.toColor(),
         modifier = Modifier
             .height(40.dp)
             .width(4.dp)

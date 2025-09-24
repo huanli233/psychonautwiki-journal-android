@@ -55,6 +55,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import com.isaakhanimann.journal.data.room.experiences.entities.AdaptiveColor
 import com.isaakhanimann.journal.data.room.experiences.entities.ShulginRatingOption
+import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
 import com.isaakhanimann.journal.ui.tabs.journal.experience.components.DataForOneEffectLine
 import com.isaakhanimann.journal.ui.tabs.journal.experience.components.TimeDisplayOption
 import com.isaakhanimann.journal.ui.tabs.journal.experience.components.getDurationText
@@ -99,11 +100,11 @@ fun AllTimelinesPreview(
             timedNotes = listOf(
                 DataForOneTimedNote(
                     time = Instant.now().minus(30, ChronoUnit.MINUTES),
-                    color = AdaptiveColor.PURPLE
+                    color = SubstanceColor.Predefined(AdaptiveColor.PURPLE)
                 ),
                 DataForOneTimedNote(
                     time = Instant.now().plus(30, ChronoUnit.MINUTES),
-                    color = AdaptiveColor.BLUE
+                    color = SubstanceColor.Predefined(AdaptiveColor.BLUE)
                 ),
             ),
             areSubstanceHeightsIndependent = false
@@ -207,7 +208,7 @@ fun AllTimelines(
                 drawTimedNote(
                     startTime = model.startTime,
                     noteTime = dataForOneTimedNote.time,
-                    color = dataForOneTimedNote.color,
+                    color = dataForOneTimedNote.color ?: SubstanceColor.Predefined(AdaptiveColor.BLUE),
                     pixelsPerSec = pixelsPerSec,
                     canvasHeightOuter = canvasHeightWithVerticalLine,
                     isDarkTheme = isDarkTheme
@@ -477,14 +478,20 @@ fun DrawScope.drawTimedNote(
     noteTime: Instant,
     pixelsPerSec: Float,
     canvasHeightOuter: Float,
-    color: AdaptiveColor,
+    color: SubstanceColor,
     isDarkTheme: Boolean
 ) {
     val timeStartInSec = Duration.between(startTime, noteTime).seconds
     val timeStartX = timeStartInSec * pixelsPerSec
     val strokeWidth = 3.dp.toPx()
+
+    val composeColor = when(color) {
+        is SubstanceColor.Predefined -> color.color.getComposeColor(isDarkTheme)
+        is SubstanceColor.Custom -> Color(color.value)
+    }
+
     drawLine(
-        color = color.getComposeColor(isDarkTheme = isDarkTheme),
+        color = composeColor,
         start = Offset(x = timeStartX, y = 0f),
         end = Offset(x = timeStartX, y = canvasHeightOuter),
         strokeWidth = strokeWidth,
