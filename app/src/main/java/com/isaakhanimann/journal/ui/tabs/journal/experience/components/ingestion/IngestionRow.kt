@@ -4,14 +4,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
@@ -33,10 +32,19 @@ fun IngestionRow(
     val ingestion = ingestionWithCompanionAndCustomUnit.ingestion
     val customUnit = ingestionWithCompanionAndCustomUnit.customUnit
 
-    ListItem(
-        modifier = modifier,
-        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-        headlineContent = {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        VerticalLine(color = ingestionWithCompanionAndCustomUnit.substanceCompanion?.color ?: AdaptiveColor.RED)
+
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
             val title = if (customUnit != null) {
                 "${ingestion.substanceName}, ${customUnit.name}"
             } else {
@@ -46,66 +54,66 @@ fun IngestionRow(
                 text = title,
                 style = MaterialTheme.typography.titleMedium
             )
-        },
-        supportingContent = {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    val doseText = buildAnnotatedString {
-                        append(ingestionWithCompanionAndCustomUnit.doseDescription)
-                        withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant)) {
-                            val routeText = " ${ingestion.administrationRoute.displayText.lowercase()}"
-                            if (customUnit == null) {
-                                append(routeText)
-                            } else {
-                                val calculatedDose = ingestionWithCompanionAndCustomUnit.customUnitDose?.calculatedDoseDescription
-                                val calculatedText = if (calculatedDose != null) " = $calculatedDose" else " = unknown dose"
-                                append(calculatedText + routeText)
-                            }
-                        }
-                    }
-                    Text(text = doseText, style = MaterialTheme.typography.bodyMedium)
 
-                    val numDots = ingestionElement.numDots
-                    if (numDots != null && !areDosageDotsHidden) {
-                        DotRows(numDots = numDots)
+            val doseText = buildAnnotatedString {
+                append(ingestionWithCompanionAndCustomUnit.doseDescription)
+                withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant)) {
+                    val routeText = " ${ingestion.administrationRoute.displayText.lowercase()}"
+                    if (customUnit == null) {
+                        append(routeText)
+                    } else {
+                        val calculatedDose = ingestionWithCompanionAndCustomUnit.customUnitDose?.calculatedDoseDescription
+                        val calculatedText = if (calculatedDose != null) " = $calculatedDose" else " = unknown dose"
+                        append(calculatedText + routeText)
                     }
-                }
-
-                val note = ingestion.notes
-                if (!note.isNullOrBlank()) {
-                    Text(
-                        text = note,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
                 }
             }
-        },
-        leadingContent = {
-            VerticalLine(color = ingestionWithCompanionAndCustomUnit.substanceCompanion?.color ?: AdaptiveColor.RED)
-        },
-        trailingContent = {
+            Text(text = doseText, style = MaterialTheme.typography.bodyMedium)
+
+            val note = ingestion.notes
+            if (!note.isNullOrBlank()) {
+                Text(
+                    text = note,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+
+        val numDots = ingestionElement.numDots
+        if (numDots != null && !areDosageDotsHidden) {
+            DotRows(numDots = numDots)
+        }
+
+        Column(modifier = Modifier.widthIn(min = 60.dp), horizontalAlignment = Alignment.End) {
             time()
         }
-    )
+    }
 }
 
 
 @Preview(showBackground = true)
 @Composable
 fun IngestionRowPreview(@PreviewParameter(IngestionRowPreviewProvider::class) ingestionElement: IngestionElement) {
-    IngestionRow(
-        ingestionElement = ingestionElement,
-        areDosageDotsHidden = false,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text(
-            text = "Fri 07:17",
-            style = MaterialTheme.typography.labelMedium
-        )
+
+    Column {
+        IngestionRow(
+            ingestionElement = ingestionElement,
+            areDosageDotsHidden = false,
+        ) {
+            Text(
+                text = "07:17",
+                style = MaterialTheme.typography.labelMedium
+            )
+        }
+        IngestionRow(
+            ingestionElement = ingestionElement,
+            areDosageDotsHidden = false,
+        ) {
+            Text(
+                text = "Fri 07:17",
+                style = MaterialTheme.typography.labelMedium
+            )
+        }
     }
 }
