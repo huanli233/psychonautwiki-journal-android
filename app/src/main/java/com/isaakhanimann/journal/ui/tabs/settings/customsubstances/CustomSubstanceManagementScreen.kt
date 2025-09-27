@@ -43,6 +43,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.isaakhanimann.journal.R
+import com.isaakhanimann.journal.ui.utils.getStringOfPattern
+import java.time.Instant
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -98,7 +100,7 @@ fun CustomSubstanceManagementScreen(
                             Icon(Icons.Default.CheckCircle, contentDescription = stringResource(R.string.select_all))
                         }
                         IconButton(
-                            onClick = { exportLauncher.launch("custom_substances.json") },
+                            onClick = { exportLauncher.launch("Custom Substances ${Instant.now().getStringOfPattern("dd MMM yyyy")}.json") },
                             enabled = selectedIds.isNotEmpty()
                         ) {
                             Icon(Icons.Default.Save, contentDescription = stringResource(R.string.export))
