@@ -23,6 +23,7 @@ data class RecipeSubcomponent(
     var dose: Double?,
     var estimatedDoseStandardDeviation: Double?,
     var isEstimate: Boolean,
+    var unit: String,
     var originalUnit: String,
     val creationDate: Instant = Instant.now()
 ) {
@@ -45,6 +46,7 @@ data class RecipeSubcomponent(
             dose = 80.0,
             estimatedDoseStandardDeviation = null,
             isEstimate = false,
+            unit = "mg",
             originalUnit = "mg"
         )
     }

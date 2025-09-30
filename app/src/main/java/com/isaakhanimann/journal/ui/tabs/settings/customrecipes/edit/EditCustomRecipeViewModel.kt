@@ -13,6 +13,7 @@ import com.isaakhanimann.journal.data.room.experiences.entities.CustomRecipe
 import com.isaakhanimann.journal.data.room.experiences.entities.RecipeSubcomponent
 import com.isaakhanimann.journal.data.substances.AdministrationRoute
 import com.isaakhanimann.journal.data.substances.repositories.SearchRepository
+import com.isaakhanimann.journal.data.substances.repositories.SubstanceRepository
 import com.isaakhanimann.journal.di.RecipeResultHolder
 import com.isaakhanimann.journal.ui.main.navigation.graphs.EditCustomRecipeRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,6 +30,7 @@ class EditCustomRecipeViewModel @Inject constructor(
     private val experienceRepository: ExperienceRepository,
     savedStateHandle: SavedStateHandle,
     searchRepository: SearchRepository,
+    private val substanceRepository: SubstanceRepository,
     private val resultHolder: RecipeResultHolder,
 ) : ViewModel() {
 
@@ -64,7 +66,8 @@ class EditCustomRecipeViewModel @Inject constructor(
         val dose: String = "",
         val estimatedDoseStandardDeviation: String = "",
         val isEstimate: Boolean = false,
-        val originalUnit: String = ""
+        val originalUnit: String = "",
+        val autoFilledForSubstance: String? = null
     )
 
     init {
@@ -135,9 +138,27 @@ class EditCustomRecipeViewModel @Inject constructor(
     }
 
     fun updateSubcomponent(index: Int, updatedSubcomponent: SubcomponentData) {
+        val shouldAutoFill = updatedSubcomponent.originalUnit.isBlank() &&
+                updatedSubcomponent.substanceName.isNotBlank() &&
+                updatedSubcomponent.substanceName != updatedSubcomponent.autoFilledForSubstance
+
+        val subcomponentWithUnit = updatedSubcomponent.copy(
+            originalUnit = if (shouldAutoFill) getDefaultUnitForSubstance(updatedSubcomponent.substanceName)
+            else updatedSubcomponent.originalUnit,
+            autoFilledForSubstance = if (shouldAutoFill) updatedSubcomponent.substanceName
+            else updatedSubcomponent.autoFilledForSubstance
+        )
+
         subcomponents = subcomponents.mapIndexed { i, subcomponent ->
-            if (i == index) updatedSubcomponent else subcomponent
+            if (i == index) subcomponentWithUnit else subcomponent
         }
+    }
+
+    private fun getDefaultUnitForSubstance(substanceName: String): String {
+        val substance = substanceRepository.getSubstance(substanceName) ?: return ""
+
+        val defaultRoa = substance.roas.firstOrNull { it.route == administrationRoute }
+        return defaultRoa?.roaDose?.units ?: ""
     }
 
     fun saveRecipe(onSuccess: () -> Unit) {
@@ -171,6 +192,7 @@ class EditCustomRecipeViewModel @Inject constructor(
                         dose = subcomponentData.dose.toDoubleOrNull(),
                         estimatedDoseStandardDeviation = subcomponentData.estimatedDoseStandardDeviation.toDoubleOrNull(),
                         isEstimate = subcomponentData.isEstimate,
+                        unit = subcomponentData.originalUnit,
                         originalUnit = subcomponentData.originalUnit
                     )
                     experienceRepository.insert(subcomponent)

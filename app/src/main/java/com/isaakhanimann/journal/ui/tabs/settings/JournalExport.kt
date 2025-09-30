@@ -43,6 +43,7 @@ data class RecipeSubcomponentSerializable(
     val dose: Double?,
     var estimatedDoseStandardDeviation: Double?,
     var isEstimate: Boolean,
+    var unit: String,
     var originalUnit: String,
     @Serializable(with = InstantSerializer::class) val creationDate: Instant = Instant.now()
 )

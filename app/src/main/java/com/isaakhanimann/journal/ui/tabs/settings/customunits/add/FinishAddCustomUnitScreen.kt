@@ -270,7 +270,7 @@ fun EditCustomUnitSections(
                     value = name,
                     onValueChange = onChangeOfName,
                     label = { Text(stringResource(R.string.name)) },
-                    placeholder = { Text(prompt.name.toString()) },
+                    placeholder = { Text(stringResource(prompt.name)) },
                     keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next, capitalization = KeyboardCapitalization.Words),
                     modifier = Modifier.fillMaxWidth().focusRequester(focusRequesterName),
                     singleLine = true
@@ -279,7 +279,7 @@ fun EditCustomUnitSections(
                     value = unit,
                     onValueChange = onChangeOfUnits,
                     label = { Text(stringResource(R.string.unit_singular)) },
-                    placeholder = { Text(prompt.unit.toString()) },
+                    placeholder = { Text(stringResource(prompt.unit)) },
                     keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
@@ -288,7 +288,7 @@ fun EditCustomUnitSections(
                     value = unitPlural,
                     onValueChange = onChangeOfUnitPlural,
                     label = { Text(stringResource(R.string.unit_plural)) },
-                    placeholder = { Text(prompt.unitPlural.toString()) },
+                    placeholder = { Text(stringResource(prompt.unitPlural)) },
                     keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true

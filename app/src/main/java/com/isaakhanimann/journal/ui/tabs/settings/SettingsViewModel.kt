@@ -205,6 +205,7 @@ class SettingsViewModel @Inject constructor(
                             dose = subcomponent.dose,
                             estimatedDoseStandardDeviation = subcomponent.estimatedDoseStandardDeviation,
                             isEstimate = subcomponent.isEstimate,
+                            unit = subcomponent.unit,
                             originalUnit = subcomponent.originalUnit
                         )
                     }

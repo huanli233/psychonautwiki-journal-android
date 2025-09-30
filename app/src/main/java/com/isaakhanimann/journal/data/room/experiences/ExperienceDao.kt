@@ -471,6 +471,7 @@ interface ExperienceDao {
                     dose = subcomponentSerializable.dose,
                     estimatedDoseStandardDeviation = subcomponentSerializable.estimatedDoseStandardDeviation,
                     isEstimate = subcomponentSerializable.isEstimate,
+                    unit = subcomponentSerializable.unit,
                     originalUnit = subcomponentSerializable.originalUnit,
                     creationDate = subcomponentSerializable.creationDate
                 )
