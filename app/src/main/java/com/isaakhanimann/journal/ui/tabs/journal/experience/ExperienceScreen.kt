@@ -63,6 +63,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -79,6 +80,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.isaakhanimann.journal.R
 import com.isaakhanimann.journal.data.room.experiences.entities.AdaptiveColor
+import com.isaakhanimann.journal.data.room.experiences.entities.CustomUnit
 import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
 import com.isaakhanimann.journal.data.room.experiences.entities.TimedNote
 import com.isaakhanimann.journal.data.room.experiences.entities.getSubstanceColor
@@ -123,6 +125,8 @@ fun ExperienceScreen(
     navigateBack: () -> Unit,
 ) {
     val experience = viewModel.experienceFlow.collectAsState().value
+    val customUnitsMap = viewModel.customUnitsFlow.collectAsState().value
+
     val oneExperienceScreenModel = OneExperienceScreenModel(
         isFavorite = viewModel.isFavoriteFlow.collectAsState().value,
         title = experience?.title ?: "",
@@ -131,7 +135,7 @@ fun ExperienceScreen(
         notes = experience?.text ?: "",
         locationName = experience?.location?.name ?: "",
         isCurrentExperience = viewModel.isCurrentExperienceFlow.collectAsState().value,
-        ingestionElements = viewModel.ingestionElementsFlow.collectAsState(emptyList()).value, // This is now List<ExperienceListElement>
+        ingestionElements = viewModel.ingestionElementsFlow.collectAsState(emptyList()).value,
         cumulativeDoses = viewModel.cumulativeDosesFlow.collectAsState().value,
         interactions = viewModel.interactionsFlow.collectAsState().value,
         interactionExplanations = viewModel.interactionExplanationsFlow.collectAsState().value,
@@ -142,6 +146,7 @@ fun ExperienceScreen(
     )
     ExperienceScreen(
         oneExperienceScreenModel = oneExperienceScreenModel,
+        customUnitsMap = customUnitsMap,
         timelineDisplayOption = viewModel.timelineDisplayOptionFlow.collectAsState().value,
         isOralDisclaimerHidden = viewModel.isOralTimelineDisclaimerHidden.collectAsState().value,
         onChangeIsOralDisclaimerHidden = viewModel::saveOralDisclaimerIsHidden,
@@ -172,6 +177,7 @@ fun ExperienceScreen(
 @Composable
 fun ExperienceScreen(
     oneExperienceScreenModel: OneExperienceScreenModel,
+    customUnitsMap: Map<Int, CustomUnit>,
     timelineDisplayOption: TimelineDisplayOption,
     isOralDisclaimerHidden: Boolean,
     onChangeIsOralDisclaimerHidden: (Boolean) -> Unit,
@@ -223,7 +229,7 @@ fun ExperienceScreen(
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Spacer(Modifier.height(0.dp)) // Spacer for correct arrangement spacing at the top
+            Spacer(Modifier.height(0.dp))
             MyTimelineSection(
                 timelineDisplayOption = timelineDisplayOption,
                 navigateToExplainTimeline = navigateToExplainTimeline,
@@ -239,7 +245,8 @@ fun ExperienceScreen(
                     firstIngestionTime = oneExperienceScreenModel.firstIngestionTime,
                     areDosageDotsHidden = areDosageDotsHidden,
                     navigateToIngestionScreen = navigateToIngestionScreen,
-                    timeDisplayOption = timeDisplayOption
+                    timeDisplayOption = timeDisplayOption,
+                    customUnitsMap = customUnitsMap
                 )
             }
             val cumulativeDoses = oneExperienceScreenModel.cumulativeDoses
@@ -602,14 +609,14 @@ private fun CumulativeDosesSection(
     }
 }
 
-// *** 核心修改：MyIngestionList 現在處理分組和單獨項目 ***
 @Composable
 private fun MyIngestionList(
     ingestionListElements: List<ExperienceListElement>,
     firstIngestionTime: Instant,
     areDosageDotsHidden: Boolean,
     navigateToIngestionScreen: (ingestionId: Int) -> Unit,
-    timeDisplayOption: TimeDisplayOption
+    timeDisplayOption: TimeDisplayOption,
+    customUnitsMap: Map<Int, CustomUnit>
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -634,7 +641,10 @@ private fun MyIngestionList(
                         areDosageDotsHidden = areDosageDotsHidden,
                         modifier = Modifier
                             .clickable { navigateToIngestionScreen(listElement.element.ingestionWithCompanionAndCustomUnit.ingestion.id) }
-                            .fillMaxWidth()
+                            .fillMaxWidth(),
+                        customUnit = listElement.element.ingestionWithCompanionAndCustomUnit.ingestion.customUnitId?.let {
+                            customUnitsMap[it]
+                        }
                     ) {
                         val ingestion = listElement.element.ingestionWithCompanionAndCustomUnit.ingestion
                         IngestionTimeOrDurationText(
@@ -652,12 +662,12 @@ private fun MyIngestionList(
                         areDosageDotsHidden = areDosageDotsHidden,
                         navigateToIngestionScreen = navigateToIngestionScreen,
                         timeDisplayOption = timeDisplayOption,
-                        allTimesSortedMap = allTimes
+                        allTimesSortedMap = allTimes,
+                        customUnitsMap = customUnitsMap
                     )
                 }
             }
 
-            // 分割線邏輯...
             val isLastElement = index == ingestionListElements.size - 1
             if (!isLastElement) {
                 HorizontalDivider(
@@ -676,9 +686,10 @@ private fun GroupedIngestionRow(
     areDosageDotsHidden: Boolean,
     navigateToIngestionScreen: (ingestionId: Int) -> Unit,
     timeDisplayOption: TimeDisplayOption,
-    allTimesSortedMap: List<Instant>
+    allTimesSortedMap: List<Instant>,
+    customUnitsMap: Map<Int, CustomUnit>
 ) {
-    var isExpanded by remember { mutableStateOf(false) }
+    var isExpanded by rememberSaveable { mutableStateOf(false) }
 
     val horizontalPadding = 21.dp
     val verticalPadding = 18.dp
@@ -745,7 +756,10 @@ private fun GroupedIngestionRow(
                         modifier = Modifier
                             .clickable { navigateToIngestionScreen(subElement.ingestionWithCompanionAndCustomUnit.ingestion.id) }
                             .fillMaxWidth()
-                            .padding(start = 5.dp)
+                            .padding(start = 5.dp),
+                        customUnit = subElement.ingestionWithCompanionAndCustomUnit.ingestion.customUnitId?.let {
+                            customUnitsMap[it]
+                        }
                     ) {
 
                     }
@@ -758,12 +772,6 @@ private fun GroupedIngestionRow(
                 Spacer(modifier = Modifier.height(2.dp))
             }
         }
-
-        HorizontalDivider(
-            modifier = Modifier.padding(horizontal = horizontalPadding),
-            thickness = DividerDefaults.Thickness,
-            color = DividerDefaults.color
-        )
     }
 }
 
@@ -1145,6 +1153,7 @@ fun ExperienceScreenPreview(
     JournalTheme {
         ExperienceScreen(
             oneExperienceScreenModel = oneExperienceScreenModel,
+            customUnitsMap = emptyMap(),
             timelineDisplayOption = TimelineDisplayOption.Loading,
             isOralDisclaimerHidden = false,
             onChangeIsOralDisclaimerHidden = {},

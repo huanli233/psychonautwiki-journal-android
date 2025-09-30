@@ -8,7 +8,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.isaakhanimann.journal.data.room.experiences.ExperienceRepository
+import com.isaakhanimann.journal.data.room.experiences.entities.CustomUnit
 import com.isaakhanimann.journal.data.room.experiences.entities.RecipeSubcomponent
+import com.isaakhanimann.journal.data.room.experiences.entities.custom.toRoaDose
+import com.isaakhanimann.journal.data.room.experiences.entities.getActualDose
 import com.isaakhanimann.journal.data.substances.AdministrationRoute
 import com.isaakhanimann.journal.data.substances.classes.roa.DoseClass
 import com.isaakhanimann.journal.data.substances.classes.roa.RoaDose
@@ -16,6 +19,7 @@ import com.isaakhanimann.journal.data.substances.repositories.SubstanceRepositor
 import com.isaakhanimann.journal.ui.main.navigation.graphs.ChooseDoseCustomRecipeRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 data class SubcomponentDisplayInfo(
@@ -33,6 +37,9 @@ class ChooseDoseCustomRecipeViewModel @Inject constructor(
 ) : ViewModel() {
 
     var recipeName: String by mutableStateOf("")
+        private set
+
+    var customUnits: Map<Int, CustomUnit> by mutableStateOf(emptyMap())
         private set
 
     var administrationRoute: AdministrationRoute by mutableStateOf(AdministrationRoute.ORAL)
@@ -69,8 +76,15 @@ class ChooseDoseCustomRecipeViewModel @Inject constructor(
                 administrationRoute = recipe.administrationRoute
 
                 val infos = recipeWithSubcomponents.subcomponents.map { subcomponent ->
-                    val substance = substanceRepo.getSubstance(subcomponent.substanceName)
+                    val customUnit = subcomponent.customUnitId?.let {
+                        experienceRepo.getCustomUnit(it)?.also { customUnit ->
+                            customUnits = customUnits + (it to customUnit)
+                        }
+                    }
+                    val substance = (subcomponent.substanceName)?.let { substanceRepo.getSubstance(it) }
+                    val customSubstance = customUnit?.substanceName?.let { experienceRepo.getCustomSubstance(it) }
                     val roaDose = substance?.getRoa(recipe.administrationRoute)?.roaDose
+                        ?: customSubstance?.roaInfos?.find { it.administrationRoute == recipe.administrationRoute }?.toRoaDose()
                     SubcomponentDisplayInfo(subcomponent, roaDose, null, null)
                 }
                 subcomponentInfos = infos
@@ -88,7 +102,7 @@ class ChooseDoseCustomRecipeViewModel @Inject constructor(
     private fun updateCalculatedDoses() {
         val currentDose = dose.toDoubleOrNull()
         subcomponentInfos = subcomponentInfos.map { info ->
-            val calculatedDose = currentDose?.let { info.subcomponent.dose?.let { it1 -> it * it1 } }
+            val calculatedDose = currentDose?.let { runBlocking { info.subcomponent.getActualDose(experienceRepo) }?.let { it1 -> it * it1 } }
             val doseClass = calculatedDose?.let { info.roaDose?.getDoseClass(it) }
             info.copy(calculatedDose = calculatedDose, doseClass = doseClass)
         }

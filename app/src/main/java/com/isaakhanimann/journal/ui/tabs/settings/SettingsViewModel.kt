@@ -202,6 +202,7 @@ class SettingsViewModel @Inject constructor(
                         RecipeSubcomponentSerializable(
                             id = subcomponent.id,
                             substanceName = subcomponent.substanceName,
+                            customUnitId = subcomponent.customUnitId,
                             dose = subcomponent.dose,
                             estimatedDoseStandardDeviation = subcomponent.estimatedDoseStandardDeviation,
                             isEstimate = subcomponent.isEstimate,

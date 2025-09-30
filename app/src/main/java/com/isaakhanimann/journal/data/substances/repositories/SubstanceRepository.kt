@@ -56,6 +56,12 @@ class SubstanceRepository @Inject constructor(
         return _substanceFileFlow.value.substances
     }
 
+    override fun getAllSubstancesFlow(): Flow<List<Substance>> {
+        return _substanceFileFlow.map {
+            it.substances
+        }
+    }
+
     override fun getAllSubstancesWithCategories(): List<SubstanceWithCategories> {
         val currentSubstanceFile = _substanceFileFlow.value
         return currentSubstanceFile.substances.map { substance ->

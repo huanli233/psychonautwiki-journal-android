@@ -39,7 +39,8 @@ data class JournalExport(
 @Serializable
 data class RecipeSubcomponentSerializable(
     val id: Int = 0,
-    val substanceName: String,
+    val substanceName: String?,
+    val customUnitId: Int?,
     val dose: Double?,
     var estimatedDoseStandardDeviation: Double?,
     var isEstimate: Boolean,

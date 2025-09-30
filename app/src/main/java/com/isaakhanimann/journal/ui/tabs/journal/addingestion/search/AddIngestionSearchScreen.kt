@@ -52,6 +52,8 @@ fun AddIngestionSearchScreen(
     viewModel: AddIngestionSearchViewModel = hiltViewModel()
 ) {
     val searchText by viewModel.searchTextFlow.collectAsState()
+    val customUnitsMap by viewModel.customUnitsMapFlow.collectAsState()
+
     AddIngestionSearchScreen(
         navigateToCheckInteractions = navigateToCheckInteractions,
         navigateToCheckSaferUse = navigateToCheckSaferUse,
@@ -69,8 +71,10 @@ fun AddIngestionSearchScreen(
         onChangeSearchText = viewModel::updateSearchText,
         filteredSubstances = viewModel.filteredSubstancesFlow.collectAsState().value,
         filteredCustomUnits = viewModel.filteredCustomUnitsFlow.collectAsState().value,
+        filteredCustomRecipes = viewModel.filteredCustomRecipesFlow.collectAsState().value,
         filteredCustomSubstances = viewModel.filteredCustomSubstancesFlow.collectAsState().value,
-        navigateToChooseDoseCustomRecipe = navigateToChooseDoseCustomRecipe
+        navigateToChooseDoseCustomRecipe = navigateToChooseDoseCustomRecipe,
+        customUnitsMap = customUnitsMap
     )
 }
 
@@ -91,8 +95,10 @@ fun AddIngestionSearchScreen(
     onChangeSearchText: (searchText: String) -> Unit,
     filteredSubstances: List<SubstanceModel>,
     filteredCustomUnits: List<CustomUnit>,
+    filteredCustomRecipes: List<CustomRecipeWithSubcomponents>,
     filteredCustomSubstances: List<CustomSubstance>,
-    navigateToChooseDoseCustomRecipe: (customRecipeId: Int) -> Unit
+    navigateToChooseDoseCustomRecipe: (customRecipeId: Int) -> Unit,
+    customUnitsMap: Map<Int, CustomUnit>
 ) {
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
@@ -152,6 +158,7 @@ fun AddIngestionSearchScreen(
                     is QuickLogItem.RecipeItem -> {
                         CustomRecipeRowAddIngestion(
                             customRecipeWithSubcomponents = item.recipe,
+                            customUnitsMap = customUnitsMap,
                             navigateToChooseDoseCustomRecipe = navigateToChooseDoseCustomRecipe
                         )
                     }
@@ -199,7 +206,21 @@ fun AddIngestionSearchScreen(
                 )
             }
 
-            // The original Custom Recipes section is now removed as it's part of Quick Logging
+            if (filteredCustomRecipes.isNotEmpty()) {
+                stickyHeader { SectionHeader(title = stringResource(R.string.custom_recipes)) }
+            }
+            items(filteredCustomRecipes) { customRecipe ->
+                CustomRecipeRowAddIngestion(
+                    customRecipeWithSubcomponents = customRecipe,
+                    navigateToChooseDoseCustomRecipe = navigateToChooseDoseCustomRecipe,
+                    customUnitsMap = customUnitsMap
+                )
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    thickness = DividerDefaults.Thickness,
+                    color = DividerDefaults.color
+                )
+            }
 
             if (filteredSubstances.isNotEmpty()) {
                 stickyHeader { SectionHeader(title = stringResource(R.string.substances)) }

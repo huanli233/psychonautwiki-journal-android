@@ -5,20 +5,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,17 +27,42 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.isaakhanimann.journal.R
+import com.isaakhanimann.journal.data.room.experiences.ExperienceRepository
+import com.isaakhanimann.journal.data.room.experiences.entities.CustomUnit
 import com.isaakhanimann.journal.di.RecipeResultHolder
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
+
+sealed class SubstanceOrUnit {
+    data class Substance(val name: String) : SubstanceOrUnit()
+    data class Unit(val customUnit: CustomUnit) : SubstanceOrUnit()
+}
 
 @HiltViewModel
 class SubstanceSelectorViewModel @Inject constructor(
-    private val resultHolder: RecipeResultHolder
+    private val resultHolder: RecipeResultHolder,
+    experienceRepository: ExperienceRepository
 ) : ViewModel() {
+
+    val customUnitsFlow: StateFlow<List<CustomUnit>> = experienceRepository
+        .getCustomUnitsFlow(isArchived = false)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
     fun selectSubstance(index: Int, name: String) {
-        resultHolder.postResult(index, name)
+        resultHolder.postResult(index, name, null)
+    }
+
+    fun selectCustomUnit(index: Int, customUnit: CustomUnit) {
+        resultHolder.postResult(index, customUnit.substanceName, customUnit.id)
     }
 }
 
@@ -50,6 +75,7 @@ fun SubstanceSelectorScreen(
     onDismiss: () -> Unit
 ) {
     val viewModel: SubstanceSelectorViewModel = hiltViewModel()
+    val customUnits by viewModel.customUnitsFlow.collectAsState()
     var searchText by remember { mutableStateOf("") }
 
     val filteredSubstances = remember(searchText, allSubstances) {
@@ -57,6 +83,18 @@ fun SubstanceSelectorScreen(
             allSubstances
         } else {
             allSubstances.filter { it.contains(searchText, ignoreCase = true) }
+        }
+    }
+
+    val filteredCustomUnits = remember(searchText, customUnits) {
+        if (searchText.isBlank()) {
+            customUnits
+        } else {
+            customUnits.filter { unit ->
+                unit.name.contains(searchText, ignoreCase = true) ||
+                        unit.substanceName.contains(searchText, ignoreCase = true) ||
+                        unit.note.contains(searchText, ignoreCase = true)
+            }
         }
     }
 
@@ -82,18 +120,56 @@ fun SubstanceSelectorScreen(
         }
     ) { paddingValues ->
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             contentPadding = paddingValues
         ) {
-            items(filteredSubstances) { substanceName ->
-                ListItem(
-                    headlineContent = { Text(substanceName) },
-                    modifier = Modifier.clickable {
-                        viewModel.selectSubstance(subcomponentIndex, substanceName)
-                        onSubstanceSelected()
-                    }
-                )
+            if (filteredSubstances.isNotEmpty()) {
+                item {
+                    ListItem(
+                        headlineContent = {
+                            Text(
+                                text = "Substances",
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    )
+                }
+                items(filteredSubstances) { substanceName ->
+                    ListItem(
+                        headlineContent = { Text(substanceName) },
+                        modifier = Modifier.clickable {
+                            viewModel.selectSubstance(subcomponentIndex, substanceName)
+                            onSubstanceSelected()
+                        }
+                    )
+                }
+            }
+
+            if (filteredCustomUnits.isNotEmpty()) {
+                item {
+                    ListItem(
+                        headlineContent = {
+                            Text(
+                                text = "Custom Units",
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    )
+                }
+                items(filteredCustomUnits) { customUnit ->
+                    ListItem(
+                        headlineContent = { Text(customUnit.name) },
+                        supportingContent = {
+                            Text("${customUnit.substanceName} - ${customUnit.getDoseOfOneUnitDescription()}")
+                        },
+                        modifier = Modifier.clickable {
+                            viewModel.selectCustomUnit(subcomponentIndex, customUnit)
+                            onSubstanceSelected()
+                        }
+                    )
+                }
             }
         }
     }

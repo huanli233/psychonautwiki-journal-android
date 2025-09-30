@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.isaakhanimann.journal.data.room.experiences.ExperienceRepository
 import com.isaakhanimann.journal.data.room.experiences.entities.AdaptiveColor
+import com.isaakhanimann.journal.data.room.experiences.entities.CustomUnit
 import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
 import com.isaakhanimann.journal.data.room.experiences.entities.custom.toRoaDose
 import com.isaakhanimann.journal.data.room.experiences.entities.custom.toRoaDuration
@@ -38,6 +39,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
@@ -217,6 +219,15 @@ class ExperienceViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000)
         )
 
+    val customUnitsFlow: StateFlow<Map<Int, CustomUnit>> = experienceRepo
+        .getCustomUnitsFlow(isArchived = false)
+        .map { units -> units.associateBy { it.id } }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyMap()
+        )
+
     private val sortedIngestionsWithCompanionsFlow =
         ingestionsWithCompanionsFlow.map { ingestionsWithCompanions ->
             ingestionsWithCompanions.sortedBy { it.ingestion.time }
@@ -346,7 +357,7 @@ class ExperienceViewModel @Inject constructor(
             val recipeDoseText = firstElement.ingestionWithCompanionAndCustomUnit.ingestion.dose?.let { dose ->
                 matchedRecipe?.let { recipe ->
                     val recipeDose = dose / (recipe.subcomponents.find { it.substanceName == firstElement.ingestionWithCompanionAndCustomUnit.ingestion.substanceName }!!.dose ?: 0.0)
-                    "%.2f %s".format(recipeDose, recipe.recipe.getPluralizableUnit().plural)
+                    "%.1f %s".format(recipeDose, recipe.recipe.getPluralizableUnit().plural)
                 }
             } ?: ""
 

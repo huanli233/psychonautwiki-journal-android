@@ -3,6 +3,7 @@ package com.isaakhanimann.journal.data.room.experiences.entities
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import com.isaakhanimann.journal.data.room.experiences.ExperienceRepository
 import java.time.Instant
 
 @Entity(
@@ -12,6 +13,12 @@ import java.time.Instant
             parentColumns = ["id"],
             childColumns = ["recipeId"],
             onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = CustomUnit::class,
+            parentColumns = ["id"],
+            childColumns = ["customUnitId"],
+            onDelete = ForeignKey.SET_NULL
         )
     ]
 )
@@ -19,7 +26,9 @@ data class RecipeSubcomponent(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val recipeId: Int,
-    val substanceName: String,
+    val substanceName: String?,
+    var customUnitId: Int? = null,
+    val customUnitDose: Double? = 0.0,
     var dose: Double?,
     var estimatedDoseStandardDeviation: Double?,
     var isEstimate: Boolean,
@@ -27,16 +36,18 @@ data class RecipeSubcomponent(
     var originalUnit: String,
     val creationDate: Instant = Instant.now()
 ) {
-    fun getDoseDescription(): String {
-        return this.dose?.let { unwrappedDose ->
-            if (this.isEstimate) {
-                this.estimatedDoseStandardDeviation?.let { estimatedDoseStandardDeviationUnwrapped ->
-                    "${unwrappedDose.toReadableString()}±${estimatedDoseStandardDeviationUnwrapped.toReadableString()} ${this.originalUnit}"
-                } ?: "~${unwrappedDose.toReadableString()} ${this.originalUnit}"
-            } else {
-                "${unwrappedDose.toReadableString()} ${this.originalUnit}"
-            }
-        } ?: "Unknown dose"
+    fun getDoseDescription(customUnit: CustomUnit? = null): String {
+        return customUnit?.getDoseOfOneUnitDescription() ?: run {
+            dose?.let { d ->
+                if (isEstimate) {
+                    estimatedDoseStandardDeviation?.let { sd ->
+                        "${d.toReadableString()}±${sd.toReadableString()} $originalUnit"
+                    } ?: "~${d.toReadableString()} $originalUnit"
+                } else {
+                    "${d.toReadableString()} $originalUnit"
+                }
+            } ?: "Unknown dose"
+        }
     }
 
     companion object {
@@ -47,8 +58,19 @@ data class RecipeSubcomponent(
             estimatedDoseStandardDeviation = null,
             isEstimate = false,
             unit = "mg",
-            originalUnit = "mg"
+            originalUnit = "mg",
         )
+    }
+}
+
+suspend fun RecipeSubcomponent.getActualDose(experienceRepository: ExperienceRepository): Double? {
+    return if (customUnitId != null && customUnitDose != null) {
+        val customUnit = experienceRepository.getCustomUnit(customUnitId ?: 0)
+        customUnit?.dose?.let { unitDose ->
+            customUnitDose * unitDose
+        }
+    } else {
+        dose
     }
 }
 

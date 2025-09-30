@@ -32,6 +32,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.time.Duration
 import java.time.Instant
@@ -40,7 +41,6 @@ import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import java.util.UUID
 import javax.inject.Inject
-import kotlin.let
 
 const val hourLimitToSeparateIngestions: Long = 12
 
@@ -257,7 +257,6 @@ class FinishIngestionScreenViewModel @Inject constructor(
             )
         } else null
 
-        // Handle Recipe Ingestion
         if (route.customRecipeId != null && route.recipeDose != null) {
             val recipeWithSubcomponents = experienceRepo.getCustomRecipeWithSubcomponents(route.customRecipeId)
             val subcomponents = recipeWithSubcomponents?.subcomponents
@@ -266,8 +265,19 @@ class FinishIngestionScreenViewModel @Inject constructor(
                 val recipeGroupId = UUID.randomUUID().toString()
 
                 subcomponents.forEachIndexed { index, subcomponent ->
-                    val ingestion = createIngestionFromSubcomponent(recipeWithSubcomponents.recipe.administrationRoute, subcomponent, time, experienceId, recipeGroupId)
-                    val companion = getOrCreateCompanionFor(subcomponent.substanceName)
+                    val ingestion = createIngestionFromSubcomponent(
+                        recipeWithSubcomponents.recipe.administrationRoute,
+                        subcomponent,
+                        time,
+                        experienceId,
+                        recipeGroupId
+                    )
+                    val substanceNameForCompanion = subcomponent.customUnitId?.let {
+                        experienceRepo.getCustomUnit(it)?.substanceName
+                    } ?: subcomponent.substanceName
+
+                    val companion = substanceNameForCompanion?.let { getOrCreateCompanionFor(it) }
+                        ?: SubstanceCompanion(substanceName = "Unknown", color = null, customColor = null)
 
                     if (index == 0 && newExperience != null) {
                         experienceRepo.insertIngestionExperienceAndCompanion(ingestion, newExperience, companion)
@@ -282,7 +292,6 @@ class FinishIngestionScreenViewModel @Inject constructor(
             }
             experienceRepo.insert(recipeCompanion)
 
-            // Handle Standard Ingestion
         } else if (route.substanceName != null) {
             val ingestion = createNewIngestion(experienceId)
             val companion = getOrCreateCompanionFor(ingestion.substanceName)
@@ -303,23 +312,45 @@ class FinishIngestionScreenViewModel @Inject constructor(
         recipeGroupId: String
     ): Ingestion {
         val recipeDose = this.route.recipeDose ?: 1.0
-        val finalDose = (subcomponent.dose ?: 0.0) * recipeDose
-        val finalDeviation = this.route.estimatedDoseStandardDeviation?.let { subcomponent.dose?.let { it1 -> it * it1 } }
+
+        val customUnit = subcomponent.customUnitId?.let { runBlocking { experienceRepo.getCustomUnit(it) } }
+
+        val finalDose: Double?
+        val finalDeviation: Double?
+        val units: String
+        val substanceName: String
+
+        if (customUnit != null) {
+            finalDose = subcomponent.customUnitDose?.let { it * recipeDose }
+            finalDeviation = this.route.estimatedDoseStandardDeviation?.let {
+                subcomponent.customUnitDose?.let { subDose -> it * subDose }
+            }
+            units = subcomponent.originalUnit
+            substanceName = customUnit.substanceName
+        } else {
+            finalDose = subcomponent.dose?.let { it * recipeDose }
+            finalDeviation = this.route.estimatedDoseStandardDeviation?.let {
+                subcomponent.dose?.let { subDose -> it * subDose }
+            }
+            units = subcomponent.originalUnit
+            substanceName = subcomponent.substanceName ?: "Unknown"
+        }
 
         return Ingestion(
-            substanceName = subcomponent.substanceName,
+            substanceName = substanceName,
             time = time,
             endTime = null,
             administrationRoute = route,
             dose = finalDose,
             isDoseAnEstimate = this.route.isEstimate,
             estimatedDoseStandardDeviation = finalDeviation,
-            units = subcomponent.originalUnit,
+            units = units,
             experienceId = experienceId,
             notes = note,
             stomachFullness = null,
             consumerName = consumerName.ifBlank { null },
-            customUnitId = null,
+            customUnitId = subcomponent.customUnitId,
+            customRecipeId = this.route.customRecipeId,
             recipeGroupId = recipeGroupId
         )
     }

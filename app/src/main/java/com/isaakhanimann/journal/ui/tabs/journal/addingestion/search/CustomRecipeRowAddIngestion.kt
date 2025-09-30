@@ -16,21 +16,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.isaakhanimann.journal.R
 import com.isaakhanimann.journal.data.room.experiences.entities.CustomRecipe
+import com.isaakhanimann.journal.data.room.experiences.entities.CustomUnit
 import com.isaakhanimann.journal.data.room.experiences.entities.RecipeSubcomponent
 import com.isaakhanimann.journal.data.room.experiences.relations.CustomRecipeWithSubcomponents
 import com.isaakhanimann.journal.data.substances.AdministrationRoute
-import com.isaakhanimann.journal.ui.tabs.search.substance.roa.toReadableString
 
 @Composable
 fun CustomRecipeRowAddIngestion(
     customRecipeWithSubcomponents: CustomRecipeWithSubcomponents,
+    customUnitsMap: Map<Int, CustomUnit>,
     navigateToChooseDoseCustomRecipe: (customRecipeId: Int) -> Unit
 ) {
     val recipe = customRecipeWithSubcomponents.recipe
-    
+
     ListItem(
-        modifier = Modifier.clickable { 
-            navigateToChooseDoseCustomRecipe(recipe.id) 
+        modifier = Modifier.clickable {
+            navigateToChooseDoseCustomRecipe(recipe.id)
         },
         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
         headlineContent = {
@@ -47,7 +48,7 @@ fun CustomRecipeRowAddIngestion(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = stringResource(R.string.recipe_contains, customRecipeWithSubcomponents.getSubcomponentsSummary()),
+                    text = stringResource(R.string.recipe_contains, customRecipeWithSubcomponents.getSubcomponentsSummary(customUnitsMap)),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2,
@@ -76,9 +77,10 @@ fun CustomRecipeRowAddIngestionPreview() {
         recipe = sampleRecipe,
         subcomponents = listOf(sampleSubcomponent)
     )
-    
+
     CustomRecipeRowAddIngestion(
         customRecipeWithSubcomponents = sampleRecipeWithSubcomponents,
+        customUnitsMap = emptyMap(),
         navigateToChooseDoseCustomRecipe = {}
     )
 }

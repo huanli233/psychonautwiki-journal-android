@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.isaakhanimann.journal.data.room.experiences.ExperienceRepository
 import com.isaakhanimann.journal.data.room.experiences.entities.CustomSubstance
+import com.isaakhanimann.journal.data.room.experiences.entities.CustomUnit
 import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
 import com.isaakhanimann.journal.data.room.experiences.entities.getSubstanceColor
 import com.isaakhanimann.journal.data.room.experiences.relations.CustomRecipeWithSubcomponents
@@ -21,6 +22,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -67,6 +69,14 @@ class AddIngestionSearchViewModel @Inject constructor(
 
     private val customUnitsFlow = experienceRepo.getCustomUnitsFlow(false)
 
+    val customUnitsMapFlow: StateFlow<Map<Int, CustomUnit>> = customUnitsFlow
+        .map { units -> units.associateBy { it.id } }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyMap()
+        )
+
     val filteredCustomUnitsFlow = combine(
         customUnitsFlow,
         filteredSubstancesFlow,
@@ -100,7 +110,7 @@ class AddIngestionSearchViewModel @Inject constructor(
             recipeWithSubcomponents.recipe.name.contains(searchText, ignoreCase = true) ||
                     recipeWithSubcomponents.recipe.note.contains(searchText, ignoreCase = true) ||
                     recipeWithSubcomponents.subcomponents.any { subcomponent ->
-                        subcomponent.substanceName.contains(searchText, ignoreCase = true)
+                        subcomponent.substanceName?.contains(searchText, ignoreCase = true) == true
                     }
         }
     }.stateIn(
@@ -163,7 +173,7 @@ class AddIngestionSearchViewModel @Inject constructor(
                             recipeWithSubcomponents.recipe.name.contains(searchText, ignoreCase = true) ||
                             recipeWithSubcomponents.recipe.note.contains(searchText, ignoreCase = true) ||
                             recipeWithSubcomponents.subcomponents.any { subcomponent ->
-                                subcomponent.substanceName.contains(searchText, ignoreCase = true)
+                                subcomponent.substanceName?.contains(searchText, ignoreCase = true) == true
                             }
                 }
             }

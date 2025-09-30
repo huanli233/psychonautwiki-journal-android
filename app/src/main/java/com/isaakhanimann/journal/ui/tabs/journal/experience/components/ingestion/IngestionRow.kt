@@ -18,6 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import com.isaakhanimann.journal.data.room.experiences.entities.AdaptiveColor
+import com.isaakhanimann.journal.data.room.experiences.entities.CustomUnit
 import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
 import com.isaakhanimann.journal.data.room.experiences.entities.getSubstanceColor
 import com.isaakhanimann.journal.ui.tabs.journal.experience.components.DotRows
@@ -28,11 +29,12 @@ fun IngestionRow(
     ingestionElement: IngestionElement,
     areDosageDotsHidden: Boolean,
     modifier: Modifier = Modifier,
+    customUnit: CustomUnit? = null,
     time: @Composable () -> Unit,
 ) {
     val ingestionWithCompanionAndCustomUnit = ingestionElement.ingestionWithCompanionAndCustomUnit
     val ingestion = ingestionWithCompanionAndCustomUnit.ingestion
-    val customUnit = ingestionWithCompanionAndCustomUnit.customUnit
+    val actualCustomUnit = customUnit ?: ingestionWithCompanionAndCustomUnit.customUnit
 
     Row(
         modifier = modifier
@@ -47,8 +49,8 @@ fun IngestionRow(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            val title = if (customUnit != null) {
-                "${ingestion.substanceName}, ${customUnit.name}"
+            val title = if (actualCustomUnit != null) {
+                "${ingestion.substanceName}, ${actualCustomUnit.name}"
             } else {
                 ingestion.substanceName
             }
@@ -61,10 +63,22 @@ fun IngestionRow(
                 append(ingestionWithCompanionAndCustomUnit.doseDescription)
                 withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant)) {
                     val routeText = " ${ingestion.administrationRoute.displayText.lowercase()}"
-                    if (customUnit == null) {
+                    if (actualCustomUnit == null) {
                         append(routeText)
                     } else {
-                        val calculatedDose = ingestionWithCompanionAndCustomUnit.customUnitDose?.calculatedDoseDescription
+                        val calculatedDose = ingestion.dose?.let { dose ->
+                            actualCustomUnit.dose?.let { unitDose ->
+                                if (unitDose > 0) {
+                                    val calculatedAmount = dose * unitDose
+                                    val amountStr = if (calculatedAmount == calculatedAmount.toLong().toDouble()) {
+                                        calculatedAmount.toLong().toString()
+                                    } else {
+                                        calculatedAmount.toString()
+                                    }
+                                    "$amountStr ${actualCustomUnit.originalUnit}"
+                                } else null
+                            }
+                        }
                         val calculatedText = if (calculatedDose != null) " = $calculatedDose" else " = unknown dose"
                         append(calculatedText + routeText)
                     }

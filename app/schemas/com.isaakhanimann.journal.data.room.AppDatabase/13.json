@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 12,
-    "identityHash": "8560e267f14ff494d3ab55333adb06c1",
+    "version": 13,
+    "identityHash": "8da28f6168191717b07581dc0f7d4023",
     "entities": [
       {
         "tableName": "Experience",
@@ -487,7 +487,7 @@
       },
       {
         "tableName": "RecipeSubcomponent",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `recipeId` INTEGER NOT NULL, `substanceName` TEXT, `customUnitId` INTEGER, `dose` REAL, `estimatedDoseStandardDeviation` REAL, `isEstimate` INTEGER NOT NULL, `unit` TEXT NOT NULL, `originalUnit` TEXT NOT NULL, `creationDate` INTEGER NOT NULL, FOREIGN KEY(`recipeId`) REFERENCES `CustomRecipe`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`customUnitId`) REFERENCES `CustomUnit`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `recipeId` INTEGER NOT NULL, `substanceName` TEXT, `customUnitId` INTEGER, `customUnitDose` REAL, `dose` REAL, `estimatedDoseStandardDeviation` REAL, `isEstimate` INTEGER NOT NULL, `unit` TEXT NOT NULL, `originalUnit` TEXT NOT NULL, `creationDate` INTEGER NOT NULL, FOREIGN KEY(`recipeId`) REFERENCES `CustomRecipe`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`customUnitId`) REFERENCES `CustomUnit`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL )",
         "fields": [
           {
             "fieldPath": "id",
@@ -510,6 +510,11 @@
             "fieldPath": "customUnitId",
             "columnName": "customUnitId",
             "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "customUnitDose",
+            "columnName": "customUnitDose",
+            "affinity": "REAL"
           },
           {
             "fieldPath": "dose",
@@ -580,7 +585,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8560e267f14ff494d3ab55333adb06c1')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8da28f6168191717b07581dc0f7d4023')"
     ]
   }
 }

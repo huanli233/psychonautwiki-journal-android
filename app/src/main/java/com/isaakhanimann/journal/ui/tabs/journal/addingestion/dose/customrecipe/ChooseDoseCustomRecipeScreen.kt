@@ -42,6 +42,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.isaakhanimann.journal.R
+import com.isaakhanimann.journal.data.room.experiences.entities.CustomUnit
 import com.isaakhanimann.journal.data.substances.AdministrationRoute
 import com.isaakhanimann.journal.ui.tabs.search.substance.roa.dose.RoaDoseView
 
@@ -58,6 +59,7 @@ fun ChooseDoseCustomRecipeScreen(
 ) {
     ChooseDoseCustomRecipeScreenContent(
         recipeName = viewModel.recipeName,
+        customUnits = viewModel.customUnits,
         recipeNote = viewModel.recipeNote,
         recipeUnitPlural = viewModel.recipeUnitPlural,
         administrationRoute = viewModel.administrationRoute,
@@ -91,6 +93,7 @@ fun ChooseDoseCustomRecipeScreen(
 @Composable
 fun ChooseDoseCustomRecipeScreenContent(
     recipeName: String,
+    customUnits: Map<Int, CustomUnit>,
     recipeNote: String,
     recipeUnitPlural: String,
     administrationRoute: AdministrationRoute,
@@ -180,7 +183,7 @@ fun ChooseDoseCustomRecipeScreenContent(
                                 subcomponentInfos.forEach { info ->
                                     val subcomponent = info.subcomponent
                                     Text(
-                                        text = "• ${subcomponent.dose} ${subcomponent.originalUnit} ${subcomponent.substanceName}",
+                                        text = "• ${subcomponent.getDoseDescription(customUnits[info.subcomponent.id])} ${subcomponent.originalUnit} ${subcomponent.substanceName}",
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -211,7 +214,7 @@ fun ChooseDoseCustomRecipeScreenContent(
                                     val calculatedDoseText = info.calculatedDose?.let { "%.2f".format(it) } ?: "0.0"
 
                                     Text(
-                                        text = "$text: $calculatedDoseText ${info.subcomponent.originalUnit}",
+                                        text = "$text: $calculatedDoseText ${customUnits[info.subcomponent.customUnitId]?.originalUnit ?: info.subcomponent.originalUnit}",
                                         style = MaterialTheme.typography.titleSmall,
                                         color = info.doseClass?.getComposeColor(isSystemInDarkTheme()) ?: Color.Unspecified
                                     )

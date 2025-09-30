@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
@@ -57,10 +58,13 @@ class AddCustomRecipeViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             resultHolder.resultFlow
-                .collect {
-                    it?.let { (index, name) ->
-                        val updatedSubcomponent = subcomponents[index].copy(substanceName = name)
-                        updateSubcomponent(index, updatedSubcomponent)
+                .collect { selection ->
+                    selection?.let {
+                        val updatedSubcomponent = subcomponents[it.index].copy(
+                            substanceName = it.substanceName,
+                            customUnitId = it.customUnitId
+                        )
+                        updateSubcomponent(it.index, updatedSubcomponent)
                         resultHolder.clearResult()
                     }
                 }
@@ -69,12 +73,20 @@ class AddCustomRecipeViewModel @Inject constructor(
 
     data class SubcomponentData(
         val substanceName: String = "",
+        val customUnitId: Int? = null,
         val dose: String = "",
         val estimatedDoseStandardDeviation: String = "",
         val isEstimate: Boolean = false,
         val originalUnit: String = "",
-        val autoFilledForSubstance: String? = null
+        val autoFilledForSubstance: String? = null,
+        val customUnitDose: String = ""
     )
+
+    fun getCustomUnit(customUnitId: Int?): com.isaakhanimann.journal.data.room.experiences.entities.CustomUnit? {
+        return customUnitId?.let {
+            runBlocking { experienceRepository.getCustomUnit(it) }
+        }
+    }
 
     fun updateRecipeName(name: String) {
         recipeName = name
@@ -105,7 +117,8 @@ class AddCustomRecipeViewModel @Inject constructor(
     }
 
     fun updateSubcomponent(index: Int, updatedSubcomponent: SubcomponentData) {
-        val shouldAutoFill = updatedSubcomponent.originalUnit.isBlank() &&
+        val shouldAutoFill = updatedSubcomponent.customUnitId == null &&
+                updatedSubcomponent.originalUnit.isBlank() &&
                 updatedSubcomponent.substanceName.isNotBlank() &&
                 updatedSubcomponent.substanceName != updatedSubcomponent.autoFilledForSubstance
 
@@ -148,21 +161,36 @@ class AddCustomRecipeViewModel @Inject constructor(
                 val recipeId = experienceRepository.insert(recipe)
 
                 subcomponents.forEach { subcomponentData ->
-                    val subcomponent = RecipeSubcomponent(
-                        recipeId = recipeId.toInt(),
-                        substanceName = subcomponentData.substanceName,
-                        dose = subcomponentData.dose.toDoubleOrNull(),
-                        estimatedDoseStandardDeviation = subcomponentData.estimatedDoseStandardDeviation.toDoubleOrNull(),
-                        isEstimate = subcomponentData.isEstimate,
-                        unit = subcomponentData.originalUnit,
-                        originalUnit = subcomponentData.originalUnit
-                    )
+                    val subcomponent = if (subcomponentData.customUnitId != null) {
+                        RecipeSubcomponent(
+                            recipeId = recipeId.toInt(),
+                            substanceName = subcomponentData.substanceName,
+                            customUnitId = subcomponentData.customUnitId,
+                            customUnitDose = subcomponentData.customUnitDose.toDoubleOrNull(),
+                            dose = null,
+                            estimatedDoseStandardDeviation = null,
+                            isEstimate = false,
+                            unit = "",
+                            originalUnit = ""
+                        )
+                    } else {
+                        RecipeSubcomponent(
+                            recipeId = recipeId.toInt(),
+                            substanceName = subcomponentData.substanceName,
+                            customUnitId = null,
+                            customUnitDose = null,
+                            dose = subcomponentData.dose.toDoubleOrNull(),
+                            estimatedDoseStandardDeviation = subcomponentData.estimatedDoseStandardDeviation.toDoubleOrNull(),
+                            isEstimate = subcomponentData.isEstimate,
+                            unit = subcomponentData.originalUnit,
+                            originalUnit = subcomponentData.originalUnit
+                        )
+                    }
                     experienceRepository.insert(subcomponent)
                 }
 
                 onSuccess()
             } catch (e: Exception) {
-                // Handle error
             } finally {
                 isLoading = false
             }
@@ -173,6 +201,9 @@ class AddCustomRecipeViewModel @Inject constructor(
         return recipeName.isNotBlank() &&
                 unit.isNotBlank() &&
                 subcomponents.isNotEmpty() &&
-                subcomponents.all { it.substanceName.isNotBlank() && it.originalUnit.isNotBlank() && it.dose.isNotBlank()}
+                subcomponents.all {
+                    it.substanceName.isNotBlank() &&
+                            (it.customUnitId != null || (it.originalUnit.isNotBlank() && it.dose.isNotBlank()))
+                }
     }
 }

@@ -76,7 +76,8 @@ fun AddCustomRecipeScreen(
         isValid = viewModel.isValid(),
         isLoading = viewModel.isLoading,
         allSubstances = allSubstances,
-        onSubstanceNameClick = navigateToSubstanceSelector
+        onSubstanceNameClick = navigateToSubstanceSelector,
+        getCustomUnit = viewModel::getCustomUnit
     )
 }
 
@@ -101,7 +102,8 @@ fun AddCustomRecipeScreenContent(
     isValid: Boolean,
     isLoading: Boolean,
     allSubstances: List<String>,
-    onSubstanceNameClick: (Int) -> Unit
+    onSubstanceNameClick: (Int) -> Unit,
+    getCustomUnit: (Int?) -> com.isaakhanimann.journal.data.room.experiences.entities.CustomUnit?
 ) {
     var isRouteMenuExpanded by remember { mutableStateOf(false) }
 
@@ -218,6 +220,7 @@ fun AddCustomRecipeScreenContent(
                 SubcomponentCard(
                     unit = unit,
                     subcomponent = subcomponent,
+                    customUnit = getCustomUnit(subcomponent.customUnitId),
                     onUpdate = { updatedSubcomponent ->
                         onUpdateSubcomponent(index, updatedSubcomponent)
                     },
@@ -244,6 +247,7 @@ fun AddCustomRecipeScreenContent(
 fun SubcomponentCard(
     unit: String,
     subcomponent: AddCustomRecipeViewModel.SubcomponentData,
+    customUnit: com.isaakhanimann.journal.data.room.experiences.entities.CustomUnit?,
     onUpdate: (AddCustomRecipeViewModel.SubcomponentData) -> Unit,
     onRemove: () -> Unit,
     onSubstanceNameClick: () -> Unit
@@ -270,63 +274,78 @@ fun SubcomponentCard(
             }
 
             OutlinedTextField(
-                value = subcomponent.substanceName,
-                onValueChange = { /* No-op */ },
-                label = { Text(stringResource(R.string.substance_name)) },
+                value = customUnit?.name ?: subcomponent.substanceName,
+                onValueChange = { },
+                label = { Text(if (customUnit != null) "Custom Unit" else stringResource(R.string.substance_name)) },
                 placeholder = { Text(stringResource(R.string.substance_name_hint)) },
+                supportingText = if (customUnit != null) {
+                    { Text("${customUnit.substanceName} - ${customUnit.getDoseOfOneUnitDescription()}") }
+                } else null,
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable(onClick = onSubstanceNameClick),
                 readOnly = true,
-                enabled = false, // To prevent focus and keyboard
+                enabled = false,
                 colors = OutlinedTextFieldDefaults.colors(
                     disabledTextColor = MaterialTheme.colorScheme.onSurface,
                     disabledBorderColor = MaterialTheme.colorScheme.outline,
                     disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    disabledSupportingTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             )
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+            if (customUnit != null) {
                 OutlinedTextField(
-                    value = subcomponent.dose,
-                    onValueChange = { onUpdate(subcomponent.copy(dose = it)) },
-                    label = { Text(stringResource(R.string.dose_per_unit, unit)) },
-                    placeholder = { Text(stringResource(R.string.dose_per_unit_hint)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    modifier = Modifier.weight(1f)
-                )
-                OutlinedTextField(
-                    value = subcomponent.originalUnit,
-                    onValueChange = { onUpdate(subcomponent.copy(originalUnit = it)) },
-                    label = { Text(stringResource(R.string.original_unit)) },
-                    placeholder = { Text(stringResource(R.string.original_unit_hint)) },
-                    modifier = Modifier.weight(1f)
-                )
-            }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Checkbox(
-                    checked = subcomponent.isEstimate,
-                    onCheckedChange = { onUpdate(subcomponent.copy(isEstimate = it)) }
-                )
-                Text(stringResource(R.string.is_estimate))
-            }
-
-            if (subcomponent.isEstimate) {
-                OutlinedTextField(
-                    value = subcomponent.estimatedDoseStandardDeviation,
-                    onValueChange = { onUpdate(subcomponent.copy(estimatedDoseStandardDeviation = it)) },
-                    label = { Text(stringResource(R.string.estimated_dose_standard_deviation)) },
-                    placeholder = { Text(stringResource(R.string.estimated_dose_standard_deviation_hint)) },
+                    value = subcomponent.customUnitDose,
+                    onValueChange = { onUpdate(subcomponent.copy(customUnitDose = it)) },
+                    label = { Text("${customUnit.getPluralizableUnit().singular} per ${unit}") },
+                    placeholder = { Text("Amount") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.fillMaxWidth()
                 )
+            } else {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedTextField(
+                        value = subcomponent.dose,
+                        onValueChange = { onUpdate(subcomponent.copy(dose = it)) },
+                        label = { Text(stringResource(R.string.dose_per_unit, unit)) },
+                        placeholder = { Text(stringResource(R.string.dose_per_unit_hint)) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        modifier = Modifier.weight(1f)
+                    )
+                    OutlinedTextField(
+                        value = subcomponent.originalUnit,
+                        onValueChange = { onUpdate(subcomponent.copy(originalUnit = it)) },
+                        label = { Text(stringResource(R.string.original_unit)) },
+                        placeholder = { Text(stringResource(R.string.original_unit_hint)) },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = subcomponent.isEstimate,
+                        onCheckedChange = { onUpdate(subcomponent.copy(isEstimate = it)) }
+                    )
+                    Text(stringResource(R.string.is_estimate))
+                }
+
+                if (subcomponent.isEstimate) {
+                    OutlinedTextField(
+                        value = subcomponent.estimatedDoseStandardDeviation,
+                        onValueChange = { onUpdate(subcomponent.copy(estimatedDoseStandardDeviation = it)) },
+                        label = { Text(stringResource(R.string.estimated_dose_standard_deviation)) },
+                        placeholder = { Text(stringResource(R.string.estimated_dose_standard_deviation_hint)) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
         }
     }
@@ -361,6 +380,7 @@ fun AddCustomRecipeScreenPreview() {
         isValid = true,
         isLoading = false,
         allSubstances = listOf("MDMA", "LSD", "Caffeine"),
-        onSubstanceNameClick = {}
+        onSubstanceNameClick = {},
+        getCustomUnit = { null }
     )
 }

@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.isaakhanimann.journal.R
 import com.isaakhanimann.journal.data.room.experiences.entities.CustomRecipe
+import com.isaakhanimann.journal.data.room.experiences.entities.CustomUnit
 import com.isaakhanimann.journal.data.room.experiences.entities.RecipeSubcomponent
 import com.isaakhanimann.journal.data.room.experiences.relations.CustomRecipeWithSubcomponents
 import com.isaakhanimann.journal.data.substances.AdministrationRoute
@@ -56,8 +57,11 @@ fun CustomRecipesScreen(
     navigateToAddCustomRecipe: () -> Unit,
     navigateToCustomRecipeArchive: () -> Unit,
 ) {
+    val recipesWithUnits = viewModel.filteredRecipesWithUnitsFlow.collectAsState().value
+
     CustomRecipesScreenContent(
-        filteredRecipes = viewModel.filteredCustomRecipesFlow.collectAsState().value,
+        filteredRecipes = recipesWithUnits.recipes,
+        customUnitsMap = recipesWithUnits.customUnitsMap,
         navigateToEditCustomRecipe = navigateToEditCustomRecipe,
         navigateToAddCustomRecipe = navigateToAddCustomRecipe,
         navigateToCustomRecipeArchive = navigateToCustomRecipeArchive,
@@ -70,6 +74,7 @@ fun CustomRecipesScreen(
 @Composable
 fun CustomRecipesScreenContent(
     filteredRecipes: List<CustomRecipeWithSubcomponents>,
+    customUnitsMap: Map<Int, CustomUnit>,
     navigateToEditCustomRecipe: (customRecipeId: Int) -> Unit,
     navigateToAddCustomRecipe: () -> Unit,
     navigateToCustomRecipeArchive: () -> Unit,
@@ -139,6 +144,7 @@ fun CustomRecipesScreenContent(
                     items(filteredRecipes, key = { it.recipe.id }) { customRecipeWithSubcomponents ->
                         CustomRecipeRow(
                             customRecipeWithSubcomponents = customRecipeWithSubcomponents,
+                            customUnitsMap = customUnitsMap,
                             navigateToEditCustomRecipe = navigateToEditCustomRecipe
                         )
                         HorizontalDivider(
@@ -156,6 +162,7 @@ fun CustomRecipesScreenContent(
 @Composable
 fun CustomRecipeRow(
     customRecipeWithSubcomponents: CustomRecipeWithSubcomponents,
+    customUnitsMap: Map<Int, CustomUnit>,
     navigateToEditCustomRecipe: (customRecipeId: Int) -> Unit,
 ) {
     val recipe = customRecipeWithSubcomponents.recipe
@@ -171,7 +178,7 @@ fun CustomRecipeRow(
         supportingContent = {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
-                    text = stringResource(R.string.recipe_contains, customRecipeWithSubcomponents.getSubcomponentsSummary()),
+                    text = stringResource(R.string.recipe_contains, customRecipeWithSubcomponents.getSubcomponentsSummary(customUnitsMap)),
                     style = MaterialTheme.typography.bodyMedium
                 )
                 if (recipe.note.isNotBlank()) {
@@ -197,9 +204,10 @@ fun CustomRecipesScreenPreview() {
         recipe = sampleRecipe,
         subcomponents = listOf(sampleSubcomponent)
     )
-    
+
     CustomRecipesScreenContent(
         filteredRecipes = listOf(sampleRecipeWithSubcomponents),
+        customUnitsMap = emptyMap(),
         navigateToEditCustomRecipe = {},
         navigateToAddCustomRecipe = {},
         navigateToCustomRecipeArchive = {},

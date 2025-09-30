@@ -3,6 +3,7 @@ package com.isaakhanimann.journal.ui.tabs.settings.customrecipes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.isaakhanimann.journal.data.room.experiences.ExperienceRepository
+import com.isaakhanimann.journal.data.room.experiences.entities.CustomUnit
 import com.isaakhanimann.journal.data.room.experiences.relations.CustomRecipeWithSubcomponents
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,24 +23,49 @@ class CustomRecipesViewModel @Inject constructor(
 
     private val customRecipesFlow = experienceRepository.getSortedCustomRecipesWithSubcomponentsFlow(isArchived = false)
 
-    val filteredCustomRecipesFlow: StateFlow<List<CustomRecipeWithSubcomponents>> = combine(
+    val customUnitsFlow = experienceRepository.getCustomUnitsFlow(isArchived = false)
+
+    data class RecipesWithUnits(
+        val recipes: List<CustomRecipeWithSubcomponents>,
+        val customUnitsMap: Map<Int, CustomUnit>
+    )
+
+    val filteredRecipesWithUnitsFlow: StateFlow<RecipesWithUnits> = combine(
         customRecipesFlow,
+        customUnitsFlow,
         searchTextFlow
-    ) { recipes, searchText ->
-        if (searchText.isBlank()) {
+    ) { recipes, customUnits, searchText ->
+        val customUnitsMap = customUnits.associateBy { it.id }
+
+        val filtered = if (searchText.isBlank()) {
             recipes
         } else {
             recipes.filter { recipeWithSubcomponents ->
-                recipeWithSubcomponents.recipe.name.contains(searchText, ignoreCase = true) ||
-                recipeWithSubcomponents.subcomponents.any { subcomponent ->
-                    subcomponent.substanceName.contains(searchText, ignoreCase = true)
+                val matchesRecipeName = recipeWithSubcomponents.recipe.name.contains(searchText, ignoreCase = true)
+                val matchesRecipeNote = recipeWithSubcomponents.recipe.note.contains(searchText, ignoreCase = true)
+
+                val matchesSubstance = recipeWithSubcomponents.subcomponents.any { subcomponent ->
+                    val substanceName = subcomponent.customUnitId?.let { unitId ->
+                        customUnitsMap[unitId]?.substanceName
+                    } ?: subcomponent.substanceName
+
+                    val customUnitName = subcomponent.customUnitId?.let { unitId ->
+                        customUnitsMap[unitId]?.name
+                    }
+
+                    substanceName?.contains(searchText, ignoreCase = true) == true ||
+                            customUnitName?.contains(searchText, ignoreCase = true) == true
                 }
+
+                matchesRecipeName || matchesRecipeNote || matchesSubstance
             }
         }
+
+        RecipesWithUnits(filtered, customUnitsMap)
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = emptyList()
+        initialValue = RecipesWithUnits(emptyList(), emptyMap())
     )
 
     fun onSearch(searchText: String) {

@@ -21,6 +21,7 @@ package com.isaakhanimann.journal.data.substances.repositories
 import com.isaakhanimann.journal.data.substances.classes.Category
 import com.isaakhanimann.journal.data.substances.classes.Substance
 import com.isaakhanimann.journal.data.substances.classes.SubstanceWithCategories
+import kotlinx.coroutines.flow.Flow
 
 interface SubstanceRepositoryInterface {
     fun getAllSubstances(): List<Substance>
@@ -29,4 +30,5 @@ interface SubstanceRepositoryInterface {
     fun getSubstance(substanceName: String): Substance?
     fun getCategory(categoryName: String): Category?
     fun getSubstanceWithCategories(substanceName: String): SubstanceWithCategories?
+    fun getAllSubstancesFlow(): Flow<List<Substance>>
 }

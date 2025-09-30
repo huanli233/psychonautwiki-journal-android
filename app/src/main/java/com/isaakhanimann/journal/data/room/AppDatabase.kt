@@ -38,7 +38,7 @@ import com.isaakhanimann.journal.data.room.experiences.entities.RecipeSubcompone
 
 @TypeConverters(InstantConverter::class, Converters::class)
 @Database(
-    version = 12,
+    version = 13,
     entities = [Experience::class, Ingestion::class, SubstanceCompanion::class, CustomSubstance::class, ShulginRating::class, TimedNote::class, CustomUnit::class, CustomRecipe::class, RecipeSubcomponent::class],
     autoMigrations = [
         AutoMigration (from = 1, to = 2),
@@ -52,6 +52,7 @@ import com.isaakhanimann.journal.data.room.experiences.entities.RecipeSubcompone
         // Version 10 is handled by MIGRATION_9_10
         // Version 11 is handled by MIGRATION_10_11
         // Version 11 is handled by MIGRATION_11_12
+        // Version 11 is handled by MIGRATION_12_13
     ]
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -102,6 +103,31 @@ abstract class AppDatabase : RoomDatabase() {
                 db.execSQL(
                     "ALTER TABLE Ingestion ADD COLUMN recipeGroupId TEXT"
                 )
+            }
+        }
+
+        val MIGRATION_12_13 = object : Migration(12, 13) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
+                CREATE TABLE RecipeSubcomponent_new (
+                id INTEGER PRIMARY KEY NOT NULL,
+            creationDate INTEGER NOT NULL,
+            dose REAL,
+            estimatedDoseStandardDeviation REAL,
+            isEstimate INTEGER NOT NULL,
+            originalUnit TEXT NOT NULL,
+            recipeId INTEGER NOT NULL,
+            substanceName TEXT,
+            customUnitId INTEGER,
+            customUnitDose REAL,
+            unit TEXT NOT NULL DEFAULT 'mg',
+            FOREIGN KEY(recipeId) REFERENCES CustomRecipe(id) ON DELETE CASCADE,
+            FOREIGN KEY(customUnitId) REFERENCES CustomUnit(id) ON DELETE SET NULL
+        )""")
+                db.execSQL("""INSERT INTO RecipeSubcomponent_new (id, creationDate, dose, estimatedDoseStandardDeviation, isEstimate, originalUnit, recipeId, substanceName, unit)
+                SELECT id, creationDate, dose, estimatedDoseStandardDeviation, isEstimate, originalUnit, recipeId, substanceName, 'mg' FROM RecipeSubcomponent""")
+                db.execSQL("DROP TABLE RecipeSubcomponent")
+                db.execSQL("ALTER TABLE RecipeSubcomponent_new RENAME TO RecipeSubcomponent")
             }
         }
 
