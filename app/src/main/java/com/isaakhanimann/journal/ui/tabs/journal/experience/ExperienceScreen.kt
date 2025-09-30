@@ -693,7 +693,7 @@ private fun GroupedIngestionRow(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             val representativeIngestion = groupedElement.representativeElement.ingestionWithCompanionAndCustomUnit
-            com.isaakhanimann.journal.ui.tabs.journal.experience.components.ingestion.VerticalLine(
+            VerticalLine(
                 color = representativeIngestion.substanceCompanion?.getSubstanceColor() ?: SubstanceColor.Predefined(
                     AdaptiveColor.BLUE)
             )
@@ -730,6 +730,12 @@ private fun GroupedIngestionRow(
             }
         }
 
+        HorizontalDivider(
+            modifier = Modifier.padding(horizontal = horizontalPadding),
+            thickness = DividerDefaults.Thickness,
+            color = DividerDefaults.color
+        )
+
         AnimatedVisibility(visible = isExpanded) {
             Column(modifier = Modifier.padding(start = horizontalPadding, bottom = verticalPadding)) {
                 groupedElement.subElements.forEachIndexed { index, subElement ->
@@ -739,7 +745,7 @@ private fun GroupedIngestionRow(
                         modifier = Modifier
                             .clickable { navigateToIngestionScreen(subElement.ingestionWithCompanionAndCustomUnit.ingestion.id) }
                             .fillMaxWidth()
-                            .padding(start = 8.dp)
+                            .padding(start = 5.dp)
                     ) {
 
                     }
@@ -753,7 +759,6 @@ private fun GroupedIngestionRow(
             }
         }
 
-        // 主行和子元素之间的 divider
         HorizontalDivider(
             modifier = Modifier.padding(horizontal = horizontalPadding),
             thickness = DividerDefaults.Thickness,

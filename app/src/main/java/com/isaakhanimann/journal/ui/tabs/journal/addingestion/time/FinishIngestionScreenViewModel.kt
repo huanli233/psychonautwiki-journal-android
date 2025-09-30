@@ -350,6 +350,7 @@ class FinishIngestionScreenViewModel @Inject constructor(
             stomachFullness = null,
             consumerName = consumerName.ifBlank { null },
             customUnitId = route.customUnitId,
+            customRecipeId = route.customRecipeId,
             recipeGroupId = null
         )
     }
