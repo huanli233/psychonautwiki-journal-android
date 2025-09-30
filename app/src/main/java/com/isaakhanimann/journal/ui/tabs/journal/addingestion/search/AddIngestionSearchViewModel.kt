@@ -1,30 +1,12 @@
-/*
- * Copyright (c) 2022-2023. Isaak Hanimann.
- * This file is part of PsychonautWiki Journal.
- *
- * PsychonautWiki Journal is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at
- * your option) any later version.
- *
- * PsychonautWiki Journal is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with PsychonautWiki Journal.  If not, see https://www.gnu.org/licenses/gpl-3.0.en.html.
- */
-
 package com.isaakhanimann.journal.ui.tabs.journal.addingestion.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.isaakhanimann.journal.data.room.experiences.ExperienceRepository
-import com.isaakhanimann.journal.data.room.experiences.entities.AdaptiveColor
 import com.isaakhanimann.journal.data.room.experiences.entities.CustomSubstance
 import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
 import com.isaakhanimann.journal.data.room.experiences.entities.getSubstanceColor
+import com.isaakhanimann.journal.data.room.experiences.relations.CustomRecipeWithSubcomponents
 import com.isaakhanimann.journal.data.room.experiences.relations.IngestionWithCompanionAndCustomUnit
 import com.isaakhanimann.journal.data.substances.AdministrationRoute
 import com.isaakhanimann.journal.data.substances.classes.Substance
@@ -43,6 +25,14 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.Instant
 import javax.inject.Inject
+
+sealed class QuickLogItem(open val sortInstant: Instant) {
+    data class SuggestionItem(val suggestion: Suggestion) : QuickLogItem(suggestion.sortInstant)
+    data class RecipeItem(
+        val recipe: CustomRecipeWithSubcomponents,
+        override val sortInstant: Instant
+    ) : QuickLogItem(sortInstant)
+}
 
 @HiltViewModel
 class AddIngestionSearchViewModel @Inject constructor(
@@ -100,6 +90,25 @@ class AddIngestionSearchViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5000)
     )
 
+    private val customRecipesFlow = experienceRepo.getSortedCustomRecipesWithSubcomponentsFlow(false)
+
+    val filteredCustomRecipesFlow = combine(
+        customRecipesFlow,
+        searchTextFlow
+    ) { customRecipes, searchText ->
+        customRecipes.filter { recipeWithSubcomponents ->
+            recipeWithSubcomponents.recipe.name.contains(searchText, ignoreCase = true) ||
+                    recipeWithSubcomponents.recipe.note.contains(searchText, ignoreCase = true) ||
+                    recipeWithSubcomponents.subcomponents.any { subcomponent ->
+                        subcomponent.substanceName.contains(searchText, ignoreCase = true)
+                    }
+        }
+    }.stateIn(
+        initialValue = emptyList(),
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000)
+    )
+
     private val customSubstancesFlow = experienceRepo.getCustomSubstancesFlow()
 
     val filteredCustomSubstancesFlow =
@@ -113,17 +122,51 @@ class AddIngestionSearchViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000)
         )
 
-    val filteredSuggestions: StateFlow<List<Suggestion>> = combine(
+    val quickLogItemsFlow: StateFlow<List<QuickLogItem>> = combine(
         experienceRepo.getSortedIngestionsWithSubstanceCompanionsFlow(limit = 1000),
         customSubstancesFlow,
+        customRecipesFlow,
         filteredSubstancesFlow,
         searchTextFlow
-    ) { ingestions, customSubstances, filteredSubstances, searchText ->
-        val suggestions = getSuggestions(ingestions, customSubstances)
-        return@combine suggestions.filter { sug ->
-            sug.isInSearch(
-                searchText = searchText,
-                substanceNames = filteredSubstances.map { it.name })
+    ) { ingestions, customSubstances, customRecipes, filteredSubstances, searchText ->
+        // Ingestions for regular substances and custom units
+        val substanceIngestions = ingestions.filter { it.ingestion.customRecipeId == null }
+        val suggestionItems = getSuggestions(substanceIngestions, customSubstances)
+            .map { QuickLogItem.SuggestionItem(it) }
+
+        // Find the last used time for each recipe
+        val recipeLastUsedMap = ingestions
+            .filter { it.ingestion.customRecipeId != null }
+            .groupBy { it.ingestion.customRecipeId!! }
+            .mapValues { entry ->
+                entry.value.maxOfOrNull { it.ingestion.creationDate ?: Instant.MIN } ?: Instant.MIN
+            }
+
+        // Create recipe items, using last used time for sorting
+        val recipeItems = customRecipes.map { recipe ->
+            val lastUsed = recipeLastUsedMap[recipe.recipe.id] ?: Instant.MIN
+            QuickLogItem.RecipeItem(recipe, lastUsed)
+        }
+
+        val allItems = (suggestionItems + recipeItems)
+            .sortedByDescending { it.sortInstant }
+
+        return@combine allItems.filter { item ->
+            when (item) {
+                is QuickLogItem.SuggestionItem -> item.suggestion.isInSearch(
+                    searchText = searchText,
+                    substanceNames = filteredSubstances.map { it.name }
+                )
+                is QuickLogItem.RecipeItem -> {
+                    val recipeWithSubcomponents = item.recipe
+                    searchText.isEmpty() ||
+                            recipeWithSubcomponents.recipe.name.contains(searchText, ignoreCase = true) ||
+                            recipeWithSubcomponents.recipe.note.contains(searchText, ignoreCase = true) ||
+                            recipeWithSubcomponents.subcomponents.any { subcomponent ->
+                                subcomponent.substanceName.contains(searchText, ignoreCase = true)
+                            }
+                }
+            }
         }
     }.stateIn(
         initialValue = emptyList(),

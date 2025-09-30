@@ -18,11 +18,13 @@
 
 package com.isaakhanimann.journal.ui.tabs.settings
 
+import android.app.Application
 import android.net.Uri
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.isaakhanimann.journal.R
 import com.isaakhanimann.journal.data.room.experiences.ExperienceRepository
 import com.isaakhanimann.journal.data.substances.repositories.SubstanceRepository
 import com.isaakhanimann.journal.ui.tabs.settings.combinations.UserPreferences
@@ -36,6 +38,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
+    private val application: Application,
     private val experienceRepository: ExperienceRepository,
     private val fileSystemConnection: FileSystemConnection,
     private val userPreferences: UserPreferences,
@@ -88,7 +91,7 @@ class SettingsViewModel @Inject constructor(
             val text = fileSystemConnection.getTextFromUri(uri)
             if (text == null) {
                 snackbarHostState.showSnackbar(
-                    message = "File not found",
+                    message = application.getString(R.string.file_not_found),
                     duration = SnackbarDuration.Short
                 )
             } else {
@@ -98,13 +101,13 @@ class SettingsViewModel @Inject constructor(
                     experienceRepository.deleteEverything()
                     experienceRepository.insertEverything(journalExport)
                     snackbarHostState.showSnackbar(
-                        message = "Import successful",
+                        message = application.getString(R.string.import_successful),
                         duration = SnackbarDuration.Short
                     )
                 } catch (e: Exception) {
                     println("Error when decoding: ${e.message}")
                     snackbarHostState.showSnackbar(
-                        message = "Decoding file failed",
+                        message = application.getString(R.string.decoding_file_failed),
                         duration = SnackbarDuration.Short
                     )
                 }
@@ -185,22 +188,45 @@ class SettingsViewModel @Inject constructor(
                     note = it.note
                 )
             }
+            val customRecipesSerializable = experienceRepository.getAllCustomRecipesWithSubcomponentsSorted().map {
+                CustomRecipeSerializable(
+                    id = it.recipe.id,
+                    name = it.recipe.name,
+                    creationDate = it.recipe.creationDate,
+                    administrationRoute = it.recipe.administrationRoute,
+                    unit = it.recipe.unit,
+                    unitPlural = it.recipe.unitPlural,
+                    note = it.recipe.note,
+                    isArchived = it.recipe.isArchived,
+                    subcomponents = it.subcomponents.map { subcomponent ->
+                        RecipeSubcomponentSerializable(
+                            id = subcomponent.id,
+                            substanceName = subcomponent.substanceName,
+                            dose = subcomponent.dose,
+                            estimatedDoseStandardDeviation = subcomponent.estimatedDoseStandardDeviation,
+                            isEstimate = subcomponent.isEstimate,
+                            originalUnit = subcomponent.originalUnit
+                        )
+                    }
+                )
+            }
             val journalExport = JournalExport(
                 experiences = experiencesSerializable,
                 substanceCompanions = experienceRepository.getAllSubstanceCompanions(),
                 customSubstances = experienceRepository.getAllCustomSubstances(),
-                customUnits = customUnitsSerializable
+                customUnits = customUnitsSerializable,
+                customRecipes = customRecipesSerializable
             )
             try {
                 val jsonList = Json.encodeToString(journalExport)
                 fileSystemConnection.saveTextInUri(uri, text = jsonList)
                 snackbarHostState.showSnackbar(
-                    message = "Export successful",
+                    message = application.getString(R.string.export_successful),
                     duration = SnackbarDuration.Short
                 )
             } catch (_: Exception) {
                 snackbarHostState.showSnackbar(
-                    message = "Export failed",
+                    message = application.getString(R.string.export_failed),
                     duration = SnackbarDuration.Short
                 )
             }

@@ -132,7 +132,7 @@ fun EditIngestionScreen(
     if (isShowingDeleteDialog) {
         AlertDialog(
             onDismissRequest = { isShowingDeleteDialog = false },
-            title = { Text(text = "Delete ingestion?") },
+            title = { Text(text = stringResource(R.string.delete_ingestion_dialog_title)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -140,10 +140,10 @@ fun EditIngestionScreen(
                         deleteIngestion()
                         navigateBack()
                     }
-                ) { Text("Delete") }
+                ) { Text(stringResource(R.string.delete)) }
             },
             dismissButton = {
-                TextButton(onClick = { isShowingDeleteDialog = false }) { Text("Cancel") }
+                TextButton(onClick = { isShowingDeleteDialog = false }) { Text(stringResource(R.string.cancel)) }
             }
         )
     }
@@ -151,10 +151,13 @@ fun EditIngestionScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Edit ingestion") },
+                title = { Text(stringResource(R.string.edit_ingestion)) },
                 actions = {
                     IconButton(onClick = { isShowingDeleteDialog = true }) {
-                        Icon(Icons.Default.Delete, contentDescription = "Delete ingestion")
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = stringResource(R.string.delete_ingestion_content_description)
+                        )
                     }
                 }
             )
@@ -163,8 +166,8 @@ fun EditIngestionScreen(
             ExtendedFloatingActionButton(
                 modifier = Modifier.imePadding(),
                 onClick = onDone,
-                icon = { Icon(Icons.Filled.Done, contentDescription = "Done icon") },
-                text = { Text("Done") }
+                icon = { Icon(Icons.Filled.Done, contentDescription = stringResource(R.string.done_icon_content_description)) },
+                text = { Text(stringResource(R.string.done)) }
             )
         }
     ) { padding ->
@@ -177,7 +180,7 @@ fun EditIngestionScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             val focusManager = LocalFocusManager.current
-            val title = customUnit?.let { "Dose ${it.name}" } ?: "Dose"
+            val title = customUnit?.let { stringResource(R.string.dose_with_unit_name, it.name) } ?: stringResource(R.string.dose)
 
             Spacer(modifier = Modifier.height(0.dp))
             CardWithTitle(title = title) {
@@ -234,7 +237,7 @@ fun EditIngestionScreen(
                             ) {
                                 Switch(checked = isEstimate, onCheckedChange = null)
                                 Spacer(Modifier.width(8.dp))
-                                Text("Estimate", style = MaterialTheme.typography.bodyLarge)
+                                Text(stringResource(R.string.estimate), style = MaterialTheme.typography.bodyLarge)
                             }
                             AnimatedVisibility(visible = isEstimate) {
                                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -267,7 +270,7 @@ fun EditIngestionScreen(
                                         onClick = { isShowingDropDownMenu = true },
                                         modifier = Modifier.fillMaxWidth()
                                     ) {
-                                        Text(text = "Unit: ${customUnit?.name ?: "Default"}")
+                                        Text(text = stringResource(R.string.unit_display, customUnit?.name ?: stringResource(R.string.default_unit)))
                                     }
                                     DropdownMenu(
                                         expanded = isShowingDropDownMenu,
@@ -295,11 +298,11 @@ fun EditIngestionScreen(
                 }
             }
 
-            CardWithTitle(title = "Ingestion notes") {
+            CardWithTitle(title = stringResource(R.string.ingestion_notes)) {
                 OutlinedTextField(
                     value = note,
                     onValueChange = onNoteChange,
-                    label = { Text(text = "Notes") },
+                    label = { Text(text = stringResource(R.string.notes)) },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
                     keyboardOptions = KeyboardOptions(
@@ -310,7 +313,7 @@ fun EditIngestionScreen(
                 )
             }
 
-            CardWithTitle(title = "Time") {
+            CardWithTitle(title = stringResource(R.string.time)) {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     TimePointOrRangePicker(
                         onChangeTimePickerOption = onChangeTimePickerOption,
@@ -357,7 +360,7 @@ fun EditIngestionScreen(
                     )
                     if (consumerNamesSorted.isNotEmpty() || consumerName.isNotBlank()) {
                         TextButton(onClick = { isPresentingBottomSheet = true }) {
-                            Text(text = "Choose other consumer")
+                            Text(text = stringResource(R.string.choose_other_consumer))
                         }
                     }
 
@@ -381,7 +384,7 @@ fun EditIngestionScreen(
                         OutlinedTextField(
                             value = consumerName,
                             onValueChange = onChangeConsumerName,
-                            leadingIcon = { Icon(Icons.Default.Person, contentDescription = "Consumer") },
+                            leadingIcon = { Icon(Icons.Default.Person, contentDescription = stringResource(R.string.consumer_icon_content_description)) },
                             keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
                             keyboardOptions = KeyboardOptions.Default.copy(
                                 imeAction = ImeAction.Done,
@@ -399,7 +402,7 @@ fun EditIngestionScreen(
                 onClick = addIngestionWithClonedTime,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(Icons.Outlined.Add, contentDescription = "Add")
+                Icon(Icons.Outlined.Add, contentDescription = stringResource(R.string.add_content_description))
                 Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                 Text(text = stringResource(R.string.add_ingestion_at_same_time))
             }
@@ -415,7 +418,7 @@ fun EditIngestionScreen(
                 item {
                     ListItem(
                         headlineContent = { Text(YOU) },
-                        leadingContent = { Icon(Icons.Default.Person, contentDescription = "Consumer") },
+                        leadingContent = { Icon(Icons.Default.Person, contentDescription = stringResource(R.string.consumer_icon_content_description)) },
                         modifier = Modifier.clickable {
                             onChangeConsumerName("")
                             scope.launch { bottomSheetState.hide() }.invokeOnCompletion {
@@ -427,7 +430,7 @@ fun EditIngestionScreen(
                 items(consumerNamesSorted) { name ->
                     ListItem(
                         headlineContent = { Text(name) },
-                        leadingContent = { Icon(Icons.Default.Person, contentDescription = "Consumer") },
+                        leadingContent = { Icon(Icons.Default.Person, contentDescription = stringResource(R.string.consumer_icon_content_description)) },
                         modifier = Modifier.clickable {
                             onChangeConsumerName(name)
                             scope.launch { bottomSheetState.hide() }.invokeOnCompletion {

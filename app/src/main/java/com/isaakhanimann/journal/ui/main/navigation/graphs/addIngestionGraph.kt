@@ -1,21 +1,3 @@
-/*
- * Copyright (c) 2022-2023. Isaak Hanimann.
- * This file is part of PsychonautWiki Journal.
- *
- * PsychonautWiki Journal is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at
- * your option) any later version.
- *
- * PsychonautWiki Journal is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with PsychonautWiki Journal.  If not, see https://www.gnu.org/licenses/gpl-3.0.en.html.
- */
-
 package com.isaakhanimann.journal.ui.main.navigation.graphs
 
 import androidx.navigation.NavController
@@ -25,6 +7,7 @@ import androidx.navigation.toRoute
 import com.isaakhanimann.journal.data.substances.AdministrationRoute
 import com.isaakhanimann.journal.ui.main.navigation.composableWithTransitions
 import com.isaakhanimann.journal.ui.tabs.journal.addingestion.dose.ChooseDoseScreen
+import com.isaakhanimann.journal.ui.tabs.journal.addingestion.dose.customrecipe.ChooseDoseCustomRecipeScreen
 import com.isaakhanimann.journal.ui.tabs.journal.addingestion.dose.customsubstance.CustomSubstanceChooseDoseScreen
 import com.isaakhanimann.journal.ui.tabs.journal.addingestion.dose.customunit.ChooseDoseCustomUnitScreen
 import com.isaakhanimann.journal.ui.tabs.journal.addingestion.interactions.CheckInteractionsScreen
@@ -56,12 +39,12 @@ fun NavGraphBuilder.addIngestionGraph(navController: NavController) {
                 navigateToChooseTime = { substanceName, administrationRoute, dose, units, isEstimate, estimatedDoseStandardDeviation, customUnitId ->
                     navController.navigate(
                         FinishIngestionRoute(
+                            substanceName = substanceName,
                             administrationRoute = administrationRoute,
                             units = units,
-                            isEstimate = isEstimate,
                             dose = dose,
+                            isEstimate = isEstimate,
                             estimatedDoseStandardDeviation = estimatedDoseStandardDeviation,
-                            substanceName = substanceName,
                             customUnitId = customUnitId,
                         )
                     )
@@ -91,6 +74,9 @@ fun NavGraphBuilder.addIngestionGraph(navController: NavController) {
                 },
                 navigateToCustomUnitChooseDose = { customUnitId ->
                     navController.navigate(ChooseDoseCustomUnitRoute(customUnitId = customUnitId))
+                },
+                navigateToChooseDoseCustomRecipe = { customRecipeId ->
+                    navController.navigate(ChooseDoseCustomRecipeRoute(customRecipeId = customRecipeId))
                 }
             )
         }
@@ -135,12 +121,12 @@ fun NavGraphBuilder.addIngestionGraph(navController: NavController) {
                                                       customUnitId: Int? ->
                     navController.navigate(
                         FinishIngestionRoute(
+                            substanceName = substanceName,
                             administrationRoute = administrationRoute,
                             isEstimate = isEstimate,
                             units = units,
                             dose = dose,
                             estimatedDoseStandardDeviation = estimatedDoseStandardDeviation,
-                            substanceName = substanceName,
                             customUnitId = customUnitId,
                         )
                     )
@@ -190,13 +176,12 @@ fun NavGraphBuilder.addIngestionGraph(navController: NavController) {
                 navigateToChooseTimeAndMaybeColor = { units, isEstimate, dose, estimatedDoseStandardDeviation ->
                     navController.navigate(
                         FinishIngestionRoute(
+                            substanceName = route.customSubstanceName,
                             administrationRoute = route.administrationRoute,
                             units = units,
                             isEstimate = isEstimate,
                             dose = dose,
                             estimatedDoseStandardDeviation = estimatedDoseStandardDeviation,
-                            substanceName = route.customSubstanceName,
-                            customUnitId = null
                         )
                     )
                 },
@@ -219,13 +204,12 @@ fun NavGraphBuilder.addIngestionGraph(navController: NavController) {
                 navigateToChooseTimeAndMaybeColor = { units, isEstimate, dose, estimatedDoseStandardDeviation ->
                     navController.navigate(
                         FinishIngestionRoute(
+                            substanceName = route.substanceName,
                             administrationRoute = route.administrationRoute,
                             units = units,
                             isEstimate = isEstimate,
                             dose = dose,
                             estimatedDoseStandardDeviation = estimatedDoseStandardDeviation,
-                            substanceName = route.substanceName,
-                            customUnitId = null,
                         )
                     )
                 },
@@ -267,6 +251,21 @@ fun NavGraphBuilder.addIngestionGraph(navController: NavController) {
                 }
             )
         }
+        composableWithTransitions<ChooseDoseCustomRecipeRoute> {
+            ChooseDoseCustomRecipeScreen(
+                navigateToFinishScreen = { recipeId, recipeDose, isEstimate, deviation, notes ->
+                    navController.navigate(
+                        FinishIngestionRoute(
+                            isEstimate = isEstimate,
+                            estimatedDoseStandardDeviation = deviation,
+                            customRecipeId = recipeId,
+                            recipeDose = recipeDose,
+                            ingestionNotes = notes
+                        )
+                    )
+                }
+            )
+        }
     }
 }
 
@@ -305,13 +304,16 @@ data class ChooseDoseRoute(
 
 @Serializable
 data class FinishIngestionRoute(
-    val administrationRoute: AdministrationRoute,
     val isEstimate: Boolean,
-    val units: String?,
-    val dose: Double?,
-    val estimatedDoseStandardDeviation: Double?,
-    val substanceName: String, // can be name of pw substance or custom substance
-    val customUnitId: Int?,
+    val estimatedDoseStandardDeviation: Double? = null,
+    val substanceName: String? = null,
+    val administrationRoute: AdministrationRoute? = null,
+    val units: String? = null,
+    val dose: Double? = null,
+    val customUnitId: Int? = null,
+    val customRecipeId: Int? = null,
+    val recipeDose: Double? = null,
+    val ingestionNotes: String? = null
 )
 
 @Serializable
@@ -319,3 +321,6 @@ object AdministrationRouteExplanationRouteOnJournalTab
 
 @Serializable
 data class AddCustomSubstanceRouteOnAddIngestionGraph(val searchText: String)
+
+@Serializable
+data class ChooseDoseCustomRecipeRoute(val customRecipeId: Int)

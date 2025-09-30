@@ -1,21 +1,3 @@
-/*
- * Copyright (c) 2022-2023. Isaak Hanimann.
- * This file is part of PsychonautWiki Journal.
- *
- * PsychonautWiki Journal is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at
- * your option) any later version.
- *
- * PsychonautWiki Journal is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with PsychonautWiki Journal.  If not, see https://www.gnu.org/licenses/gpl-3.0.en.html.
- */
-
 package com.isaakhanimann.journal.ui.tabs.journal.addingestion.time
 
 import androidx.compose.runtime.getValue
@@ -56,9 +38,9 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
+import java.util.UUID
 import javax.inject.Inject
-
-// ... (const and enum definitions remain the same) ...
+import kotlin.let
 
 const val hourLimitToSeparateIngestions: Long = 12
 
@@ -82,7 +64,6 @@ class FinishIngestionScreenViewModel @Inject constructor(
     val isEnteredTitleOk get() = enteredTitle.isNotEmpty()
     var consumerName by mutableStateOf("")
 
-    // ... (unchanged functions like onChangeTimePickerOption) ...
     fun onChangeTimePickerOption(ingestionTimePickerOption: IngestionTimePickerOption) =
         viewModelScope.launch {
             ingestionTimePickerOptionFlow.emit(ingestionTimePickerOption)
@@ -122,13 +103,7 @@ class FinishIngestionScreenViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000)
         )
 
-    private val administrationRoute: AdministrationRoute
-    private val dose: Double?
-    private val units: String?
-    private val isEstimate: Boolean
-    private val estimatedDoseStandardDeviation: Double?
-    private val customUnitId: Int?
-    private var substanceCompanion: SubstanceCompanion? = null
+    private val route: FinishIngestionRoute = state.toRoute()
 
     private val companionFlow = experienceRepo.getAllSubstanceCompanionsFlow()
 
@@ -141,7 +116,6 @@ class FinishIngestionScreenViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000)
         )
 
-    // ... (rest of the ViewModel is mostly the same, only createAndSaveIngestion changes) ...
     val otherColorsFlow: StateFlow<List<AdaptiveColor>> =
         alreadyUsedColorsFlow.map { alreadyUsedColors ->
             AdaptiveColor.entries.filter {
@@ -159,21 +133,16 @@ class FinishIngestionScreenViewModel @Inject constructor(
     }
 
     init {
-        val finishIngestionRoute = state.toRoute<FinishIngestionRoute>()
-        substanceName = finishIngestionRoute.substanceName
-        administrationRoute = finishIngestionRoute.administrationRoute
-        dose = finishIngestionRoute.dose
-        estimatedDoseStandardDeviation = finishIngestionRoute.estimatedDoseStandardDeviation
-        customUnitId = finishIngestionRoute.customUnitId
-        units = finishIngestionRoute.units?.let {
-            if (it == "null") {
-                null
-            } else {
-                it
-            }
-        }
-        isEstimate = finishIngestionRoute.isEstimate
+        note = route.ingestionNotes ?: ""
+
         viewModelScope.launch {
+            val nameToUse = if (route.customRecipeId != null) {
+                experienceRepo.getCustomRecipe(route.customRecipeId)?.name ?: "Recipe"
+            } else {
+                route.substanceName ?: "Substance"
+            }
+            substanceName = nameToUse
+
             val lastIngestionTimeOfExperience =
                 userPreferences.lastIngestionTimeOfExperienceFlow.first()
             val clonedIngestionTime = userPreferences.clonedIngestionTimeFlow.first()
@@ -192,8 +161,7 @@ class FinishIngestionScreenViewModel @Inject constructor(
             }
             updateExperiencesBasedOnSelectedTime()
             val allCompanions = experienceRepo.getAllSubstanceCompanionsFlow().first()
-            val thisCompanion = allCompanions.firstOrNull { it.substanceName == substanceName }
-            substanceCompanion = thisCompanion
+            val thisCompanion = allCompanions.firstOrNull { it.substanceName == nameToUse }
             selectedColor = thisCompanion?.getSubstanceColor() ?: run {
                 val alreadyUsedColors = allCompanions.mapNotNull { it.color }
                 val otherColors = AdaptiveColor.entries.filter { !alreadyUsedColors.contains(it) }
@@ -274,69 +242,115 @@ class FinishIngestionScreenViewModel @Inject constructor(
     }
 
     private suspend fun createAndSaveIngestion() {
-        val substanceCompanion = when(val color = selectedColor) {
-            is SubstanceColor.Predefined -> SubstanceCompanion(
-                substanceName = substanceName,
-                color = color.color,
-                customColor = null
-            )
-            is SubstanceColor.Custom -> SubstanceCompanion(
-                substanceName = substanceName,
-                color = null,
-                customColor = color.value
-            )
-        }
-        val oldIdToUse = selectedExperienceFlow.firstOrNull()?.experience?.id
-        if (oldIdToUse == null) {
-            val newIdToUse = newExperienceIdToUseFlow.firstOrNull() ?: 1
-            val ingestionTime =
-                localDateTimeStartFlow.first().atZone(ZoneId.systemDefault()).toInstant()
-            val newExperience = Experience(
-                id = newIdToUse,
+        val experienceId = selectedExperienceFlow.firstOrNull()?.experience?.id ?: newExperienceIdToUseFlow.first()
+        val isNewExperience = selectedExperienceFlow.firstOrNull() == null
+        val time = localDateTimeStartFlow.first().getInstant()
+
+        val newExperience = if (isNewExperience) {
+            Experience(
+                id = experienceId,
                 title = enteredTitle,
                 text = "",
                 creationDate = Instant.now(),
-                sortDate = ingestionTime,
+                sortDate = time,
                 location = null
             )
-            val newIngestion = createNewIngestion(newExperience.id)
-            experienceRepo.insertIngestionExperienceAndCompanion(
-                ingestion = newIngestion,
-                experience = newExperience,
-                substanceCompanion = substanceCompanion
-            )
-        } else {
-            val newIngestion = createNewIngestion(oldIdToUse)
-            experienceRepo.insertIngestionAndCompanion(
-                ingestion = newIngestion,
-                substanceCompanion = substanceCompanion
-            )
+        } else null
+
+        // Handle Recipe Ingestion
+        if (route.customRecipeId != null && route.recipeDose != null) {
+            val recipeWithSubcomponents = experienceRepo.getCustomRecipeWithSubcomponents(route.customRecipeId)
+            val subcomponents = recipeWithSubcomponents?.subcomponents
+
+            if (!subcomponents.isNullOrEmpty()) {
+                val recipeGroupId = UUID.randomUUID().toString()
+
+                subcomponents.forEachIndexed { index, subcomponent ->
+                    val ingestion = createIngestionFromSubcomponent(recipeWithSubcomponents.recipe.administrationRoute, subcomponent, time, experienceId, recipeGroupId)
+                    val companion = getOrCreateCompanionFor(subcomponent.substanceName)
+
+                    if (index == 0 && newExperience != null) {
+                        experienceRepo.insertIngestionExperienceAndCompanion(ingestion, newExperience, companion)
+                    } else {
+                        experienceRepo.insertIngestionAndCompanion(ingestion, companion)
+                    }
+                }
+            }
+            val recipeCompanion = when(val color = selectedColor) {
+                is SubstanceColor.Predefined -> SubstanceCompanion(substanceName = substanceName, color = color.color, customColor = null)
+                is SubstanceColor.Custom -> SubstanceCompanion(substanceName = substanceName, color = null, customColor = color.value)
+            }
+            experienceRepo.insert(recipeCompanion)
+
+            // Handle Standard Ingestion
+        } else if (route.substanceName != null) {
+            val ingestion = createNewIngestion(experienceId)
+            val companion = getOrCreateCompanionFor(ingestion.substanceName)
+
+            if (newExperience != null) {
+                experienceRepo.insertIngestionExperienceAndCompanion(ingestion, newExperience, companion)
+            } else {
+                experienceRepo.insertIngestionAndCompanion(ingestion, companion)
+            }
         }
     }
-    private suspend fun createNewIngestion(experienceId: Int): Ingestion {
-        val time = localDateTimeStartFlow.first().atZone(ZoneId.systemDefault()).toInstant()
-        val ingestionTimePickerOption = ingestionTimePickerOptionFlow.first()
-        val endTime = when (ingestionTimePickerOption) {
-            IngestionTimePickerOption.POINT_IN_TIME -> null
-            IngestionTimePickerOption.TIME_RANGE -> localDateTimeEndFlow.first()
-                .atZone(ZoneId.systemDefault()).toInstant()
-        }
+
+    private fun createIngestionFromSubcomponent(
+        route: AdministrationRoute,
+        subcomponent: com.isaakhanimann.journal.data.room.experiences.entities.RecipeSubcomponent,
+        time: Instant,
+        experienceId: Int,
+        recipeGroupId: String
+    ): Ingestion {
+        val recipeDose = this.route.recipeDose ?: 1.0
+        val finalDose = (subcomponent.dose ?: 0.0) * recipeDose
+        val finalDeviation = this.route.estimatedDoseStandardDeviation?.let { subcomponent.dose?.let { it1 -> it * it1 } }
+
         return Ingestion(
-            substanceName = substanceName,
+            substanceName = subcomponent.substanceName,
             time = time,
-            endTime = endTime,
-            administrationRoute = administrationRoute,
-            dose = dose,
-            isDoseAnEstimate = isEstimate,
-            estimatedDoseStandardDeviation = estimatedDoseStandardDeviation,
-            units = units,
+            endTime = null,
+            administrationRoute = route,
+            dose = finalDose,
+            isDoseAnEstimate = this.route.isEstimate,
+            estimatedDoseStandardDeviation = finalDeviation,
+            units = subcomponent.originalUnit,
             experienceId = experienceId,
             notes = note,
             stomachFullness = null,
-            consumerName = consumerName.ifBlank {
-                null
-            },
-            customUnitId = customUnitId
+            consumerName = consumerName.ifBlank { null },
+            customUnitId = null,
+            recipeGroupId = recipeGroupId
+        )
+    }
+
+    private suspend fun getOrCreateCompanionFor(substance: String): SubstanceCompanion {
+        return experienceRepo.getAllSubstanceCompanions().find { it.substanceName == substance }
+            ?: SubstanceCompanion(substanceName = substance, color = null, customColor = null)
+    }
+
+    private suspend fun createNewIngestion(experienceId: Int): Ingestion {
+        val time = localDateTimeStartFlow.first().getInstant()
+        val ingestionTimePickerOption = ingestionTimePickerOptionFlow.first()
+        val endTime = when (ingestionTimePickerOption) {
+            IngestionTimePickerOption.POINT_IN_TIME -> null
+            IngestionTimePickerOption.TIME_RANGE -> localDateTimeEndFlow.first().getInstant()
+        }
+        return Ingestion(
+            substanceName = route.substanceName ?: "Unknown",
+            time = time,
+            endTime = endTime,
+            administrationRoute = route.administrationRoute ?: AdministrationRoute.ORAL,
+            dose = route.dose,
+            isDoseAnEstimate = route.isEstimate,
+            estimatedDoseStandardDeviation = route.estimatedDoseStandardDeviation,
+            units = route.units,
+            experienceId = experienceId,
+            notes = note,
+            stomachFullness = null,
+            consumerName = consumerName.ifBlank { null },
+            customUnitId = route.customUnitId,
+            recipeGroupId = null
         )
     }
 }

@@ -214,8 +214,13 @@ class EditIngestionViewModel @Inject constructor(
 
     fun deleteIngestion() {
         viewModelScope.launch {
-            ingestion?.let {
-                experienceRepo.delete(ingestion = it)
+            ingestion?.let { currentIngestion ->
+                val recipeGroupId = currentIngestion.recipeGroupId
+                if (recipeGroupId != null) {
+                    experienceRepo.deleteIngestionsByRecipeGroupId(recipeGroupId)
+                } else {
+                    experienceRepo.delete(ingestion = currentIngestion)
+                }
             }
         }
     }

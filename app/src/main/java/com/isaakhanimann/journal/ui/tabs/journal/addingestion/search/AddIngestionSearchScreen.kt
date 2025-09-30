@@ -34,8 +34,8 @@ import com.isaakhanimann.journal.data.room.experiences.entities.CustomUnit
 import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
 import com.isaakhanimann.journal.data.substances.AdministrationRoute
 import com.isaakhanimann.journal.ui.tabs.journal.addingestion.search.suggestion.SuggestionRow
-import com.isaakhanimann.journal.ui.tabs.journal.addingestion.search.suggestion.models.Suggestion
 import com.isaakhanimann.journal.ui.tabs.search.SubstanceModel
+import com.isaakhanimann.journal.data.room.experiences.relations.CustomRecipeWithSubcomponents
 
 @Composable
 fun AddIngestionSearchScreen(
@@ -48,6 +48,7 @@ fun AddIngestionSearchScreen(
     navigateToCustomSubstanceChooseRoute: (customSubstanceName: String) -> Unit,
     navigateToCustomUnitChooseDose: (customUnitId: Int) -> Unit,
     navigateToAddCustomSubstanceScreen: (searchText: String) -> Unit,
+    navigateToChooseDoseCustomRecipe: (customRecipeId: Int) -> Unit = {},
     viewModel: AddIngestionSearchViewModel = hiltViewModel()
 ) {
     val searchText by viewModel.searchTextFlow.collectAsState()
@@ -63,12 +64,13 @@ fun AddIngestionSearchScreen(
             navigateToAddCustomSubstanceScreen(searchText)
         },
         navigateToCustomUnitChooseDose = navigateToCustomUnitChooseDose,
-        suggestions = viewModel.filteredSuggestions.collectAsState().value,
+        quickLogItems = viewModel.quickLogItemsFlow.collectAsState().value,
         searchText = searchText,
         onChangeSearchText = viewModel::updateSearchText,
         filteredSubstances = viewModel.filteredSubstancesFlow.collectAsState().value,
         filteredCustomUnits = viewModel.filteredCustomUnitsFlow.collectAsState().value,
-        filteredCustomSubstances = viewModel.filteredCustomSubstancesFlow.collectAsState().value
+        filteredCustomSubstances = viewModel.filteredCustomSubstancesFlow.collectAsState().value,
+        navigateToChooseDoseCustomRecipe = navigateToChooseDoseCustomRecipe
     )
 }
 
@@ -84,12 +86,13 @@ fun AddIngestionSearchScreen(
     navigateToCustomSubstanceChooseRoute: (customSubstanceName: String) -> Unit,
     navigateToAddCustomSubstanceScreen: () -> Unit,
     navigateToCustomUnitChooseDose: (customUnitId: Int) -> Unit,
-    suggestions: List<Suggestion>,
+    quickLogItems: List<QuickLogItem>,
     searchText: String,
     onChangeSearchText: (searchText: String) -> Unit,
     filteredSubstances: List<SubstanceModel>,
     filteredCustomUnits: List<CustomUnit>,
-    filteredCustomSubstances: List<CustomSubstance>
+    filteredCustomSubstances: List<CustomSubstance>,
+    navigateToChooseDoseCustomRecipe: (customRecipeId: Int) -> Unit
 ) {
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
@@ -132,18 +135,28 @@ fun AddIngestionSearchScreen(
         }
     ) { padding ->
         LazyColumn(contentPadding = padding) {
-            if (suggestions.isNotEmpty()) {
+            if (quickLogItems.isNotEmpty()) {
                 stickyHeader { SectionHeader(title = stringResource(R.string.quick_logging)) }
             }
-            itemsIndexed(suggestions) { index, suggestion ->
-                SuggestionRow(
-                    suggestion = suggestion,
-                    navigateToDose = navigateToDose,
-                    navigateToCustomUnitChooseDose = navigateToCustomUnitChooseDose,
-                    navigateToCustomDose = navigateToCustomDose,
-                    navigateToChooseTime = navigateToChooseTime
-                )
-                if (index < suggestions.size - 1) {
+            itemsIndexed(quickLogItems) { index, item ->
+                when (item) {
+                    is QuickLogItem.SuggestionItem -> {
+                        SuggestionRow(
+                            suggestion = item.suggestion,
+                            navigateToDose = navigateToDose,
+                            navigateToCustomUnitChooseDose = navigateToCustomUnitChooseDose,
+                            navigateToCustomDose = navigateToCustomDose,
+                            navigateToChooseTime = navigateToChooseTime
+                        )
+                    }
+                    is QuickLogItem.RecipeItem -> {
+                        CustomRecipeRowAddIngestion(
+                            customRecipeWithSubcomponents = item.recipe,
+                            navigateToChooseDoseCustomRecipe = navigateToChooseDoseCustomRecipe
+                        )
+                    }
+                }
+                if (index < quickLogItems.size - 1) {
                     HorizontalDivider(
                         modifier = Modifier.padding(horizontal = 16.dp),
                         thickness = DividerDefaults.Thickness,
@@ -186,6 +199,8 @@ fun AddIngestionSearchScreen(
                 )
             }
 
+            // The original Custom Recipes section is now removed as it's part of Quick Logging
+
             if (filteredSubstances.isNotEmpty()) {
                 stickyHeader { SectionHeader(title = stringResource(R.string.substances)) }
             }
@@ -219,7 +234,7 @@ fun AddIngestionSearchScreen(
             }
 
             item {
-                if (filteredSubstances.isEmpty() && filteredCustomSubstances.isEmpty() && suggestions.isEmpty()) {
+                if (filteredSubstances.isEmpty() && filteredCustomSubstances.isEmpty() && quickLogItems.isEmpty()) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()

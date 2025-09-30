@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -21,6 +23,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Add
@@ -65,12 +69,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.isaakhanimann.journal.R
+import com.isaakhanimann.journal.data.room.experiences.entities.AdaptiveColor
+import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
 import com.isaakhanimann.journal.data.room.experiences.entities.TimedNote
+import com.isaakhanimann.journal.data.room.experiences.entities.getSubstanceColor
 import com.isaakhanimann.journal.data.substances.AdministrationRoute
 import com.isaakhanimann.journal.ui.FULL_STOMACH_DISCLAIMER
 import com.isaakhanimann.journal.ui.YOU
@@ -83,6 +94,7 @@ import com.isaakhanimann.journal.ui.tabs.journal.experience.components.SavedTime
 import com.isaakhanimann.journal.ui.tabs.journal.experience.components.TimeDisplayOption
 import com.isaakhanimann.journal.ui.tabs.journal.experience.components.getDurationText
 import com.isaakhanimann.journal.ui.tabs.journal.experience.components.ingestion.IngestionRow
+import com.isaakhanimann.journal.ui.tabs.journal.experience.components.ingestion.VerticalLine
 import com.isaakhanimann.journal.ui.tabs.journal.experience.components.rating.OverallRatingRow
 import com.isaakhanimann.journal.ui.tabs.journal.experience.components.rating.TimedRatingRow
 import com.isaakhanimann.journal.ui.tabs.journal.experience.components.timednote.TimedNoteRow
@@ -110,18 +122,16 @@ fun ExperienceScreen(
     navigateToTimelineScreen: (consumerName: String) -> Unit,
     navigateBack: () -> Unit,
 ) {
-    val ingestionsWithCompanions = viewModel.ingestionsWithCompanionsFlow.collectAsState().value
     val experience = viewModel.experienceFlow.collectAsState().value
-    val isFavorite = viewModel.isFavoriteFlow.collectAsState().value
     val oneExperienceScreenModel = OneExperienceScreenModel(
-        isFavorite = isFavorite,
+        isFavorite = viewModel.isFavoriteFlow.collectAsState().value,
         title = experience?.title ?: "",
-        firstIngestionTime = ingestionsWithCompanions.minOfOrNull { it.ingestion.time }
+        firstIngestionTime = viewModel.ingestionsWithCompanionsFlow.collectAsState().value.minOfOrNull { it.ingestion.time }
             ?: experience?.sortDate ?: Instant.now(),
         notes = experience?.text ?: "",
         locationName = experience?.location?.name ?: "",
         isCurrentExperience = viewModel.isCurrentExperienceFlow.collectAsState().value,
-        ingestionElements = viewModel.ingestionElementsFlow.collectAsState().value,
+        ingestionElements = viewModel.ingestionElementsFlow.collectAsState(emptyList()).value, // This is now List<ExperienceListElement>
         cumulativeDoses = viewModel.cumulativeDosesFlow.collectAsState().value,
         interactions = viewModel.interactionsFlow.collectAsState().value,
         interactionExplanations = viewModel.interactionExplanationsFlow.collectAsState().value,
@@ -225,7 +235,8 @@ fun ExperienceScreen(
             )
             if (oneExperienceScreenModel.ingestionElements.isNotEmpty()) {
                 MyIngestionList(
-                    oneExperienceScreenModel = oneExperienceScreenModel,
+                    ingestionListElements = oneExperienceScreenModel.ingestionElements,
+                    firstIngestionTime = oneExperienceScreenModel.firstIngestionTime,
                     areDosageDotsHidden = areDosageDotsHidden,
                     navigateToIngestionScreen = navigateToIngestionScreen,
                     timeDisplayOption = timeDisplayOption
@@ -591,9 +602,11 @@ private fun CumulativeDosesSection(
     }
 }
 
+// *** 核心修改：MyIngestionList 現在處理分組和單獨項目 ***
 @Composable
 private fun MyIngestionList(
-    oneExperienceScreenModel: OneExperienceScreenModel,
+    ingestionListElements: List<ExperienceListElement>,
+    firstIngestionTime: Instant,
     areDosageDotsHidden: Boolean,
     navigateToIngestionScreen: (ingestionId: Int) -> Unit,
     timeDisplayOption: TimeDisplayOption
@@ -603,54 +616,50 @@ private fun MyIngestionList(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
     ) {
         Text(
-            text = oneExperienceScreenModel.firstIngestionTime.getDateWithWeekdayText(),
+            text = firstIngestionTime.getDateWithWeekdayText(),
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.padding(16.dp)
         )
-        if (oneExperienceScreenModel.ingestionElements.isNotEmpty()) {
+        if (ingestionListElements.isNotEmpty()) {
             HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
         }
-        oneExperienceScreenModel.ingestionElements.forEachIndexed { index, ingestionElement ->
-            IngestionRow(
-                ingestionElement = ingestionElement,
-                areDosageDotsHidden = areDosageDotsHidden,
-                modifier = Modifier
-                    .clickable {
-                        navigateToIngestionScreen(ingestionElement.ingestionWithCompanionAndCustomUnit.ingestion.id)
-                    }
-                    .fillMaxWidth()
-                    .padding(vertical = 5.dp, horizontal = 10.dp)
-            ) {
-                val ingestion = ingestionElement.ingestionWithCompanionAndCustomUnit.ingestion
-                IngestionTimeOrDurationText(
-                    time = ingestion.time,
-                    endTime = ingestion.endTime,
-                    index = index,
-                    timeDisplayOption = timeDisplayOption,
-                    allTimesSortedMap = oneExperienceScreenModel.ingestionElements.map { it.ingestionWithCompanionAndCustomUnit.ingestion.time }
-                )
-            }
-            val isLastIngestion =
-                index == oneExperienceScreenModel.ingestionElements.size - 1
-            if (isLastIngestion) {
-                if (oneExperienceScreenModel.isCurrentExperience) {
-                    if (timeDisplayOption == TimeDisplayOption.TIME_BETWEEN) {
-                        HorizontalDivider(
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            thickness = DividerDefaults.Thickness,
-                            color = DividerDefaults.color
+
+        val allTimes = ingestionListElements.map { it.time }
+
+        ingestionListElements.forEachIndexed { index, listElement ->
+            when (listElement) {
+                is SingleIngestionListElement -> {
+                    IngestionRow(
+                        ingestionElement = listElement.element,
+                        areDosageDotsHidden = areDosageDotsHidden,
+                        modifier = Modifier
+                            .clickable { navigateToIngestionScreen(listElement.element.ingestionWithCompanionAndCustomUnit.ingestion.id) }
+                            .fillMaxWidth()
+                    ) {
+                        val ingestion = listElement.element.ingestionWithCompanionAndCustomUnit.ingestion
+                        IngestionTimeOrDurationText(
+                            time = ingestion.time,
+                            endTime = ingestion.endTime,
+                            index = allTimes.indexOf(ingestion.time),
+                            timeDisplayOption = timeDisplayOption,
+                            allTimesSortedMap = allTimes
                         )
-                        LastIngestionRelativeToNowText(lastIngestionTime = ingestionElement.ingestionWithCompanionAndCustomUnit.ingestion.time)
-                    } else if (timeDisplayOption == TimeDisplayOption.RELATIVE_TO_START) {
-                        HorizontalDivider(
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            thickness = DividerDefaults.Thickness,
-                            color = DividerDefaults.color
-                        )
-                        NowRelativeToStartTimeText(startTime = oneExperienceScreenModel.firstIngestionTime)
                     }
                 }
-            } else {
+                is GroupedRecipeListElement -> {
+                    GroupedIngestionRow(
+                        groupedElement = listElement,
+                        areDosageDotsHidden = areDosageDotsHidden,
+                        navigateToIngestionScreen = navigateToIngestionScreen,
+                        timeDisplayOption = timeDisplayOption,
+                        allTimesSortedMap = allTimes
+                    )
+                }
+            }
+
+            // 分割線邏輯...
+            val isLastElement = index == ingestionListElements.size - 1
+            if (!isLastElement) {
                 HorizontalDivider(
                     modifier = Modifier.padding(horizontal = 16.dp),
                     thickness = DividerDefaults.Thickness,
@@ -660,6 +669,99 @@ private fun MyIngestionList(
         }
     }
 }
+
+@Composable
+private fun GroupedIngestionRow(
+    groupedElement: GroupedRecipeListElement,
+    areDosageDotsHidden: Boolean,
+    navigateToIngestionScreen: (ingestionId: Int) -> Unit,
+    timeDisplayOption: TimeDisplayOption,
+    allTimesSortedMap: List<Instant>
+) {
+    var isExpanded by remember { mutableStateOf(false) }
+
+    val horizontalPadding = 21.dp
+    val verticalPadding = 18.dp
+
+    Column {
+        Row(
+            modifier = Modifier
+                .clickable { isExpanded = !isExpanded }
+                .fillMaxWidth()
+                .padding(horizontal = horizontalPadding, vertical = verticalPadding),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            val representativeIngestion = groupedElement.representativeElement.ingestionWithCompanionAndCustomUnit
+            com.isaakhanimann.journal.ui.tabs.journal.experience.components.ingestion.VerticalLine(
+                color = representativeIngestion.substanceCompanion?.getSubstanceColor() ?: SubstanceColor.Predefined(
+                    AdaptiveColor.BLUE)
+            )
+
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append(groupedElement.recipeName)
+                        }
+                        append(" (${stringResource(id = R.string.recipe)})")
+                    },
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(
+                    text = groupedElement.recipeDoseText,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
+            Icon(
+                imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                contentDescription = if (isExpanded) stringResource(R.string.collapse) else stringResource(R.string.expand)
+            )
+
+            Column(modifier = Modifier.widthIn(min = 60.dp), horizontalAlignment = Alignment.End) {
+                IngestionTimeOrDurationText(
+                    time = groupedElement.time,
+                    endTime = null,
+                    index = allTimesSortedMap.indexOf(groupedElement.time),
+                    timeDisplayOption = timeDisplayOption,
+                    allTimesSortedMap = allTimesSortedMap
+                )
+            }
+        }
+
+        AnimatedVisibility(visible = isExpanded) {
+            Column(modifier = Modifier.padding(start = horizontalPadding, bottom = verticalPadding)) {
+                groupedElement.subElements.forEachIndexed { index, subElement ->
+                    IngestionRow(
+                        ingestionElement = subElement,
+                        areDosageDotsHidden = areDosageDotsHidden,
+                        modifier = Modifier
+                            .clickable { navigateToIngestionScreen(subElement.ingestionWithCompanionAndCustomUnit.ingestion.id) }
+                            .fillMaxWidth()
+                            .padding(start = 8.dp)
+                    ) {
+
+                    }
+                    if (index < groupedElement.subElements.size - 1) {
+                        HorizontalDivider(
+                            modifier = Modifier.padding(start = 32.dp, end = 16.dp)
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(2.dp))
+            }
+        }
+
+        // 主行和子元素之间的 divider
+        HorizontalDivider(
+            modifier = Modifier.padding(horizontal = horizontalPadding),
+            thickness = DividerDefaults.Thickness,
+            color = DividerDefaults.color
+        )
+    }
+}
+
 
 @Composable
 private fun MyTimelineSection(
@@ -719,7 +821,12 @@ private fun MyTimelineSection(
                         .height(200.dp)
                 )
                 val hasOralIngestion =
-                    oneExperienceScreenModel.ingestionElements.any { it.ingestionWithCompanionAndCustomUnit.ingestion.administrationRoute == AdministrationRoute.ORAL }
+                    oneExperienceScreenModel.ingestionElements.any {
+                        when(it) {
+                            is SingleIngestionListElement -> it.element.ingestionWithCompanionAndCustomUnit.ingestion.administrationRoute == AdministrationRoute.ORAL
+                            is GroupedRecipeListElement -> it.subElements.any { sub -> sub.ingestionWithCompanionAndCustomUnit.ingestion.administrationRoute == AdministrationRoute.ORAL }
+                        }
+                    }
                 if (hasOralIngestion && !isOralDisclaimerHidden) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
@@ -747,9 +854,14 @@ private fun AddIngestionFAB(
     addIngestion: () -> Unit
 ) {
     val wasAnyIngestionCreatedInLast4Hours =
-        oneExperienceScreenModel.ingestionElements.mapNotNull { it.ingestionWithCompanionAndCustomUnit.ingestion.creationDate }
+        oneExperienceScreenModel.ingestionElements.map {
+            when(it) {
+                is SingleIngestionListElement -> it.element.ingestionWithCompanionAndCustomUnit.ingestion.creationDate
+                is GroupedRecipeListElement -> it.representativeElement.ingestionWithCompanionAndCustomUnit.ingestion.creationDate
+            }
+        }
             .any {
-                it > Instant.now().minus(4, ChronoUnit.HOURS)
+                (it?.compareTo(Instant.now().minus(4, ChronoUnit.HOURS)) ?: 0) < 0
             }
     if (oneExperienceScreenModel.isCurrentExperience || wasAnyIngestionCreatedInLast4Hours) {
         ExtendedFloatingActionButton(

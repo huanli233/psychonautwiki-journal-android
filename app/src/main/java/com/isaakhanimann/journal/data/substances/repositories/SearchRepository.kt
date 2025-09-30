@@ -19,6 +19,8 @@
 package com.isaakhanimann.journal.data.substances.repositories
 
 import com.isaakhanimann.journal.data.substances.classes.SubstanceWithCategories
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -35,6 +37,27 @@ class SearchRepository @Inject constructor(
         val substancesMatchingCategories = getSubstancesMatchingCategories(filterCategories)
         val substancesFilteredWithText = getSubstancesMatchingSearchText(searchText, prefilteredSubstances = substancesMatchingCategories)
         return getSubstancesSorted(prefilteredSubstances = substancesFilteredWithText, recentlyUsedSubstanceNamesSorted = recentlyUsedSubstanceNamesSorted)
+    }
+
+    // --- NEW METHOD ADDED ---
+    /**
+     * A reactive version of getMatchingSubstances that returns a Flow.
+     * This is ideal for observing substance data changes in a UI.
+     * Note: This implementation does not include category filtering or recent-based sorting
+     * for simplicity, as it's primarily used for the substance selector which needs all substances.
+     *
+     * @param searchText The text to filter substances by.
+     * @return A Flow emitting the list of matching substances.
+     */
+    fun getMatchingSubstancesFlow(searchText: String): Flow<List<SubstanceWithCategories>> {
+        // Assumption: substanceRepo provides a method to get all substances as a Flow.
+        // This is a common pattern with Room DB.
+        val allSubstancesFlow = substanceRepo.getAllSubstancesWithCategoriesFlow()
+
+        return allSubstancesFlow.map { allSubstances ->
+            // Reuse the existing text filtering logic within the flow's map operator.
+            getSubstancesMatchingSearchText(searchText, allSubstances)
+        }
     }
 
     private fun getSubstancesMatchingCategories(filterCategories: List<String>): List<SubstanceWithCategories> {

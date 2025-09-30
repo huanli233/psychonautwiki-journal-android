@@ -32,7 +32,32 @@ data class JournalExport(
     val experiences: List<ExperienceSerializable> = emptyList(),
     val substanceCompanions: List<SubstanceCompanion> = emptyList(),
     val customSubstances: List<CustomSubstance> = emptyList(),
-    val customUnits: List<CustomUnitSerializable> = emptyList()
+    val customUnits: List<CustomUnitSerializable> = emptyList(),
+    val customRecipes: List<CustomRecipeSerializable> = emptyList()
+)
+
+@Serializable
+data class RecipeSubcomponentSerializable(
+    val id: Int = 0,
+    val substanceName: String,
+    val dose: Double?,
+    var estimatedDoseStandardDeviation: Double?,
+    var isEstimate: Boolean,
+    var originalUnit: String,
+    @Serializable(with = InstantSerializer::class) val creationDate: Instant = Instant.now()
+)
+
+@Serializable
+data class CustomRecipeSerializable(
+    val id: Int,
+    var name: String,
+    @Serializable(with = InstantSerializer::class) val creationDate: Instant = Instant.now(),
+    val administrationRoute: AdministrationRoute,
+    var isArchived: Boolean,
+    var unit: String,
+    var unitPlural: String? = null,
+    var note: String,
+    val subcomponents: List<RecipeSubcomponentSerializable> = emptyList()
 )
 
 @Serializable

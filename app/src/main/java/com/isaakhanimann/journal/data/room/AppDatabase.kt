@@ -33,11 +33,13 @@ import com.isaakhanimann.journal.data.room.experiences.entities.InstantConverter
 import com.isaakhanimann.journal.data.room.experiences.entities.ShulginRating
 import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceCompanion
 import com.isaakhanimann.journal.data.room.experiences.entities.TimedNote
+import com.isaakhanimann.journal.data.room.experiences.entities.CustomRecipe
+import com.isaakhanimann.journal.data.room.experiences.entities.RecipeSubcomponent
 
 @TypeConverters(InstantConverter::class, Converters::class)
 @Database(
-    version = 10,
-    entities = [Experience::class, Ingestion::class, SubstanceCompanion::class, CustomSubstance::class, ShulginRating::class, TimedNote::class, CustomUnit::class],
+    version = 12,
+    entities = [Experience::class, Ingestion::class, SubstanceCompanion::class, CustomSubstance::class, ShulginRating::class, TimedNote::class, CustomUnit::class, CustomRecipe::class, RecipeSubcomponent::class],
     autoMigrations = [
         AutoMigration (from = 1, to = 2),
         AutoMigration (from = 2, to = 3),
@@ -48,6 +50,8 @@ import com.isaakhanimann.journal.data.room.experiences.entities.TimedNote
         AutoMigration (from = 7, to = 8),
         // Version 9 is handled by MIGRATION_8_9
         // Version 10 is handled by MIGRATION_9_10
+        // Version 11 is handled by MIGRATION_10_11
+        // Version 11 is handled by MIGRATION_11_12
     ]
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -79,5 +83,27 @@ abstract class AppDatabase : RoomDatabase() {
                 db.execSQL("ALTER TABLE `TimedNote_new` RENAME TO `TimedNote`")
             }
         }
+
+        val MIGRATION_10_11 = object : Migration(10, 11) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Add customRecipeId column to Ingestion table
+                db.execSQL("ALTER TABLE `Ingestion` ADD COLUMN `customRecipeId` INTEGER")
+                
+                // Create CustomRecipe table
+                db.execSQL("CREATE TABLE `CustomRecipe` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `creationDate` INTEGER NOT NULL, `administrationRoute` TEXT NOT NULL, `isArchived` INTEGER NOT NULL, `unit` TEXT NOT NULL, `unitPlural` TEXT, `note` TEXT NOT NULL)")
+                
+                // Create RecipeSubcomponent table
+                db.execSQL("CREATE TABLE `RecipeSubcomponent` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `recipeId` INTEGER NOT NULL, `substanceName` TEXT NOT NULL, `dose` REAL, `estimatedDoseStandardDeviation` REAL, `isEstimate` INTEGER NOT NULL, `originalUnit` TEXT NOT NULL, `creationDate` INTEGER NOT NULL, FOREIGN KEY(`recipeId`) REFERENCES `CustomRecipe`(`id`) ON DELETE CASCADE)")
+            }
+        }
+
+        val MIGRATION_11_12 = object : Migration(11, 12) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "ALTER TABLE Ingestion ADD COLUMN recipeGroupId TEXT"
+                )
+            }
+        }
+
     }
 }

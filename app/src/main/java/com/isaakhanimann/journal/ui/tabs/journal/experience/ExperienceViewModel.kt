@@ -1,21 +1,3 @@
-/*
- * Copyright (c) 2022-2023. Isaak Hanimann.
- * This file is part of PsychonautWiki Journal.
- *
- * PsychonautWiki Journal is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at
- * your option) any later version.
- *
- * PsychonautWiki Journal is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with PsychonautWiki Journal.  If not, see https://www.gnu.org/licenses/gpl-3.0.en.html.
- */
-
 package com.isaakhanimann.journal.ui.tabs.journal.experience
 
 import androidx.lifecycle.SavedStateHandle
@@ -66,6 +48,24 @@ import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import javax.inject.Inject
+
+sealed interface ExperienceListElement {
+    val time: Instant
+}
+
+data class SingleIngestionListElement(val element: IngestionElement) : ExperienceListElement {
+    override val time: Instant get() = element.ingestionWithCompanionAndCustomUnit.ingestion.time
+}
+
+data class GroupedRecipeListElement(
+    val representativeElement: IngestionElement,
+    val subElements: List<IngestionElement>,
+    val recipeName: String,
+    val recipeDoseText: String
+) : ExperienceListElement {
+    override val time: Instant get() = representativeElement.ingestionWithCompanionAndCustomUnit.ingestion.time
+}
+
 
 @HiltViewModel
 class ExperienceViewModel @Inject constructor(
@@ -137,11 +137,11 @@ class ExperienceViewModel @Inject constructor(
 
     fun saveIsFavorite(isFavorite: Boolean) {
         viewModelScope.launch {
-            localIsFavoriteFlow.emit(isFavorite)
             val experience = experienceFlow.firstOrNull()
             if (experience != null) {
-                experience.isFavorite = isFavorite
-                experienceRepo.update(experience)
+                val updatedExperience = experience.copy(isFavorite = isFavorite)
+                experienceRepo.update(updatedExperience)
+                localIsFavoriteFlow.emit(isFavorite)
             }
         }
     }
@@ -223,6 +223,13 @@ class ExperienceViewModel @Inject constructor(
         }
 
     private val customSubstancesFlow = experienceRepo.getCustomSubstancesFlow()
+        .stateIn(
+            initialValue = emptyList(),
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000)
+        )
+
+    private val allRecipesFlow = experienceRepo.getSortedCustomRecipesWithSubcomponentsFlow(isArchived = false)
         .stateIn(
             initialValue = emptyList(),
             scope = viewModelScope,
@@ -313,23 +320,65 @@ class ExperienceViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.Default)
         .stateIn(
-        initialValue = emptyList(),
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000)
-    )
+            initialValue = emptyList(),
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000)
+        )
 
-    val ingestionElementsFlow = myIngestionsWithAssociatedDataFlow.map {
-        getIngestionElements(it)
+    val ingestionElementsFlow: Flow<List<ExperienceListElement>> = combine(
+        myIngestionsWithAssociatedDataFlow,
+        allRecipesFlow
+    ) { associatedDataList, allRecipes ->
+        val elements = getIngestionElements(associatedDataList)
+
+        val groupedByRecipe = elements
+            .filter { it.ingestionWithCompanionAndCustomUnit.ingestion.recipeGroupId != null }
+            .groupBy { it.ingestionWithCompanionAndCustomUnit.ingestion.recipeGroupId!! }
+
+        val recipeElements = groupedByRecipe.mapNotNull { (_, group) ->
+            val firstElement = group.firstOrNull() ?: return@mapNotNull null
+            val substanceNamesInGroup = group.map { it.ingestionWithCompanionAndCustomUnit.ingestion.substanceName }.toSet()
+
+            val matchedRecipe = allRecipes.find { recipe ->
+                recipe.subcomponents.map { it.substanceName }.toSet() == substanceNamesInGroup
+            }
+
+            val recipeDoseText = firstElement.ingestionWithCompanionAndCustomUnit.ingestion.dose?.let { dose ->
+                matchedRecipe?.let { recipe ->
+                    val recipeDose = dose / (recipe.subcomponents.find { it.substanceName == firstElement.ingestionWithCompanionAndCustomUnit.ingestion.substanceName }!!.dose ?: 0.0)
+                    "%.2f %s".format(recipeDose, recipe.recipe.getPluralizableUnit().plural)
+                }
+            } ?: ""
+
+            GroupedRecipeListElement(
+                representativeElement = firstElement,
+                subElements = group,
+                recipeName = matchedRecipe?.recipe?.name ?: "Custom Recipe",
+                recipeDoseText = recipeDoseText
+            )
+        }
+
+        val singleElements = elements
+            .filter { it.ingestionWithCompanionAndCustomUnit.ingestion.recipeGroupId == null }
+            .map { SingleIngestionListElement(it) }
+
+        (recipeElements + singleElements).sortedBy { it.time }
     }.stateIn(
         initialValue = emptyList(),
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000)
     )
 
-    val dataForEffectTimelinesFlow = ingestionElementsFlow.map { ingestionElements ->
-        val substances =
-            ingestionElements.mapNotNull { substanceRepo.getSubstance(it.ingestionWithCompanionAndCustomUnit.ingestion.substanceName) }
-        getDataForEffectTimelines(ingestionElements = ingestionElements, substances = substances)
+
+    val dataForEffectTimelinesFlow = ingestionElementsFlow.map { listElements ->
+        val allIngestionElements = listElements.flatMap {
+            when(it) {
+                is SingleIngestionListElement -> listOf(it.element)
+                is GroupedRecipeListElement -> it.subElements
+            }
+        }
+        val substances = allIngestionElements.mapNotNull { substanceRepo.getSubstance(it.ingestionWithCompanionAndCustomUnit.ingestion.substanceName) }
+        getDataForEffectTimelines(ingestionElements = allIngestionElements, substances = substances)
     }.stateIn(
         initialValue = emptyList(),
         scope = viewModelScope,
@@ -379,7 +428,7 @@ class ExperienceViewModel @Inject constructor(
                 }
             }.sortedByDescending { it.interactionType.dangerCount }
         }
-            .flowOn(Dispatchers.IO) // if this wasn't on the background the navigation from journal screen to this screen would jump
+            .flowOn(Dispatchers.IO)
             .stateIn(
                 initialValue = emptyList(),
                 scope = viewModelScope,
@@ -410,7 +459,7 @@ class ExperienceViewModel @Inject constructor(
 
     fun saveLastIngestionTimeOfExperience() = viewModelScope.launch {
         val lastIngestionTime =
-            ingestionElementsFlow.value.maxOfOrNull { it.ingestionWithCompanionAndCustomUnit.ingestion.time }
+            ingestionsWithCompanionsFlow.value.maxOfOrNull { it.ingestion.time }
         if (lastIngestionTime != null) {
             userPreferences.saveLastIngestionTimeOfExperience(lastIngestionTime)
             userPreferences.saveClonedIngestionTime(null)
@@ -424,7 +473,7 @@ class ExperienceViewModel @Inject constructor(
         timedNotesSortedFlow,
         ingestionElementsFlow,
         areSubstanceHeightsIndependentFlow
-    ) { dataForEffectLines, isTimelineHidden, ratings, timedNotesSorted, ingestionElements, areSubstanceHeightsIndependent ->
+    ) { dataForEffectLines, isTimelineHidden, ratings, timedNotesSorted, _, areSubstanceHeightsIndependent ->
         if (isTimelineHidden) {
             return@combine TimelineDisplayOption.Hidden
         } else if (dataForEffectLines.isEmpty()) {
@@ -449,7 +498,7 @@ class ExperienceViewModel @Inject constructor(
                         DataForOneTimedNote(time = it.time, color = substanceColor)
                     }
             val isWorthDrawing =
-                ingestionElements.isNotEmpty() && !(ingestionElements.all { it.roaDuration == null } && dataForRatings.isEmpty() && dataForTimedNotes.isEmpty())
+                dataForEffectLines.isNotEmpty() || dataForRatings.isNotEmpty() || dataForTimedNotes.isNotEmpty()
             if (isWorthDrawing) {
                 val model = AllTimelinesModel(
                     dataForLines = dataForEffectLines,

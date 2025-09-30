@@ -27,6 +27,8 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
 import com.isaakhanimann.journal.data.room.AppDatabase
+import com.isaakhanimann.journal.data.room.AppDatabase.Companion.MIGRATION_10_11
+import com.isaakhanimann.journal.data.room.AppDatabase.Companion.MIGRATION_11_12
 import com.isaakhanimann.journal.data.room.AppDatabase.Companion.MIGRATION_7_8
 import com.isaakhanimann.journal.data.room.AppDatabase.Companion.MIGRATION_8_9
 import com.isaakhanimann.journal.data.room.AppDatabase.Companion.MIGRATION_9_10
@@ -54,7 +56,7 @@ object AppModule {
             context,
             AppDatabase::class.java,
             "experiences_db"
-        ).addMigrations(MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10).build()
+        ).addMigrations(MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12).build()
 
     @Singleton
     @Provides

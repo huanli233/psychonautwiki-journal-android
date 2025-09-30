@@ -326,15 +326,15 @@
     <string name="ingestions_affected_by_edit">%1$s are affected by this edit</string>
     <string name="no_ingestions_using_unit">No ingestions are using this unit yet</string>
 
-    <string name="cannabis_info_joint">When smoking a joint about 23% of the THC in the bud is inhaled. So if you smoke a joint with 300mg of a bud that has 20% THC then you inhale 300mg * 20/100 * 23/100 = 13.8mg THC.</string>
-    <string name="cannabis_info_bong">When smoking with a bong about 40% of the THC in the bud is inhaled. So if you smoke 300mg of a bud that has 20% THC then you inhale 300mg * 20/100 * 40/100 = 24mg THC.</string>
-    <string name="cannabis_info_vaporizer">When smoking with a vaporizer about 70% of the THC in the bud is inhaled. So if you smoke 300mg of a bud that has 20% THC then you inhale 300mg * 20/100 * 70/100 = 42mg THC.</string>
-    <string name="psilocybin_info_dried">Dried Psilocybe cubensis contain around 1% of Psilocybin.</string>
-    <string name="psilocybin_info_fresh">Fresh Psilocybe cubensis contain around 0.1% of Psilocybin.</string>
+    <string name="cannabis_info_joint" formatted="false">When smoking a joint about 23% of the THC in the bud is inhaled. So if you smoke a joint with 300mg of a bud that has 20% THC then you inhale 300mg * 20/100 * 23/100 = 13.8mg THC.</string>
+    <string name="cannabis_info_bong" formatted="false">When smoking with a bong about 40% of the THC in the bud is inhaled. So if you smoke 300mg of a bud that has 20% THC then you inhale 300mg * 20/100 * 40/100 = 24mg THC.</string>
+    <string name="cannabis_info_vaporizer" formatted="false">When smoking with a vaporizer about 70% of the THC in the bud is inhaled. So if you smoke 300mg of a bud that has 20% THC then you inhale 300mg * 20/100 * 70/100 = 42mg THC.</string>
+    <string name="psilocybin_info_dried" formatted="false">Dried Psilocybe cubensis contain around 1% of Psilocybin.</string>
+    <string name="psilocybin_info_fresh" formatted="false">Fresh Psilocybe cubensis contain around 0.1% of Psilocybin.</string>
     <string name="psilocybin_info_research">Research the strain of mushroom you have to be able to estimate the amount of Psilocybin it contains.</string>
     <string name="alcohol_info">1 ml of Ethanol is 0.8g. So if you are e.g. consuming 200ml of a spirit with 40% of Alcohol you are consuming 200ml * 40/100 * 0.8 = 64g Ethanol.</string>
 
-    <string name="prompt_cannabis_name">e.g. Joint weed 20%, Bong weed 15%, Vaporizer</string>
+    <string name="prompt_cannabis_name" formatted="false">e.g. Joint weed 20%, Bong weed 15%, Vaporizer</string>
     <string name="prompt_cannabis_unit">mg, joint, hit</string>
     <string name="prompt_cannabis_unit_plural">mg, joints, hits</string>
     <string name="prompt_mushrooms_name">Mushroom strain</string>
@@ -400,4 +400,62 @@
     <string name="add_custom_color">Add custom color</string>
     <string name="select_color">Select color</string>
     <string name="ok">OK</string>
+    <string name="custom_recipes">Custom Recipes</string>
+    <string name="add_custom_recipe">Add custom recipe</string>
+    <string name="edit_custom_recipe">Edit custom recipe</string>
+    <string name="recipe_name">Recipe name</string>
+    <string name="recipe_name_hint">Enter recipe name</string>
+    <string name="subcomponents">Subcomponents</string>
+    <string name="add_subcomponent">Add subcomponent</string>
+    <string name="substance_name">Substance name</string>
+    <string name="substance_name_hint">Enter substance name</string>
+    <string name="dose_per_unit_hint">Enter dose</string>
+    <string name="estimated_dose_standard_deviation">Estimated dose standard deviation</string>
+    <string name="estimated_dose_standard_deviation_hint">Enter standard deviation</string>
+    <string name="is_estimate">Is estimate</string>
+    <string name="original_unit">Original unit</string>
+    <string name="original_unit_hint">mg, g, ml, etc.</string>
+    <string name="no_custom_recipes_yet">No custom recipes yet</string>
+    <string name="no_custom_recipes_description">Create custom recipes to combine multiple substances into a single unit.</string>
+    <string name="no_custom_recipes_found">No custom recipes found</string>
+    <string name="no_custom_recipes_found_description">Try adjusting your search terms.</string>
+    <string name="delete_subcomponent">Delete subcomponent</string>
+    <string name="recipe_unit">Recipe unit</string>
+    <string name="recipe_unit_hint">capsule, tablet, etc.</string>
+    <string name="recipe_unit_plural">Recipe unit plural</string>
+    <string name="recipe_unit_plural_hint">capsules, tablets, etc.</string>
+    <string name="recipe_note">Recipe note</string>
+    <string name="recipe_note_hint">Optional note about this recipe</string>
+    <string name="save_recipe">Save recipe</string>
+    <string name="recipe_saved">Recipe saved</string>
+    <string name="recipe_deleted">Recipe deleted</string>
+    <string name="delete_recipe">Delete recipe</string>
+    <string name="delete_recipe_confirmation">Are you sure you want to delete this recipe?</string>
+    <string name="recipe_contains">Contains: %1$s</string>
+    <string name="choose_recipe">Choose recipe</string>
+    <string name="recipe_dose">Recipe dose</string>
+    <string name="units_of_recipe">units of %1$s</string>
+    <string name="notes_placeholder">Optional notes</string>
+    <string name="administration_route">Administration route</string>
+    <string name="recipe_not_found">Recipe not found</string>
+    <string name="recipe">Recipe</string>
+    <string name="collapse">Collapse</string>
+    <string name="expand">Expand</string>
+    <string name="edit_ingestion">Edit ingestion</string>
+    <string name="add_content_description">Add</string>
+
+    <string name="delete_ingestion_dialog_title">Delete ingestion?</string>
+    <string name="delete_ingestion_content_description">Delete ingestion</string>
+    <string name="done_icon_content_description">Done icon</string>
+    <string name="dose_with_unit_name">Dose %1$s</string>
+    <string name="unit_display">Unit: %1$s</string>
+    <string name="default_unit">Default</string>
+    <string name="ingestion_notes">Ingestion notes</string>
+    <string name="consumer_icon_content_description">Consumer</string>
+
+    <string name="file_not_found">File not found</string>
+    <string name="import_successful">Import successful</string>
+    <string name="decoding_file_failed">Decoding file failed</string>
+    <string name="export_successful">Export successful</string>
+    <string name="export_failed">Export failed</string>
 </resources>

@@ -108,6 +108,7 @@ fun SettingsPreview() {
         navigateToSubstanceColors = {},
         navigateToCustomUnits = {},
         navigateToCustomSubstances = {},
+        navigateToCustomRecipes = {},
         navigateToDonate = {},
         importFile = {},
         exportFile = {},
@@ -130,6 +131,7 @@ fun SettingsScreen(
     navigateToComboSettings: () -> Unit,
     navigateToSubstanceColors: () -> Unit,
     navigateToCustomUnits: () -> Unit,
+    navigateToCustomRecipes: () -> Unit,
     navigateToCustomSubstances: () -> Unit,
     navigateToDonate: () -> Unit,
 ) {
@@ -138,6 +140,7 @@ fun SettingsScreen(
         navigateToComboSettings = navigateToComboSettings,
         navigateToSubstanceColors = navigateToSubstanceColors,
         navigateToCustomUnits = navigateToCustomUnits,
+        navigateToCustomRecipes = navigateToCustomRecipes,
         navigateToCustomSubstances = navigateToCustomSubstances,
         navigateToDonate = navigateToDonate,
         deleteEverything = viewModel::deleteEverything,
@@ -162,6 +165,7 @@ fun SettingsScreen(
     navigateToComboSettings: () -> Unit,
     navigateToSubstanceColors: () -> Unit,
     navigateToCustomUnits: () -> Unit,
+    navigateToCustomRecipes: () -> Unit,
     navigateToCustomSubstances: () -> Unit,
     navigateToDonate: () -> Unit,
     deleteEverything: () -> Unit,
@@ -224,6 +228,22 @@ fun SettingsScreen(
                     title = stringResource(R.string.custom_units),
                     icon = Icons.Outlined.AdUnits,
                     onClick = navigateToCustomUnits
+                )
+            }
+
+            item {
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    thickness = DividerDefaults.Thickness,
+                    color = DividerDefaults.color
+                )
+            }
+
+            item {
+                Preference(
+                    title = stringResource(R.string.custom_recipes),
+                    icon = Icons.Outlined.Medication,
+                    onClick = navigateToCustomRecipes
                 )
             }
             item {

@@ -81,7 +81,7 @@
     <string name="don_t_know_the_dose">不知道劑量？</string>
     <string name="dont_know_the_dose_description">您可以記錄未知劑量。但請注意，使用錯誤劑量的物質可能導致負面體驗，如極度焦慮、不適的身體副作用、住院，或（在極端情況下）死亡。</string>
     <string name="purity">純度</string>
-    <string name="purity_invalid">純度必須在 1% 到 100% 之間</string>
+    <string name="purity_invalid" formatted="false">純度必須在 1% 到 100% 之間</string>
     <string name="impure_dose">非純劑量</string>
     <string name="point_in_time">時間點</string>
     <string name="time_range">時間範圍</string>
@@ -313,15 +313,15 @@
     <string name="ingestions_affected_by_edit">%1$s 受此編輯影響</string>
     <string name="no_ingestions_using_unit">尚無攝取記錄使用此單位</string>
 
-    <string name="cannabis_info_joint">當透過捲菸吸食時，約23%的THC被吸入。因此，如果您吸食一支含有300毫克THC含量為20%的大麻的捲菸，您將吸入 300mg * 20/100 * 23/100 = 13.8mg THC。</string>
-    <string name="cannabis_info_bong">當使用水煙筒吸食時，約40%的THC被吸入。因此，如果您吸食300毫克THC含量為20%的大麻，您將吸入 300mg * 20/100 * 40/100 = 24mg THC。</string>
-    <string name="cannabis_info_vaporizer">當使用霧化器吸食時，約70%的THC被吸入。因此，如果您吸食300毫克THC含量為20%的大麻，您將吸入 300mg * 20/100 * 70/100 = 42mg THC。</string>
-    <string name="psilocybin_info_dried">乾燥的古巴光蓋傘約含有1%的賽洛西賓。</string>
-    <string name="psilocybin_info_fresh">新鮮的古巴光蓋傘約含有0.1%的賽洛西賓。</string>
-    <string name="psilocybin_info_research">請研究您所擁有的蘑菇品種，以便估算其賽洛西賓含量。</string>
-    <string name="alcohol_info">1毫升乙醇為0.8克。因此，如果您飲用200毫升酒精含量為40%的烈酒，您將攝入 200ml * 40/100 * 0.8 = 64克 乙醇。</string>
+    <string name="cannabis_info_joint" formatted="false">當透過捲菸吸食時，約23%的THC被吸入。因此，如果您吸食一支含有300毫克THC含量為20%的大麻的捲菸，您將吸入 300mg * 20/100 * 23/100 = 13.8mg THC。</string>
+    <string name="cannabis_info_bong" formatted="false">當使用水煙筒吸食時，約40%的THC被吸入。因此，如果您吸食300毫克THC含量為20%的大麻，您將吸入 300mg * 20/100 * 40/100 = 24mg THC。</string>
+    <string name="cannabis_info_vaporizer" formatted="false">當使用霧化器吸食時，約70%的THC被吸入。因此，如果您吸食300毫克THC含量為20%的大麻，您將吸入 300mg * 20/100 * 70/100 = 42mg THC。</string>
+    <string name="psilocybin_info_dried" formatted="false">乾燥的古巴光蓋傘約含有1%的賽洛西賓。</string>
+    <string name="psilocybin_info_fresh" formatted="false">新鮮的古巴光蓋傘約含有0.1%的賽洛西賓。</string>
+    <string name="psilocybin_info_research" formatted="false">請研究您所擁有的蘑菇品種，以便估算其賽洛西賓含量。</string>
+    <string name="alcohol_info" formatted="false">1毫升乙醇為0.8克。因此，如果您飲用200毫升酒精含量為40%的烈酒，您將攝入 200ml * 40/100 * 0.8 = 64克 乙醇。</string>
 
-    <string name="prompt_cannabis_name">例如：捲菸（THC 20%），水煙筒（THC 15%），霧化器</string>
+    <string name="prompt_cannabis_name" formatted="false">例如：捲菸（THC 20%），水煙筒（THC 15%），霧化器</string>
     <string name="prompt_cannabis_unit">毫克，支，口</string>
     <string name="prompt_cannabis_unit_plural">毫克，支，口</string>
     <string name="prompt_mushrooms_name">蘑菇品種</string>
@@ -396,4 +396,57 @@
     <string name="edit_custom_unit">編輯自訂單位</string>
     <string name="archive_title">封存</string>
     <string name="clear_search">清除搜尋</string>
+    <string name="custom_recipes">自訂配方</string>
+    <string name="add_custom_recipe">新增自訂配方</string>
+    <string name="edit_custom_recipe">編輯自訂配方</string>
+    <string name="recipe_name">配方名稱</string>
+    <string name="recipe_name_hint">輸入配方名稱</string>
+    <string name="subcomponents">子成分</string>
+    <string name="add_subcomponent">新增子成分</string>
+    <string name="substance_name">物質名稱</string>
+    <string name="substance_name_hint">輸入物質名稱</string>
+    <string name="dose_per_unit_hint">輸入劑量</string>
+    <string name="estimated_dose_standard_deviation">估計劑量標準差</string>
+    <string name="estimated_dose_standard_deviation_hint">輸入標準差</string>
+    <string name="is_estimate">是估計值</string>
+    <string name="original_unit">原始單位</string>
+    <string name="original_unit_hint">毫克、克、毫升等</string>
+    <string name="no_custom_recipes_yet">暫無自訂配方</string>
+    <string name="no_custom_recipes_description">建立自訂配方以將多種物質組合成單個單位。</string>
+    <string name="no_custom_recipes_found">未找到自訂配方</string>
+    <string name="no_custom_recipes_found_description">請嘗試調整搜尋條件。</string>
+    <string name="delete_subcomponent">刪除子成分</string>
+    <string name="recipe_unit">配方單位</string>
+    <string name="recipe_unit_hint">膠囊、片劑等</string>
+    <string name="recipe_unit_plural">配方單位複數</string>
+    <string name="recipe_unit_plural_hint">膠囊、片劑等</string>
+    <string name="recipe_note">配方備註</string>
+    <string name="recipe_note_hint">關於此配方的可選備註</string>
+    <string name="save_recipe">儲存配方</string>
+    <string name="recipe_saved">配方已儲存</string>
+    <string name="recipe_deleted">配方已刪除</string>
+    <string name="delete_recipe">刪除配方</string>
+    <string name="delete_recipe_confirmation">確定要刪除此配方嗎？</string>
+    <string name="recipe_contains">包含：%1$s</string>
+    <string name="choose_recipe">選擇配方</string>
+    <string name="recipe_dose">配方劑量</string>
+    <string name="units_of_recipe">%1$s 單位</string>
+    <string name="notes_placeholder">可選備註</string>
+    <string name="administration_route">給藥途徑</string>
+    <string name="add_content_description">新增</string>
+
+    <string name="delete_ingestion_dialog_title">要刪除此筆攝入記錄嗎？</string>
+    <string name="delete_ingestion_content_description">刪除攝入記錄</string>
+    <string name="done_icon_content_description">完成圖示</string>
+    <string name="dose_with_unit_name">劑量 %1$s</string>
+    <string name="unit_display">單位：%1$s</string>
+    <string name="default_unit">預設</string>
+    <string name="ingestion_notes">攝入筆記</string>
+    <string name="consumer_icon_content_description">消費者</string>
+
+    <string name="file_not_found">找不到檔案</string>
+    <string name="import_successful">匯入成功</string>
+    <string name="decoding_file_failed">檔案解碼失敗</string>
+    <string name="export_successful">匯出成功</string>
+    <string name="export_failed">匯出失敗</string>
 </resources>

@@ -15,6 +15,8 @@ import com.isaakhanimann.journal.data.room.experiences.entities.Location
 import com.isaakhanimann.journal.data.room.experiences.entities.ShulginRating
 import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceCompanion
 import com.isaakhanimann.journal.data.room.experiences.entities.TimedNote
+import com.isaakhanimann.journal.data.room.experiences.entities.CustomRecipe
+import com.isaakhanimann.journal.data.room.experiences.entities.RecipeSubcomponent
 import com.isaakhanimann.journal.data.room.experiences.relations.CustomUnitWithIngestions
 import com.isaakhanimann.journal.data.room.experiences.relations.ExperienceWithIngestions
 import com.isaakhanimann.journal.data.room.experiences.relations.ExperienceWithIngestionsAndCompanions
@@ -23,6 +25,7 @@ import com.isaakhanimann.journal.data.room.experiences.relations.ExperienceWithI
 import com.isaakhanimann.journal.data.room.experiences.relations.IngestionWithCompanion
 import com.isaakhanimann.journal.data.room.experiences.relations.IngestionWithCompanionAndCustomUnit
 import com.isaakhanimann.journal.data.room.experiences.relations.IngestionWithExperienceAndCustomUnit
+import com.isaakhanimann.journal.data.room.experiences.relations.CustomRecipeWithSubcomponents
 import com.isaakhanimann.journal.data.substances.AdministrationRoute
 import com.isaakhanimann.journal.ui.tabs.settings.JournalExport
 import kotlinx.coroutines.flow.Flow
@@ -266,6 +269,9 @@ interface ExperienceDao {
     @Delete
     suspend fun delete(customUnit: CustomUnit)
 
+    @Query("DELETE FROM ingestion WHERE recipeGroupId = :recipeGroupId")
+    suspend fun deleteIngestionsByRecipeGroupId(recipeGroupId: String)
+
     @Transaction
     suspend fun deleteEverything() {
         deleteAllIngestions()
@@ -275,6 +281,8 @@ interface ExperienceDao {
         deleteAllCustomSubstances()
         deleteAllRatings()
         deleteAllCustomUnits()
+        deleteAllRecipeSubcomponents()
+        deleteAllCustomRecipes()
     }
 
     @Transaction
@@ -347,6 +355,10 @@ interface ExperienceDao {
         insert(experience)
         insert(substanceCompanion)
     }
+
+    @Transaction
+    @Query("SELECT * FROM customrecipe ORDER BY creationDate")
+    suspend fun getAllCustomRecipesWithSubcomponentsSorted(): List<CustomRecipeWithSubcomponents>
 
     @Transaction
     suspend fun insertEverything(
@@ -438,6 +450,33 @@ interface ExperienceDao {
                 )
             }
         }
+        journalExport.customRecipes.forEach { recipeSerializable ->
+            val newRecipe = CustomRecipe(
+                id = recipeSerializable.id,
+                name = recipeSerializable.name,
+                creationDate = recipeSerializable.creationDate,
+                administrationRoute = recipeSerializable.administrationRoute,
+                isArchived = recipeSerializable.isArchived,
+                unit = recipeSerializable.unit,
+                unitPlural = recipeSerializable.unitPlural,
+                note = recipeSerializable.note
+            )
+            insert(newRecipe)
+
+            recipeSerializable.subcomponents.forEach { subcomponentSerializable ->
+                val newSubcomponent = RecipeSubcomponent(
+                    id = subcomponentSerializable.id,
+                    recipeId = recipeSerializable.id,
+                    substanceName = subcomponentSerializable.substanceName,
+                    dose = subcomponentSerializable.dose,
+                    estimatedDoseStandardDeviation = subcomponentSerializable.estimatedDoseStandardDeviation,
+                    isEstimate = subcomponentSerializable.isEstimate,
+                    originalUnit = subcomponentSerializable.originalUnit,
+                    creationDate = subcomponentSerializable.creationDate
+                )
+                insert(newSubcomponent)
+            }
+        }
     }
 
     @Transaction
@@ -516,4 +555,58 @@ interface ExperienceDao {
 
     @Query("SELECT * FROM timednote WHERE experienceId =:experienceId")
     suspend fun getTimedNotes(experienceId: Int): List<TimedNote>
+
+    @Query("SELECT * FROM customrecipe WHERE isArchived = :isArchived ORDER BY creationDate DESC")
+    fun getSortedCustomRecipesFlow(isArchived: Boolean): Flow<List<CustomRecipe>>
+
+    @Query("SELECT * FROM customrecipe ORDER BY creationDate DESC")
+    fun getAllCustomRecipesFlow(): Flow<List<CustomRecipe>>
+
+    @Query("SELECT * FROM customrecipe WHERE id = :id")
+    suspend fun getCustomRecipe(id: Int): CustomRecipe?
+
+    @Transaction
+    @Query("SELECT * FROM customrecipe WHERE id = :id")
+    suspend fun getCustomRecipeWithSubcomponents(id: Int): CustomRecipeWithSubcomponents?
+
+    @Transaction
+    @Query("SELECT * FROM customrecipe WHERE isArchived = :isArchived ORDER BY creationDate DESC")
+    fun getSortedCustomRecipesWithSubcomponentsFlow(isArchived: Boolean): Flow<List<CustomRecipeWithSubcomponents>>
+
+    @Query("SELECT * FROM recipesubcomponent WHERE recipeId = :recipeId ORDER BY creationDate")
+    suspend fun getRecipeSubcomponents(recipeId: Int): List<RecipeSubcomponent>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(customRecipe: CustomRecipe): Long
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(recipeSubcomponent: RecipeSubcomponent): Long
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun update(customRecipe: CustomRecipe)
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun update(recipeSubcomponent: RecipeSubcomponent)
+
+    @Delete
+    suspend fun delete(customRecipe: CustomRecipe)
+
+    @Delete
+    suspend fun delete(recipeSubcomponent: RecipeSubcomponent)
+
+    @Transaction
+    suspend fun deleteCustomRecipeWithSubcomponents(customRecipeWithSubcomponents: CustomRecipeWithSubcomponents) {
+        customRecipeWithSubcomponents.subcomponents.forEach {
+            delete(it)
+        }
+        delete(customRecipeWithSubcomponents.recipe)
+    }
+
+    @Transaction
+    @Query("DELETE FROM customrecipe")
+    suspend fun deleteAllCustomRecipes()
+
+    @Transaction
+    @Query("DELETE FROM recipesubcomponent")
+    suspend fun deleteAllRecipeSubcomponents()
 }

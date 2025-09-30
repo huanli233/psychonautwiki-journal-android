@@ -25,8 +25,10 @@ import com.isaakhanimann.journal.data.substances.classes.Substance
 import com.isaakhanimann.journal.data.substances.classes.SubstanceFile
 import com.isaakhanimann.journal.data.substances.classes.SubstanceWithCategories
 import com.isaakhanimann.journal.data.substances.parse.SubstanceParserInterface
-import com.isaakhanimann.journal.ui.tabs.settings.combinations.UserPreferences
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -36,10 +38,10 @@ class SubstanceRepository @Inject constructor(
     private val substanceParser: SubstanceParserInterface,
 ) : SubstanceRepositoryInterface {
 
-    private var substanceFile: SubstanceFile = parseSubstanceFile()
+    private val _substanceFileFlow = MutableStateFlow(parseSubstanceFile())
 
     fun refreshSubstance() {
-        substanceFile = parseSubstanceFile()
+        _substanceFileFlow.value = parseSubstanceFile()
     }
 
     private fun parseSubstanceFile(): SubstanceFile {
@@ -51,38 +53,53 @@ class SubstanceRepository @Inject constructor(
     }
 
     override fun getAllSubstances(): List<Substance> {
-        return substanceFile.substances
+        return _substanceFileFlow.value.substances
     }
 
     override fun getAllSubstancesWithCategories(): List<SubstanceWithCategories> {
-        return substanceFile.substances.map { substance ->
+        val currentSubstanceFile = _substanceFileFlow.value
+        return currentSubstanceFile.substances.map { substance ->
             SubstanceWithCategories(
                 substance = substance,
-                categories = substanceFile.categories.filter { category ->
+                categories = currentSubstanceFile.categories.filter { category ->
                     substance.categories.contains(category.name)
                 }
             )
         }
     }
 
+    fun getAllSubstancesWithCategoriesFlow(): Flow<List<SubstanceWithCategories>> {
+        return _substanceFileFlow.map { substanceFile ->
+            substanceFile.substances.map { substance ->
+                SubstanceWithCategories(
+                    substance = substance,
+                    categories = substanceFile.categories.filter { category ->
+                        substance.categories.contains(category.name)
+                    }
+                )
+            }
+        }
+    }
+
     override fun getAllCategories(): List<Category> {
-        return substanceFile.categories
+        return _substanceFileFlow.value.categories
     }
 
     override fun getSubstance(substanceName: String): Substance? {
-        return substanceFile.substancesMap.getOrDefault(key = substanceName, defaultValue = null)
+        return _substanceFileFlow.value.substancesMap.getOrDefault(key = substanceName, defaultValue = null)
     }
 
     override fun getCategory(categoryName: String): Category? {
-        return substanceFile.categories.firstOrNull { it.name == categoryName }
+        return _substanceFileFlow.value.categories.firstOrNull { it.name == categoryName }
     }
 
     override fun getSubstanceWithCategories(substanceName: String): SubstanceWithCategories? {
+        val currentSubstanceFile = _substanceFileFlow.value
         val substance =
-            substanceFile.substances.firstOrNull { it.name == substanceName } ?: return null
+            currentSubstanceFile.substances.firstOrNull { it.name == substanceName } ?: return null
         return SubstanceWithCategories(
             substance = substance,
-            categories = substanceFile.categories.filter { substance.categories.contains(it.name) }
+            categories = currentSubstanceFile.categories.filter { substance.categories.contains(it.name) }
         )
     }
 }

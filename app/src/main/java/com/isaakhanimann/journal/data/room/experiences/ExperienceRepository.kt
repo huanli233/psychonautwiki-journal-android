@@ -7,6 +7,8 @@ import com.isaakhanimann.journal.data.room.experiences.entities.Ingestion
 import com.isaakhanimann.journal.data.room.experiences.entities.ShulginRating
 import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceCompanion
 import com.isaakhanimann.journal.data.room.experiences.entities.TimedNote
+import com.isaakhanimann.journal.data.room.experiences.entities.CustomRecipe
+import com.isaakhanimann.journal.data.room.experiences.entities.RecipeSubcomponent
 import com.isaakhanimann.journal.data.room.experiences.relations.CustomUnitWithIngestions
 import com.isaakhanimann.journal.data.room.experiences.relations.ExperienceWithIngestions
 import com.isaakhanimann.journal.data.room.experiences.relations.ExperienceWithIngestionsAndCompanions
@@ -14,6 +16,7 @@ import com.isaakhanimann.journal.data.room.experiences.relations.ExperienceWithI
 import com.isaakhanimann.journal.data.room.experiences.relations.ExperienceWithIngestionsTimedNotesAndRatings
 import com.isaakhanimann.journal.data.room.experiences.relations.IngestionWithCompanion
 import com.isaakhanimann.journal.data.room.experiences.relations.IngestionWithExperienceAndCustomUnit
+import com.isaakhanimann.journal.data.room.experiences.relations.CustomRecipeWithSubcomponents
 import com.isaakhanimann.journal.ui.tabs.settings.JournalExport
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -63,6 +66,10 @@ class ExperienceRepository @Inject constructor(private val experienceDao: Experi
 
     suspend fun delete(ingestion: Ingestion) = experienceDao.delete(ingestion)
     suspend fun delete(customUnit: CustomUnit) = experienceDao.delete(customUnit)
+
+    suspend fun deleteIngestionsByRecipeGroupId(recipeGroupId: String) {
+        experienceDao.deleteIngestionsByRecipeGroupId(recipeGroupId)
+    }
 
     suspend fun deleteEverythingOfExperience(experienceId: Int) =
         experienceDao.deleteEverythingOfExperience(experienceId)
@@ -256,6 +263,35 @@ class ExperienceRepository @Inject constructor(private val experienceDao: Experi
 
     fun getSubstanceCompanionFlow(substanceName: String) =
         experienceDao.getSubstanceCompanionFlow(substanceName)
+
+    suspend fun insert(customRecipe: CustomRecipe) = experienceDao.insert(customRecipe)
+    suspend fun insert(recipeSubcomponent: RecipeSubcomponent) = experienceDao.insert(recipeSubcomponent)
+    suspend fun update(customRecipe: CustomRecipe) = experienceDao.update(customRecipe)
+    suspend fun update(recipeSubcomponent: RecipeSubcomponent) = experienceDao.update(recipeSubcomponent)
+    suspend fun delete(customRecipe: CustomRecipe) = experienceDao.delete(customRecipe)
+    suspend fun delete(recipeSubcomponent: RecipeSubcomponent) = experienceDao.delete(recipeSubcomponent)
+    suspend fun deleteCustomRecipeWithSubcomponents(customRecipeWithSubcomponents: CustomRecipeWithSubcomponents) = 
+        experienceDao.deleteCustomRecipeWithSubcomponents(customRecipeWithSubcomponents)
+
+    suspend fun getCustomRecipe(id: Int) = experienceDao.getCustomRecipe(id)
+    suspend fun getCustomRecipeWithSubcomponents(id: Int) = experienceDao.getCustomRecipeWithSubcomponents(id)
+    suspend fun getRecipeSubcomponents(recipeId: Int) = experienceDao.getRecipeSubcomponents(recipeId)
+    suspend fun getAllCustomRecipesWithSubcomponentsSorted(): List<CustomRecipeWithSubcomponents> =
+        experienceDao.getAllCustomRecipesWithSubcomponentsSorted()
+
+    fun getSortedCustomRecipesFlow(isArchived: Boolean) = 
+        experienceDao.getSortedCustomRecipesFlow(isArchived)
             .flowOn(Dispatchers.IO)
             .conflate()
+
+    fun getSortedCustomRecipesWithSubcomponentsFlow(isArchived: Boolean) = 
+        experienceDao.getSortedCustomRecipesWithSubcomponentsFlow(isArchived)
+            .flowOn(Dispatchers.IO)
+            .conflate()
+
+    fun getAllCustomRecipesFlow() = experienceDao.getAllCustomRecipesFlow()
+        .flowOn(Dispatchers.IO)
+        .conflate()
+
+    suspend fun insert(substanceCompanion: SubstanceCompanion) = experienceDao.insert(substanceCompanion)
 }

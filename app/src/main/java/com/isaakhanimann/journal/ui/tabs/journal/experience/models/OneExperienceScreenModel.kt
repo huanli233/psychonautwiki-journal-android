@@ -21,6 +21,7 @@ package com.isaakhanimann.journal.ui.tabs.journal.experience.models
 import com.isaakhanimann.journal.data.room.experiences.entities.ShulginRating
 import com.isaakhanimann.journal.data.room.experiences.entities.TimedNote
 import com.isaakhanimann.journal.ui.tabs.journal.addingestion.interactions.Interaction
+import com.isaakhanimann.journal.ui.tabs.journal.experience.ExperienceListElement
 import com.isaakhanimann.journal.ui.tabs.journal.experience.components.DataForOneEffectLine
 import java.time.Instant
 
@@ -31,7 +32,7 @@ data class OneExperienceScreenModel(
     val notes: String,
     val locationName: String,
     val isCurrentExperience: Boolean,
-    val ingestionElements: List<IngestionElement>,
+    val ingestionElements: List<ExperienceListElement>,
     val cumulativeDoses: List<CumulativeDose>,
     val interactions: List<Interaction>,
     val interactionExplanations: List<InteractionExplanation>,

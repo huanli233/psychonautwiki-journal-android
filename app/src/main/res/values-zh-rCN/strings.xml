@@ -313,15 +313,15 @@
     <string name="ingestions_affected_by_edit">%1$s 受此编辑影响</string>
     <string name="no_ingestions_using_unit">尚无摄入记录使用此单位</string>
 
-    <string name="cannabis_info_joint">当通过卷烟吸食时，约23%的THC被吸入。因此，如果您吸食一支含有300毫克THC含量为20%的大麻的卷烟，您将吸入 300mg * 20/100 * 23/100 = 13.8mg THC。</string>
-    <string name="cannabis_info_bong">当使用水烟筒吸食时，约40%的THC被吸入。因此，如果您吸食300毫克THC含量为20%的大麻，您将吸入 300mg * 20/100 * 40/100 = 24mg THC。</string>
-    <string name="cannabis_info_vaporizer">当使用雾化器吸食时，约70%的THC被吸入。因此，如果您吸食300毫克THC含量为20%的大麻，您将吸入 300mg * 20/100 * 70/100 = 42mg THC。</string>
-    <string name="psilocybin_info_dried">干燥的古巴光盖伞约含有1%的赛洛西宾。</string>
-    <string name="psilocybin_info_fresh">新鲜的古巴光盖伞约含有0.1%的赛洛西宾。</string>
+    <string name="cannabis_info_joint" formatted="false">当通过卷烟吸食时，约23%的THC被吸入。因此，如果您吸食一支含有300毫克THC含量为20%的大麻的卷烟，您将吸入 300mg * 20/100 * 23/100 = 13.8mg THC。</string>
+    <string name="cannabis_info_bong" formatted="false">当使用水烟筒吸食时，约40%的THC被吸入。因此，如果您吸食300毫克THC含量为20%的大麻，您将吸入 300mg * 20/100 * 40/100 = 24mg THC。</string>
+    <string name="cannabis_info_vaporizer" formatted="false">当使用雾化器吸食时，约70%的THC被吸入。因此，如果您吸食300毫克THC含量为20%的大麻，您将吸入 300mg * 20/100 * 70/100 = 42mg THC。</string>
+    <string name="psilocybin_info_dried" formatted="false">干燥的古巴光盖伞约含有1%的赛洛西宾。</string>
+    <string name="psilocybin_info_fresh" formatted="false">新鲜的古巴光盖伞约含有0.1%的赛洛西宾。</string>
     <string name="psilocybin_info_research">请研究您所拥有的蘑菇品种，以便估算其赛洛西宾含量。</string>
-    <string name="alcohol_info">1毫升乙醇为0.8克。因此，如果您饮用200毫升酒精含量为40%的烈酒，您将摄入 200ml * 40/100 * 0.8 = 64克 乙醇。</string>
+    <string name="alcohol_info" formatted="false">1毫升乙醇为0.8克。因此，如果您饮用200毫升酒精含量为40%的烈酒，您将摄入 200ml * 40/100 * 0.8 = 64克 乙醇。</string>
 
-    <string name="prompt_cannabis_name">例如：卷烟（THC 20%），水烟筒（THC 15%），雾化器</string>
+    <string name="prompt_cannabis_name" formatted="false">例如：卷烟（THC 20%），水烟筒（THC 15%），雾化器</string>
     <string name="prompt_cannabis_unit">毫克，支，口</string>
     <string name="prompt_cannabis_unit_plural">毫克，支，口</string>
     <string name="prompt_mushrooms_name">蘑菇品种</string>
@@ -396,4 +396,57 @@
     <string name="archive_title">存档</string>
     <string name="clear_search">清除搜索</string>
     <string name="edit_custom_unit">编辑自定义单位</string>
+    <string name="custom_recipes">自定义配方</string>
+    <string name="add_custom_recipe">添加自定义配方</string>
+    <string name="edit_custom_recipe">编辑自定义配方</string>
+    <string name="recipe_name">配方名称</string>
+    <string name="recipe_name_hint">输入配方名称</string>
+    <string name="subcomponents">子成分</string>
+    <string name="add_subcomponent">添加子成分</string>
+    <string name="substance_name">物质名称</string>
+    <string name="substance_name_hint">输入物质名称</string>
+    <string name="dose_per_unit_hint">输入剂量</string>
+    <string name="estimated_dose_standard_deviation">估计剂量标准差</string>
+    <string name="estimated_dose_standard_deviation_hint">输入标准差</string>
+    <string name="is_estimate">是估计值</string>
+    <string name="original_unit">原始单位</string>
+    <string name="original_unit_hint">毫克、克、毫升等</string>
+    <string name="no_custom_recipes_yet">暂无自定义配方</string>
+    <string name="no_custom_recipes_description">创建自定义配方以将多种物质组合成单个单位。</string>
+    <string name="no_custom_recipes_found">未找到自定义配方</string>
+    <string name="no_custom_recipes_found_description">请尝试调整搜索条件。</string>
+    <string name="delete_subcomponent">删除子成分</string>
+    <string name="recipe_unit">配方单位</string>
+    <string name="recipe_unit_hint">胶囊、片剂等</string>
+    <string name="recipe_unit_plural">配方单位复数</string>
+    <string name="recipe_unit_plural_hint">胶囊、片剂等</string>
+    <string name="recipe_note">配方备注</string>
+    <string name="recipe_note_hint">关于此配方的可选备注</string>
+    <string name="save_recipe">保存配方</string>
+    <string name="recipe_saved">配方已保存</string>
+    <string name="recipe_deleted">配方已删除</string>
+    <string name="delete_recipe">删除配方</string>
+    <string name="delete_recipe_confirmation">确定要删除此配方吗？</string>
+    <string name="recipe_contains">包含：%1$s</string>
+    <string name="choose_recipe">选择配方</string>
+    <string name="recipe_dose">配方剂量</string>
+    <string name="units_of_recipe">%1$s 单位</string>
+    <string name="notes_placeholder">可选备注</string>
+    <string name="administration_route">给药途径</string>
+    <string name="add_content_description">添加</string>
+
+    <string name="delete_ingestion_dialog_title">要删除此摄入记录吗？</string>
+    <string name="delete_ingestion_content_description">删除摄入记录</string>
+    <string name="done_icon_content_description">完成图标</string>
+    <string name="dose_with_unit_name">剂量 %1$s</string>
+    <string name="unit_display">单位：%1$s</string>
+    <string name="default_unit">默认</string>
+    <string name="ingestion_notes">摄入笔记</string>
+    <string name="consumer_icon_content_description">消费者</string>
+
+    <string name="file_not_found">未找到文件</string>
+    <string name="import_successful">导入成功</string>
+    <string name="decoding_file_failed">文件解码失败</string>
+    <string name="export_successful">导出成功</string>
+    <string name="export_failed">导出失败</string>
 </resources>
