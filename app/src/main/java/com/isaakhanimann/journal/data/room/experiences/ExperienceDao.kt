@@ -400,7 +400,9 @@ interface ExperienceDao {
                         notes = ingestionSerializable.notes,
                         stomachFullness = ingestionSerializable.stomachFullness,
                         consumerName = ingestionSerializable.consumerName,
-                        customUnitId = ingestionSerializable.customUnitId
+                        customUnitId = ingestionSerializable.customUnitId,
+                        customRecipeId = ingestionSerializable.customRecipeId,
+                        recipeGroupId = ingestionSerializable.recipeGroupId
                     )
                     insert(newIngestion)
                 }
@@ -471,7 +473,6 @@ interface ExperienceDao {
                     dose = subcomponentSerializable.dose,
                     estimatedDoseStandardDeviation = subcomponentSerializable.estimatedDoseStandardDeviation,
                     isEstimate = subcomponentSerializable.isEstimate,
-                    unit = subcomponentSerializable.unit,
                     originalUnit = subcomponentSerializable.originalUnit,
                     creationDate = subcomponentSerializable.creationDate
                 )

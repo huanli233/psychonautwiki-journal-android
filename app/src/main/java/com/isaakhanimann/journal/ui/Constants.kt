@@ -27,7 +27,7 @@ val DOSE_DISCLAIMER
 
 const val VOLUMETRIC_DOSE_ARTICLE_URL = "https://psychonautwiki.org/wiki/Volumetric_liquid_dosing"
 
-const val VERSION_NAME = "11.16.1"
+const val VERSION_NAME = "11.16.2"
 
 val FULL_STOMACH_DISCLAIMER
     @Composable get() = stringResource(R.string.full_stomach_disclaimer)

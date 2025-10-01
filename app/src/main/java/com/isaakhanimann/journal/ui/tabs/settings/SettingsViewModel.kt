@@ -141,7 +141,9 @@ class SettingsViewModel @Inject constructor(
                             notes = ingestion.notes,
                             stomachFullness = ingestion.stomachFullness,
                             consumerName = ingestion.consumerName,
-                            customUnitId = ingestion.customUnitId
+                            customUnitId = ingestion.customUnitId,
+                            customRecipeId = ingestion.customRecipeId,
+                            recipeGroupId = ingestion.recipeGroupId
                         )
                     },
                     location = if (location != null) {
@@ -206,7 +208,6 @@ class SettingsViewModel @Inject constructor(
                             dose = subcomponent.dose,
                             estimatedDoseStandardDeviation = subcomponent.estimatedDoseStandardDeviation,
                             isEstimate = subcomponent.isEstimate,
-                            unit = subcomponent.unit,
                             originalUnit = subcomponent.originalUnit
                         )
                     }

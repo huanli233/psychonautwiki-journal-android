@@ -40,11 +40,10 @@ data class JournalExport(
 data class RecipeSubcomponentSerializable(
     val id: Int = 0,
     val substanceName: String?,
-    val customUnitId: Int?,
+    val customUnitId: Int? = null,
     val dose: Double?,
     var estimatedDoseStandardDeviation: Double?,
     var isEstimate: Boolean,
-    var unit: String,
     var originalUnit: String,
     @Serializable(with = InstantSerializer::class) val creationDate: Instant = Instant.now()
 )
@@ -113,7 +112,9 @@ data class IngestionSerializable(
     var notes: String? = null,
     var stomachFullness: StomachFullness? = null,
     var consumerName: String? = null,
-    var customUnitId: Int? = null
+    var customUnitId: Int? = null,
+    var customRecipeId: Int? = null,
+    val recipeGroupId: String? = null
 )
 
 @Serializable

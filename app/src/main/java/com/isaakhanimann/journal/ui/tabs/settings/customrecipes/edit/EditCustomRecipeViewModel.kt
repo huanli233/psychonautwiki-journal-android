@@ -209,7 +209,6 @@ class EditCustomRecipeViewModel @Inject constructor(
                             dose = null,
                             estimatedDoseStandardDeviation = null,
                             isEstimate = false,
-                            unit = "",
                             originalUnit = ""
                         )
                     } else {
@@ -221,7 +220,6 @@ class EditCustomRecipeViewModel @Inject constructor(
                             dose = subcomponentData.dose.toDoubleOrNull(),
                             estimatedDoseStandardDeviation = subcomponentData.estimatedDoseStandardDeviation.toDoubleOrNull(),
                             isEstimate = subcomponentData.isEstimate,
-                            unit = subcomponentData.originalUnit,
                             originalUnit = subcomponentData.originalUnit
                         )
                     }
