@@ -449,4 +449,14 @@
     <string name="decoding_file_failed">檔案解碼失敗</string>
     <string name="export_successful">匯出成功</string>
     <string name="export_failed">匯出失敗</string>
+    <string name="already_used">已使用</string>
+    <string name="other_colors">其他顏色</string>
+    <string name="add_custom_color">新增自訂顏色</string>
+    <string name="select_color">選擇顏色</string>
+    <string name="ok">確定</string>
+    <string name="recipe_not_found">未找到配方</string>
+    <string name="recipe">配方</string>
+    <string name="collapse">收起</string>
+    <string name="expand">展開</string>
+    <string name="edit_ingestion">編輯攝入記錄</string>
 </resources>

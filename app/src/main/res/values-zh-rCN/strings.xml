@@ -1,21 +1,3 @@
-<!--
-  ~ Copyright (c) 2022-2023. Isaak Hanimann.
-  ~ This file is part of PsychonautWiki Journal.
-  ~
-  ~ PsychonautWiki Journal is free software: you can redistribute it and/or modify
-  ~ it under the terms of the GNU General Public License as published by
-  ~ the Free Software Foundation, either version 3 of the License, or (at
-  ~ your option) any later version.
-  ~
-  ~ PsychonautWiki Journal is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with PsychonautWiki Journal.  If not, see https://www.gnu.org/licenses/gpl-3.0.en.html.
-  -->
-
 <resources>
     <string name="app_name">日志</string>
     <string name="follow_system">跟随系统</string>
@@ -229,12 +211,25 @@
     <string name="safer_hallucinogen_use">更安全地使用致幻剂</string>
     <string name="see_also">参见</string>
     <string name="safer_stimulant_use">更安全地使用兴奋剂</string>
+    <string name="no_matching_substance_with_the_tag_found">未找到带有“%1$s”标签的匹配物质</string>
+    <string name="no_matching_substance_with_tags_found">未找到带有“%1$s”标签的匹配物质</string>
+    <string name="add_route_of_administration">添加给药途径</string>
+    <string name="route">路径</string>
+    <string name="routes_of_administration">给药途径</string>
+    <string name="default_units">默认单位</string>
+    <string name="name">名称</string>
     <string name="hide_dosage_dots_summary">隐藏时间线图表上的小圆点。</string>
     <string name="hide_timeline_summary">在体验详情页隐藏时间线图表。</string>
     <string name="export_description_short">将您的所有数据保存到一个 JSON 文件。</string>
     <string name="import_description_short">从之前导出的 JSON 文件导入数据。</string>
     <string name="delete_everything_description_short">永久删除您的所有数据。此操作无法撤销。</string>
+    <string name="suggestions">建议</string>
+    <string name="dose_is_known">剂量已知</string>
+    <string name="part_of_unknown_experience">未知体验的一部分</string>
+    <string name="add_ingestion_at_same_time">同时添加摄入记录</string>
     <string name="custom">自定义</string>
+    <string name="navigate_back">返回</string>
+    <string name="dose_unknown">总剂量未知</string>
     <string name="explain_timeline_title">时间轴信息</string>
 
     <string name="explain_timeline_assumptions_title">简化/错误假设</string>
@@ -352,7 +347,6 @@
     <string name="prompt_default_unit">例如：片，喷，勺</string>
     <string name="prompt_default_unit_plural">例如：片，喷，勺</string>
 
-    <string name="name">名称</string>
     <string name="unit_singular">单位（单数）</string>
     <string name="unit_plural">单位（复数）</string>
     <string name="note">备注</string>
@@ -365,19 +359,6 @@
     <string name="archive_description">添加摄入记录时不会显示已存档的自定义单位</string>
 
     <string name="done_cd">完成</string>
-
-    <string name="route">路径</string>
-    <string name="routes_of_administration">给药途径</string>
-    <string name="add_route_of_administration">添加给药途径</string>
-    <string name="no_matching_substance_with_the_tag_found">未找到带有“%1$s”标签的匹配物质</string>
-    <string name="no_matching_substance_with_tags_found">未找到带有“%1$s”标签的匹配物质</string>
-    <string name="default_units">默认单位</string>
-    <string name="suggestions">建议</string>
-    <string name="dose_is_known">剂量已知</string>
-    <string name="part_of_unknown_experience">未知体验的一部分</string>
-    <string name="add_ingestion_at_same_time">同时添加摄入记录</string>
-    <string name="navigate_back">返回</string>
-    <string name="dose_unknown">总剂量未知</string>
 
     <string-array name="cannabis_info">
         <item>手卷烟: 0.2-1克</item>
@@ -393,9 +374,14 @@
         <item>在美国，1个标准单位是14克酒精；在英国是8克。</item>
     </string-array>
     <string name="unit">单位</string>
+    <string name="edit_custom_unit">编辑自定义单位</string>
     <string name="archive_title">存档</string>
     <string name="clear_search">清除搜索</string>
-    <string name="edit_custom_unit">编辑自定义单位</string>
+    <string name="already_used">已使用</string>
+    <string name="other_colors">其他颜色</string>
+    <string name="add_custom_color">添加自定义颜色</string>
+    <string name="select_color">选择颜色</string>
+    <string name="ok">确定</string>
     <string name="custom_recipes">自定义配方</string>
     <string name="add_custom_recipe">添加自定义配方</string>
     <string name="edit_custom_recipe">编辑自定义配方</string>
@@ -433,6 +419,11 @@
     <string name="units_of_recipe">%1$s 单位</string>
     <string name="notes_placeholder">可选备注</string>
     <string name="administration_route">给药途径</string>
+    <string name="recipe_not_found">未找到配方</string>
+    <string name="recipe">配方</string>
+    <string name="collapse">收起</string>
+    <string name="expand">展开</string>
+    <string name="edit_ingestion">编辑摄入记录</string>
     <string name="add_content_description">添加</string>
 
     <string name="delete_ingestion_dialog_title">要删除此摄入记录吗？</string>
