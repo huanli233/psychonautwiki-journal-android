@@ -458,4 +458,8 @@
     <string name="decoding_file_failed">Decoding file failed</string>
     <string name="export_successful">Export successful</string>
     <string name="export_failed">Export failed</string>
+    <string name="custom_recipe_archive_title">Custom recipe archive</string>
+    <string name="no_archived_recipes_yet">No archived recipes yet</string>
+    <string name="no_archived_recipes_description">Archived recipes don\'t show up when adding ingestions</string>
+    <string name="unarchive">Unarchive</string>
 </resources>

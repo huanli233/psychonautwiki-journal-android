@@ -20,6 +20,7 @@ import com.isaakhanimann.journal.ui.tabs.settings.customrecipes.CustomRecipesScr
 import com.isaakhanimann.journal.ui.tabs.settings.customrecipes.SubstanceSelectorScreen
 import com.isaakhanimann.journal.ui.tabs.settings.customrecipes.add.AddCustomRecipeScreen
 import com.isaakhanimann.journal.ui.tabs.settings.customrecipes.add.AddCustomRecipeViewModel
+import com.isaakhanimann.journal.ui.tabs.settings.customrecipes.archive.CustomRecipeArchiveScreen
 import com.isaakhanimann.journal.ui.tabs.settings.customrecipes.edit.EditCustomRecipeScreen
 import com.isaakhanimann.journal.ui.tabs.settings.customsubstances.CustomSubstanceManagementScreen
 import com.isaakhanimann.journal.ui.tabs.settings.customunits.CustomUnitsScreen
@@ -111,6 +112,13 @@ fun NavGraphBuilder.settingsGraph(navController: NavHostController) {
                 },
                 navigateToCustomRecipeArchive = {
                     navController.navigate(CustomRecipeArchiveRoute)
+                }
+            )
+        }
+        composableWithTransitions<CustomRecipeArchiveRoute> {
+            CustomRecipeArchiveScreen(
+                navigateToEditCustomRecipe = { customRecipeId ->
+                    navController.navigate(EditCustomRecipeRoute(customRecipeId))
                 }
             )
         }

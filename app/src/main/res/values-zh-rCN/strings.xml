@@ -356,6 +356,7 @@
     <string name="ingestion_sample_preview">摄入示例预览：</string>
     <string name="archive_this_unit_cd">存档此单位</string>
     <string name="archive">存档</string>
+    <string name="unarchive">取消存档</string>
     <string name="archive_description">添加摄入记录时不会显示已存档的自定义单位</string>
 
     <string name="done_cd">完成</string>
@@ -440,4 +441,8 @@
     <string name="decoding_file_failed">文件解码失败</string>
     <string name="export_successful">导出成功</string>
     <string name="export_failed">导出失败</string>
+
+    <string name="custom_recipe_archive_title">自定义配方存档</string>
+    <string name="no_archived_recipes_yet">暂无已存档的配方</string>
+    <string name="no_archived_recipes_description">已存档的配方不会在添加摄入时显示</string>
 </resources>

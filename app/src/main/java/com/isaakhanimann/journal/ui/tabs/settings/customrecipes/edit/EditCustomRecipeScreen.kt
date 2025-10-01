@@ -134,7 +134,7 @@ fun EditCustomRecipeScreenContent(
                         onDismissRequest = { showDropdownMenu = false }
                     ) {
                         DropdownMenuItem(
-                            text = { Text(if (isArchived) "Unarchive" else "Archive") },
+                            text = { Text(if (isArchived) stringResource(R.string.unarchive) else stringResource(R.string.archive)) },
                             onClick = {
                                 onToggleArchive()
                                 showDropdownMenu = false

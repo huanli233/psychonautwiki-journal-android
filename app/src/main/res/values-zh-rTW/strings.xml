@@ -362,6 +362,7 @@
     <string name="ingestion_sample_preview">攝取範例預覽：</string>
     <string name="archive_this_unit_cd">封存此單位</string>
     <string name="archive">封存</string>
+    <string name="unarchive">取消封存</string>
     <string name="archive_description">新增攝取記錄時不會顯示已封存的自訂單位</string>
 
     <string name="done_cd">完成</string>
@@ -459,4 +460,8 @@
     <string name="collapse">收起</string>
     <string name="expand">展開</string>
     <string name="edit_ingestion">編輯攝入記錄</string>
+
+    <string name="custom_recipe_archive_title">自訂配方封存</string>
+    <string name="no_archived_recipes_yet">尚無已封存的配方</string>
+    <string name="no_archived_recipes_description">已封存的配方不會在新增攝入時顯示</string>
 </resources>
