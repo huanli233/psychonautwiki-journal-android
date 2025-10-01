@@ -86,9 +86,7 @@ fun CustomRecipesScreenContent(
             TopAppBar(
                 title = { Text(stringResource(R.string.custom_recipes)) },
                 actions = {
-                    IconButton(onClick = navigateToCustomRecipeArchive) {
-                        Icon(Icons.Default.Inventory, contentDescription = stringResource(R.string.archive_title))
-                    }
+                    
                 })
         },
         floatingActionButton = {
