@@ -437,7 +437,7 @@ fun SettingsScreen(
                 Preference(
                     title = stringResource(R.string.source_code),
                     icon = Icons.Outlined.Code,
-                    onClick = { uriHandler.openUri("https://github.com/isaakhanimann/psychonautwiki-journal-android") }
+                    onClick = { uriHandler.openUri("https://github.com/huanli233/psychonautwiki-journal-android") }
                 )
             }
             item {
