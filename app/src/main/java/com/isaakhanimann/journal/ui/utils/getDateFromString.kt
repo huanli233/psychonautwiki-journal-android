@@ -27,7 +27,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 
-fun getInstant(year: Int, month: Int, day: Int, hourOfDay: Int, minute: Int): Instant? {
+fun getInstant(year: Int, month: Int, day: Int, hourOfDay: Int, minute: Int): Instant {
     val dateTime = LocalDateTime.of(year, month, day, hourOfDay, minute)
     return dateTime.atZone(ZoneId.systemDefault()).toInstant()
 }

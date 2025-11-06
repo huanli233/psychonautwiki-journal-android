@@ -25,7 +25,7 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuAnchorType
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SuggestionChip
@@ -169,7 +169,7 @@ private fun RoaInfoEditor(
                         readOnly = true,
                         label = { Text(stringResource(R.string.route)) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isRoaMenuExpanded) },
-                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                        modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
                     )
                     ExposedDropdownMenu(
                         expanded = isRoaMenuExpanded,
@@ -287,7 +287,7 @@ private fun DurationRangeEditor(label: String, value: SerializableDurationRange?
             expanded = isUnitsMenuExpanded,
             onExpandedChange = { isUnitsMenuExpanded = !isUnitsMenuExpanded }
         ) {
-            OutlinedButton(onClick = { isUnitsMenuExpanded = true }, modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable)) {
+            OutlinedButton(onClick = { isUnitsMenuExpanded = true }, modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)) {
                 Text(currentRange.units?.text ?: stringResource(R.string.units_placeholder))
             }
             ExposedDropdownMenu(

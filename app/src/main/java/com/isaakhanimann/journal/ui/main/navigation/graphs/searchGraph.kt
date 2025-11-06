@@ -103,9 +103,6 @@ data class SubstanceRoute(val substanceName: String)
 data class CategoryRoute(val categoryName: String)
 
 @Serializable
-data class EditCustomSubstanceRoute(val customSubstanceId: Int)
-
-@Serializable
 object AddCustomSubstanceRouteOnSearchGraph
 
 @Serializable

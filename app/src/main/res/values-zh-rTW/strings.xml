@@ -1,21 +1,3 @@
-<!--
-  ~ Copyright (c) 2022-2023. Isaak Hanimann.
-  ~ This file is part of PsychonautWiki Journal.
-  ~
-  ~ PsychonautWiki Journal is free software: you can redistribute it and/or modify
-  ~ it under the terms of the GNU General Public License as published by
-  ~ the Free Software Foundation, either version 3 of the License, or (at
-  ~ your option) any later version.
-  ~
-  ~ PsychonautWiki Journal is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with PsychonautWiki Journal.  If not, see https://www.gnu.org/licenses/gpl-3.0.en.html.
-  -->
-
 <resources>
     <string name="app_name">日誌</string>
     <string name="follow_system">跟隨系統</string>
@@ -81,7 +63,7 @@
     <string name="don_t_know_the_dose">不知道劑量？</string>
     <string name="dont_know_the_dose_description">您可以記錄未知劑量。但請注意，使用錯誤劑量的物質可能導致負面體驗，如極度焦慮、不適的身體副作用、住院，或（在極端情況下）死亡。</string>
     <string name="purity">純度</string>
-    <string name="purity_invalid" formatted="false">純度必須在 1% 到 100% 之間</string>
+    <string name="purity_invalid">純度必須在 1% 到 100% 之間</string>
     <string name="impure_dose">非純劑量</string>
     <string name="point_in_time">時間點</string>
     <string name="time_range">時間範圍</string>
@@ -229,12 +211,25 @@
     <string name="safer_hallucinogen_use">更安全地使用致幻劑</string>
     <string name="see_also">參見</string>
     <string name="safer_stimulant_use">更安全地使用興奮劑</string>
+    <string name="no_matching_substance_with_the_tag_found">未找到帶有「%1$s」標籤的相符物質</string>
+    <string name="no_matching_substance_with_tags_found">未找到帶有「%1$s」標籤的相符物質</string>
+    <string name="add_route_of_administration">新增給藥途徑</string>
+    <string name="route">路徑</string>
+    <string name="routes_of_administration">給藥途徑</string>
+    <string name="default_units">預設單位</string>
+    <string name="name">名稱</string>
     <string name="hide_dosage_dots_summary">隱藏時間軸圖表上的小圓點。</string>
     <string name="hide_timeline_summary">在體驗詳情頁隱藏時間軸圖表。</string>
     <string name="export_description_short">將您的所有資料儲存到一個 JSON 檔案。</string>
     <string name="import_description_short">從先前匯出的 JSON 檔案匯入資料。</string>
     <string name="delete_everything_description_short">永久刪除您的所有資料。此操作無法復原。</string>
+    <string name="suggestions">建議</string>
+    <string name="dose_is_known">劑量已知</string>
+    <string name="part_of_unknown_experience">未知體驗的一部分</string>
+    <string name="add_ingestion_at_same_time">同時新增攝入記錄</string>
     <string name="custom">自訂</string>
+    <string name="navigate_back">返回</string>
+    <string name="dose_unknown">總劑量未知</string>
     <string name="explain_timeline_title">時間軸資訊</string>
 
     <string name="explain_timeline_assumptions_title">簡化/錯誤假設</string>
@@ -307,21 +302,21 @@
     <string name="substance_unit_title">%1$s 單位</string>
     <string name="delete_custom_unit_cd">刪除自訂單位</string>
     <string name="delete_custom_unit_dialog_title">刪除自訂單位？</string>
-    <string name="delete_custom_unit_dialog_text">這會影響所有使用它的攝取記錄。請考慮改為將其封存。</string>
-    <string name="ingestion_singular">攝取記錄</string>
-    <string name="ingestion_plural">攝取記錄</string>
+    <string name="delete_custom_unit_dialog_text">這會影響所有使用它的攝入記錄。請考慮改為將其封存。</string>
+    <string name="ingestion_singular">攝入記錄</string>
+    <string name="ingestion_plural">攝入記錄</string>
     <string name="ingestions_affected_by_edit">%1$s 受此編輯影響</string>
-    <string name="no_ingestions_using_unit">尚無攝取記錄使用此單位</string>
+    <string name="no_ingestions_using_unit">尚無攝入記錄使用此單位</string>
 
-    <string name="cannabis_info_joint" formatted="false">當透過捲菸吸食時，約23%的THC被吸入。因此，如果您吸食一支含有300毫克THC含量為20%的大麻的捲菸，您將吸入 300mg * 20/100 * 23/100 = 13.8mg THC。</string>
-    <string name="cannabis_info_bong" formatted="false">當使用水煙筒吸食時，約40%的THC被吸入。因此，如果您吸食300毫克THC含量為20%的大麻，您將吸入 300mg * 20/100 * 40/100 = 24mg THC。</string>
-    <string name="cannabis_info_vaporizer" formatted="false">當使用霧化器吸食時，約70%的THC被吸入。因此，如果您吸食300毫克THC含量為20%的大麻，您將吸入 300mg * 20/100 * 70/100 = 42mg THC。</string>
-    <string name="psilocybin_info_dried" formatted="false">乾燥的古巴光蓋傘約含有1%的賽洛西賓。</string>
-    <string name="psilocybin_info_fresh" formatted="false">新鮮的古巴光蓋傘約含有0.1%的賽洛西賓。</string>
-    <string name="psilocybin_info_research" formatted="false">請研究您所擁有的蘑菇品種，以便估算其賽洛西賓含量。</string>
-    <string name="alcohol_info" formatted="false">1毫升乙醇為0.8克。因此，如果您飲用200毫升酒精含量為40%的烈酒，您將攝入 200ml * 40/100 * 0.8 = 64克 乙醇。</string>
+    <string name="cannabis_info_joint">當透過捲菸吸食時，約23%%的THC被吸入。因此，如果您吸食一支含有300毫克THC含量為20%%的大麻的捲菸，您將吸入 300mg * 20/100 * 23/100 = 13.8mg THC。</string>
+    <string name="cannabis_info_bong">當使用水煙筒吸食時，約40%%的THC被吸入。因此，如果您吸食300毫克THC含量為20%%的大麻，您將吸入 300mg * 20/100 * 40/100 = 24mg THC。</string>
+    <string name="cannabis_info_vaporizer">當使用霧化器吸食時，約70%%的THC被吸入。因此，如果您吸食300毫克THC含量為20%%的大麻，您將吸入 300mg * 20/100 * 70/100 = 42mg THC。</string>
+    <string name="psilocybin_info_dried">乾燥的古巴光蓋傘約含有1%%的賽洛西賓。</string>
+    <string name="psilocybin_info_fresh">新鮮的古巴光蓋傘約含有0.1%%的賽洛西賓。</string>
+    <string name="psilocybin_info_research">請研究您所擁有的蘑菇品種，以便估算其賽洛西賓含量。</string>
+    <string name="alcohol_info">1毫升乙醇為0.8克。因此，如果您飲用200毫升酒精含量為40%%的烈酒，您將攝入 200ml * 40/100 * 0.8 = 64克 乙醇。</string>
 
-    <string name="prompt_cannabis_name" formatted="false">例如：捲菸（THC 20%），水煙筒（THC 15%），霧化器</string>
+    <string name="prompt_cannabis_name">例如：捲菸（THC 20%%），水煙筒（THC 15%%），霧化器</string>
     <string name="prompt_cannabis_unit">毫克，支，口</string>
     <string name="prompt_cannabis_unit_plural">毫克，支，口</string>
     <string name="prompt_mushrooms_name">蘑菇品種</string>
@@ -333,10 +328,10 @@
     <string name="prompt_caffeine_name">例如：咖啡，茶，能量飲料</string>
     <string name="prompt_caffeine_unit">例如：杯，罐</string>
     <string name="prompt_caffeine_unit_plural">杯，罐</string>
-    <string name="prompt_oral_name">例如：藍色火箭，85%粉末</string>
+    <string name="prompt_oral_name">例如：藍色火箭，85%%粉末</string>
     <string name="prompt_oral_unit">例如：顆，膠囊，毫克</string>
     <string name="prompt_oral_unit_plural">例如：顆，膠囊，毫克</string>
-    <string name="prompt_smoked_name">例如：85%粉末</string>
+    <string name="prompt_smoked_name">例如：85%%粉末</string>
     <string name="prompt_smoked_unit">例如：毫克，口</string>
     <string name="prompt_smoked_unit_plural">例如：毫克，口</string>
     <string name="prompt_insufflated_name">例如：鼻用溶液，藍色分配器</string>
@@ -348,47 +343,33 @@
     <string name="prompt_transdermal_name">例如：品牌名稱</string>
     <string name="prompt_transdermal_unit">例如：貼片</string>
     <string name="prompt_transdermal_unit_plural">貼片</string>
-    <string name="prompt_default_name">例如：85%粉末，藍色火箭</string>
+    <string name="prompt_default_name">例如：85%%粉末，藍色火箭</string>
     <string name="prompt_default_unit">例如：顆，噴，匙</string>
     <string name="prompt_default_unit_plural">例如：顆，噴，匙</string>
 
-    <string name="name">名稱</string>
     <string name="unit_singular">單位（單數）</string>
     <string name="unit_plural">單位（複數）</string>
     <string name="note">備註</string>
     <string name="dose_per_unit">每 %1$s 的劑量</string>
     <string name="is_estimate_cd">是估計值</string>
     <string name="estimated_standard_deviation_per_unit">每 %1$s 的估計標準差</string>
-    <string name="ingestion_sample_preview">攝取範例預覽：</string>
+    <string name="ingestion_sample_preview">攝入範例預覽：</string>
     <string name="archive_this_unit_cd">封存此單位</string>
     <string name="archive">封存</string>
     <string name="unarchive">取消封存</string>
-    <string name="archive_description">新增攝取記錄時不會顯示已封存的自訂單位</string>
+    <string name="archive_description">新增攝入記錄時不會顯示已封存的自訂單位</string>
 
     <string name="done_cd">完成</string>
 
-    <string name="route">路徑</string>
-    <string name="routes_of_administration">給藥途徑</string>
-    <string name="add_route_of_administration">新增給藥途徑</string>
-    <string name="no_matching_substance_with_the_tag_found">未找到帶有「%1$s」標籤的相符物質</string>
-    <string name="no_matching_substance_with_tags_found">未找到帶有「%1$s」標籤的相符物質</string>
-    <string name="default_units">預設單位</string>
-    <string name="suggestions">建議</string>
-    <string name="dose_is_known">劑量已知</string>
-    <string name="part_of_unknown_experience">未知體驗的一部分</string>
-    <string name="add_ingestion_at_same_time">同時新增攝入記錄</string>
-    <string name="navigate_back">返回</string>
-    <string name="dose_unknown">總劑量未知</string>
-
     <string-array name="cannabis_info">
-        <item>手捲菸: 0.2-1克</item>
-        <item>水菸筒: 0.1-0.5克</item>
+        <item>手捲煙: 0.2-1克</item>
+        <item>水煙筒: 0.1-0.5克</item>
         <item>霧化器: 0.1-0.3克</item>
     </string-array>
     <string-array name="psilocybin_info">
         <item>劑量指的是乾燥的裸蓋菇。</item>
-        <item>新鮮蘑菇約含90%水分，因此劑量需乘以10倍。</item>
-        <item>研究表明，乾燥重量的1%是裸蓋菇素。</item>
+        <item>新鮮蘑菇約含90%%水分，因此劑量需乘以10倍。</item>
+        <item>研究表明，乾燥重量的1%%是裸蓋菇素。</item>
     </string-array>
     <string-array name="alcohol_info">
         <item>在美國，1個標準單位是14克酒精；在英國是8克。</item>
@@ -397,6 +378,11 @@
     <string name="edit_custom_unit">編輯自訂單位</string>
     <string name="archive_title">封存</string>
     <string name="clear_search">清除搜尋</string>
+    <string name="already_used">已使用</string>
+    <string name="other_colors">其他顏色</string>
+    <string name="add_custom_color">新增自訂顏色</string>
+    <string name="select_color">選擇顏色</string>
+    <string name="ok">確定</string>
     <string name="custom_recipes">自訂配方</string>
     <string name="add_custom_recipe">新增自訂配方</string>
     <string name="edit_custom_recipe">編輯自訂配方</string>
@@ -412,7 +398,7 @@
     <string name="is_estimate">是估計值</string>
     <string name="original_unit">原始單位</string>
     <string name="original_unit_hint">毫克、克、毫升等</string>
-    <string name="no_custom_recipes_yet">暫無自訂配方</string>
+    <string name="no_custom_recipes_yet">尚無自訂配方</string>
     <string name="no_custom_recipes_description">建立自訂配方以將多種物質組合成單個單位。</string>
     <string name="no_custom_recipes_found">未找到自訂配方</string>
     <string name="no_custom_recipes_found_description">請嘗試調整搜尋條件。</string>
@@ -434,6 +420,11 @@
     <string name="units_of_recipe">%1$s 單位</string>
     <string name="notes_placeholder">可選備註</string>
     <string name="administration_route">給藥途徑</string>
+    <string name="recipe_not_found">未找到配方</string>
+    <string name="recipe">配方</string>
+    <string name="collapse">收起</string>
+    <string name="expand">展開</string>
+    <string name="edit_ingestion">編輯攝入記錄</string>
     <string name="add_content_description">新增</string>
 
     <string name="delete_ingestion_dialog_title">要刪除此筆攝入記錄嗎？</string>
@@ -443,25 +434,185 @@
     <string name="unit_display">單位：%1$s</string>
     <string name="default_unit">預設</string>
     <string name="ingestion_notes">攝入筆記</string>
-    <string name="consumer_icon_content_description">消費者</string>
+    <string name="consumer_icon_content_description">使用者</string>
 
     <string name="file_not_found">找不到檔案</string>
     <string name="import_successful">匯入成功</string>
     <string name="decoding_file_failed">檔案解碼失敗</string>
     <string name="export_successful">匯出成功</string>
     <string name="export_failed">匯出失敗</string>
-    <string name="already_used">已使用</string>
-    <string name="other_colors">其他顏色</string>
-    <string name="add_custom_color">新增自訂顏色</string>
-    <string name="select_color">選擇顏色</string>
-    <string name="ok">確定</string>
-    <string name="recipe_not_found">未找到配方</string>
-    <string name="recipe">配方</string>
-    <string name="collapse">收起</string>
-    <string name="expand">展開</string>
-    <string name="edit_ingestion">編輯攝入記錄</string>
 
     <string name="custom_recipe_archive_title">自訂配方封存</string>
     <string name="no_archived_recipes_yet">尚無已封存的配方</string>
     <string name="no_archived_recipes_description">已封存的配方不會在新增攝入時顯示</string>
+
+    <string name="search_multiple_substances">搜尋多種物質</string>
+    <string name="add_substance_to_search">新增物質到搜尋</string>
+    <string name="remove_substance_from_search">從搜尋中移除物質</string>
+    <string name="searching_for_substances">正在搜尋：%1$s</string>
+    <string name="no_experiences_with_combination">未找到包含此物質組合的體驗</string>
+    <string name="substance_combination_search">物質組合</string>
+
+    <string name="search_in_timed_notes">在定時筆記中搜尋</string>
+    <string name="no_matching_timed_notes">沒有定時筆記符合您的搜尋</string>
+    <string name="timed_note_contains">定時筆記包含：%1$s</string>
+
+    <string name="add_photo">新增照片</string>
+    <string name="take_photo">拍照</string>
+    <string name="choose_photo">從相簿選擇</string>
+    <string name="photo">照片</string>
+    <string name="photos">照片</string>
+    <string name="delete_photo">刪除照片</string>
+    <string name="delete_photo_confirmation">確定要刪除此照片嗎？</string>
+    <string name="photo_deleted">照片已刪除</string>
+    <string name="view_photo">檢視照片</string>
+    <string name="no_photos_yet">尚無照片</string>
+    <string name="photo_added">照片已新增</string>
+    <string name="camera_permission_required">需要相機權限</string>
+    <string name="storage_permission_required">需要儲存權限</string>
+    <string name="grant_permission">授予權限</string>
+
+    <string name="chat_style_notes">聊天式筆記</string>
+    <string name="type_your_note">輸入您的筆記…</string>
+    <string name="send_note">傳送筆記</string>
+    <string name="note_sent">筆記已傳送</string>
+    <string name="edit_timestamp">編輯時間戳記</string>
+    <string name="timestamp_updated">時間戳記已更新</string>
+    <string name="message_options">訊息選項</string>
+    <string name="long_press_to_edit">長按以編輯或刪除</string>
+
+    <string name="notifications">通知</string>
+    <string name="notification_settings">通知設定</string>
+    <string name="enable_notifications">啟用通知</string>
+    <string name="disable_notifications">停用通知</string>
+    <string name="notification_permission_required">需要通知權限</string>
+    <string name="notification_channel_name">日誌通知</string>
+    <string name="notification_channel_description">攝入提醒和警示通知</string>
+
+    <string name="ingestion_reminders">攝入提醒</string>
+    <string name="add_reminder">新增提醒</string>
+    <string name="edit_reminder">編輯提醒</string>
+    <string name="delete_reminder">刪除提醒</string>
+    <string name="delete_reminder_confirmation">確定要刪除此提醒嗎？</string>
+    <string name="reminder_deleted">提醒已刪除</string>
+    <string name="reminder_saved">提醒已儲存</string>
+    <string name="reminder_time">提醒時間</string>
+    <string name="reminder_substance">提醒物質</string>
+    <string name="reminder_dose">提醒劑量</string>
+    <string name="reminder_note">提醒備註</string>
+    <string name="reminder_repeat">重複</string>
+    <string name="reminder_repeat_daily">每天</string>
+    <string name="reminder_repeat_weekly">每週</string>
+    <string name="reminder_repeat_custom">自訂</string>
+    <string name="no_reminders_yet">尚無提醒</string>
+    <string name="no_reminders_description">為您的藥物或補充劑新增提醒</string>
+    <string name="medication_planner">用藥計畫</string>
+    <string name="medication_plan">用藥計畫</string>
+    <string name="time_to_take">該服用 %1$s 了</string>
+    <string name="reminder_notification_title">攝入提醒</string>
+    <string name="reminder_notification_text">該服用 %1$s（%2$s）了</string>
+    <string name="mark_as_taken">標記為已服用</string>
+    <string name="snooze_reminder">稍後提醒</string>
+    <string name="skip_reminder">跳過</string>
+    <string name="reminder_snoozed">已將提醒延後15分鐘</string>
+    <string name="reminder_skipped">提醒已跳過</string>
+    <string name="reminder_marked_taken">已標記為已服用</string>
+    <string name="view_chat_notes">查看聊天式筆記</string>
+    <string name="camera_permission_rationale">允許相機訪問以為定時筆記拍照</string>
+    <string name="choose_from_gallery">從相簿選擇</string>
+    <string name="storage_permission_rationale">允許儲存訪問以從相簿選擇照片</string>
+    <string name="select_photo_source">選擇照片來源</string>
+    <string name="notification_permission_rationale">允許通知以接收攝入提醒</string>
+
+    <string name="search_notes">搜尋筆記</string>
+    <string name="search_in_notes">在筆記中搜尋</string>
+    <string name="no_notes_match_search">沒有符合的筆記</string>
+    <string name="notes_found">找到 %1$d 條筆記</string>
+
+    <string name="photo_removed">照片已移除</string>
+    <string name="remove_photo">移除照片</string>
+    <string name="photo_count">%1$d 張照片</string>
+    <string name="select_photos">選擇照片</string>
+    <string name="max_photos_reached">已達到最大照片數量</string>
+
+    <string name="reminder_details">提醒詳情</string>
+    <string name="select_substance">選擇物質</string>
+    <string name="substance_required">物質為必填項</string>
+    <string name="select_roa">選擇給藥途徑</string>
+    <string name="roa_required">給藥途徑為必填項</string>
+    <string name="enter_dose">輸入劑量</string>
+    <string name="dose_required">劑量為必填項</string>
+    <string name="dose_must_be_positive">劑量必須大於0</string>
+    <string name="select_unit">選擇單位</string>
+    <string name="unit_required">單位為必填項</string>
+    <string name="select_time">選擇時間</string>
+    <string name="time_required">時間為必填項</string>
+    <string name="repeat_mode">重複模式</string>
+    <string name="select_repeat_mode">選擇重複模式</string>
+    <string name="error">錯誤</string>
+    <string name="saving">儲存中...</string>
+    <string name="reminder_repeat_once">僅一次</string>
+    <string name="repeat_none">不重複</string>
+    <string name="repeat_every_day">每天</string>
+    <string name="repeat_every_week">每週</string>
+    <string name="repeat_custom_days">自訂天數</string>
+    <string name="select_days">選擇日期</string>
+    <string name="monday">星期一</string>
+    <string name="tuesday">星期二</string>
+    <string name="wednesday">星期三</string>
+    <string name="thursday">星期四</string>
+    <string name="friday">星期五</string>
+    <string name="saturday">星期六</string>
+    <string name="sunday">星期日</string>
+    <string name="at_least_one_day_required">至少選擇一天</string>
+    <string name="reminder_enabled">提醒已啟用</string>
+    <string name="reminder_disabled">提醒已停用</string>
+    <string name="enable_reminder">啟用提醒</string>
+    <string name="disable_reminder">停用提醒</string>
+
+    <string name="substance_picker">物質選擇器</string>
+    <string name="search_substance">搜尋物質</string>
+    <string name="no_substance_selected">未選擇物質</string>
+    <string name="custom_substance">自訂物質</string>
+    <string name="psychonautwiki_substance">PsychonautWiki物質</string>
+
+    <string name="time_picker">時間選擇器</string>
+    <string name="select_date">選擇日期</string>
+    <string name="select_hour">選擇小時</string>
+    <string name="select_minute">選擇分鐘</string>
+    <string name="date_and_time">日期和時間</string>
+
+    <string name="dose_input">劑量輸入</string>
+    <string name="enter_dose_value">輸入劑量值</string>
+    <string name="dose_unit">劑量單位</string>
+
+    <string name="field_required">此欄位為必填項</string>
+    <string name="invalid_value">無效值</string>
+    <string name="value_must_be_positive">值必須大於0</string>
+    <string name="value_too_large">值過大</string>
+    <string name="value_too_small">值過小</string>
+
+    <string name="reminder_created">提醒已建立</string>
+    <string name="reminder_updated">提醒已更新</string>
+    <string name="changes_saved">變更已儲存</string>
+
+    <string name="error_creating_reminder">建立提醒時發生錯誤</string>
+    <string name="error_updating_reminder">更新提醒時發生錯誤</string>
+    <string name="error_deleting_reminder">刪除提醒時發生錯誤</string>
+    <string name="error_loading_data">載入資料時發生錯誤</string>
+    <string name="error_saving_photo">儲存照片時發生錯誤</string>
+    <string name="error_loading_photo">載入照片時發生錯誤</string>
+
+    <string name="discard_changes">放棄變更？</string>
+    <string name="discard_changes_message">您有未儲存的變更。確定要放棄嗎？</string>
+    <string name="discard">放棄</string>
+    <string name="keep_editing">繼續編輯</string>
+    <string name="delete_photo_message">此操作無法復原。</string>
+
+    <string name="save">儲存</string>
+    <string name="confirm">確認</string>
+    <string name="apply">套用</string>
+    <string name="clear">清除</string>
+    <string name="reset">重設</string>
+    <string name="deselect_all">取消全選</string>
 </resources>

@@ -9,6 +9,8 @@ import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceCompani
 import com.isaakhanimann.journal.data.room.experiences.entities.TimedNote
 import com.isaakhanimann.journal.data.room.experiences.entities.CustomRecipe
 import com.isaakhanimann.journal.data.room.experiences.entities.RecipeSubcomponent
+import com.isaakhanimann.journal.data.room.experiences.entities.IngestionReminder
+import com.isaakhanimann.journal.data.room.experiences.entities.TimedNotePhoto
 import com.isaakhanimann.journal.data.room.experiences.relations.CustomUnitWithIngestions
 import com.isaakhanimann.journal.data.room.experiences.relations.ExperienceWithIngestions
 import com.isaakhanimann.journal.data.room.experiences.relations.ExperienceWithIngestionsAndCompanions
@@ -53,6 +55,12 @@ class ExperienceRepository @Inject constructor(private val experienceDao: Experi
     suspend fun insertEverything(
         journalExport: JournalExport
     ) = experienceDao.insertEverything(journalExport)
+    
+    suspend fun insertEverythingWithProgress(
+        journalExport: JournalExport,
+        imageExportHelper: com.isaakhanimann.journal.ui.tabs.settings.ImageExportHelper,
+        onProgressUpdate: (Float, String) -> Unit
+    ) = experienceDao.insertEverythingWithProgress(journalExport, imageExportHelper, onProgressUpdate)
 
     suspend fun insertIngestionAndCompanion(
         ingestion: Ingestion,
@@ -167,6 +175,11 @@ class ExperienceRepository @Inject constructor(private val experienceDao: Experi
 
     fun getTimedNotesFlowSorted(experienceId: Int) =
         experienceDao.getTimedNotesFlowSorted(experienceId)
+            .flowOn(Dispatchers.IO)
+            .conflate()
+    
+    fun getTimedNotesWithPhotosFlow(experienceId: Int) =
+        experienceDao.getTimedNotesWithPhotosFlow(experienceId)
             .flowOn(Dispatchers.IO)
             .conflate()
 
@@ -291,7 +304,28 @@ class ExperienceRepository @Inject constructor(private val experienceDao: Experi
 
     fun getAllCustomRecipesFlow() = experienceDao.getAllCustomRecipesFlow()
         .flowOn(Dispatchers.IO)
-        .conflate()
-
     suspend fun insert(substanceCompanion: SubstanceCompanion) = experienceDao.insert(substanceCompanion)
+
+    // TimedNotePhoto methods
+    suspend fun insert(timedNotePhoto: TimedNotePhoto): Long = experienceDao.insert(timedNotePhoto)
+    fun getPhotosForTimedNoteFlow(timedNoteId: Int) = experienceDao.getPhotosForTimedNoteFlow(timedNoteId)
+    suspend fun delete(timedNotePhoto: TimedNotePhoto) = experienceDao.delete(timedNotePhoto)
+
+    // IngestionReminder methods
+    suspend fun insert(reminder: IngestionReminder): Long = experienceDao.insert(reminder)
+    
+    suspend fun getReminder(id: Int): IngestionReminder? = experienceDao.getReminderById(id)
+    suspend fun update(reminder: IngestionReminder) = experienceDao.update(reminder)
+    suspend fun delete(reminder: IngestionReminder) = experienceDao.delete(reminder)
+    fun getAllRemindersFlow() = experienceDao.getAllRemindersFlow()
+        .flowOn(Dispatchers.IO)
+        .conflate()
+    fun getEnabledRemindersFlow() = experienceDao.getEnabledRemindersFlow()
+        .flowOn(Dispatchers.IO)
+        .conflate()
+    suspend fun getReminderById(id: Int) = experienceDao.getReminderById(id)
+    suspend fun getAllReminders() = experienceDao.getAllReminders()
+    
+    suspend fun getTimedNotesWithPhotos(experienceId: Int) = 
+        experienceDao.getTimedNotesWithPhotos(experienceId)
 }

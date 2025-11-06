@@ -20,12 +20,14 @@ package com.isaakhanimann.journal.ui.tabs.settings
 
 import com.isaakhanimann.journal.data.room.experiences.entities.AdaptiveColor
 import com.isaakhanimann.journal.data.room.experiences.entities.CustomSubstance
+import com.isaakhanimann.journal.data.room.experiences.entities.RepeatMode
 import com.isaakhanimann.journal.data.room.experiences.entities.ShulginRatingOption
 import com.isaakhanimann.journal.data.room.experiences.entities.StomachFullness
 import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceCompanion
 import com.isaakhanimann.journal.data.substances.AdministrationRoute
 import kotlinx.serialization.Serializable
 import java.time.Instant
+import java.time.LocalTime
 
 @Serializable
 data class JournalExport(
@@ -33,7 +35,8 @@ data class JournalExport(
     val substanceCompanions: List<SubstanceCompanion> = emptyList(),
     val customSubstances: List<CustomSubstance> = emptyList(),
     val customUnits: List<CustomUnitSerializable> = emptyList(),
-    val customRecipes: List<CustomRecipeSerializable> = emptyList()
+    val customRecipes: List<CustomRecipeSerializable> = emptyList(),
+    val ingestionReminders: List<IngestionReminderSerializable> = emptyList()
 )
 
 @Serializable
@@ -131,5 +134,29 @@ data class TimedNoteSerializable(
     var note: String,
     var color: AdaptiveColor?,
     var customColor: Int? = null,
-    var isPartOfTimeline: Boolean
+    var isPartOfTimeline: Boolean,
+    val photos: List<TimedNotePhotoSerializable> = emptyList()
+)
+
+@Serializable
+data class TimedNotePhotoSerializable(
+    val id: Int = 0,
+    val imageBase64: String, // Base64 encoded image data
+    @Serializable(with= InstantSerializer::class) val creationDate: Instant,
+    val caption: String? = null,
+    val originalFileName: String? = null // To help with reconstruction
+)
+
+@Serializable
+data class IngestionReminderSerializable(
+    val id: Int = 0,
+    val substanceName: String,
+    @Serializable(with= LocalTimeSerializer::class) val reminderTime: LocalTime,
+    @Serializable(with= RepeatModeSerializer::class) val repeatMode: RepeatMode,
+    val dose: Double? = null,
+    val units: String? = null,
+    val note: String = "",
+    val isEnabled: Boolean = true,
+    val createdAt: Long = System.currentTimeMillis(),
+    val customRepeatData: String? = null
 )

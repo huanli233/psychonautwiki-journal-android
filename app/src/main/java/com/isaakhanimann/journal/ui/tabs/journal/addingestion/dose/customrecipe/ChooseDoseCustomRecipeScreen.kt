@@ -183,7 +183,7 @@ fun ChooseDoseCustomRecipeScreenContent(
                                 subcomponentInfos.forEach { info ->
                                     val subcomponent = info.subcomponent
                                     Text(
-                                        text = "â€¢ ${subcomponent.getDoseDescription(customUnits[info.subcomponent.id])} ${subcomponent.originalUnit} ${subcomponent.substanceName}",
+                                        text = "â€?${subcomponent.getDoseDescription(customUnits[info.subcomponent.id])} ${subcomponent.originalUnit} ${subcomponent.substanceName}",
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )

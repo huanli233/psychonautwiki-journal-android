@@ -16,7 +16,9 @@ import com.isaakhanimann.journal.data.room.experiences.entities.ShulginRating
 import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceCompanion
 import com.isaakhanimann.journal.data.room.experiences.entities.TimedNote
 import com.isaakhanimann.journal.data.room.experiences.entities.CustomRecipe
+import com.isaakhanimann.journal.data.room.experiences.entities.IngestionReminder
 import com.isaakhanimann.journal.data.room.experiences.entities.RecipeSubcomponent
+import com.isaakhanimann.journal.data.room.experiences.entities.TimedNotePhoto
 import com.isaakhanimann.journal.data.room.experiences.relations.CustomUnitWithIngestions
 import com.isaakhanimann.journal.data.room.experiences.relations.ExperienceWithIngestions
 import com.isaakhanimann.journal.data.room.experiences.relations.ExperienceWithIngestionsAndCompanions
@@ -343,7 +345,7 @@ interface ExperienceDao {
     suspend fun insert(customUnit: CustomUnit): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(timedNote: TimedNote)
+    suspend fun insert(timedNote: TimedNote): Long
 
     @Transaction
     suspend fun insertIngestionExperienceAndCompanion(
@@ -359,6 +361,205 @@ interface ExperienceDao {
     @Transaction
     @Query("SELECT * FROM customrecipe ORDER BY creationDate")
     suspend fun getAllCustomRecipesWithSubcomponentsSorted(): List<CustomRecipeWithSubcomponents>
+
+    @Transaction
+    suspend fun insertEverythingWithProgress(
+        journalExport: JournalExport,
+        imageExportHelper: com.isaakhanimann.journal.ui.tabs.settings.ImageExportHelper,
+        onProgressUpdate: (Float, String) -> Unit
+    ) {
+        val totalSteps = journalExport.experiences.size + 
+                        journalExport.substanceCompanions.size + 
+                        journalExport.customSubstances.size + 
+                        journalExport.customUnits.size + 
+                        journalExport.customRecipes.size +
+                        journalExport.ingestionReminders.size
+        var currentStep = 0
+        
+        // Import experiences with photos
+        journalExport.experiences.forEachIndexed { indexExperience, experienceSerializable ->
+            currentStep++
+            onProgressUpdate(currentStep.toFloat() / totalSteps, "Importing experience ${indexExperience + 1}...")
+            
+            val newExperience = Experience(
+                id = 0, // Let database auto-generate new ID
+                title = experienceSerializable.title,
+                text = experienceSerializable.text,
+                creationDate = experienceSerializable.creationDate,
+                sortDate = experienceSerializable.sortDate,
+                isFavorite = experienceSerializable.isFavorite,
+                location = if (experienceSerializable.location != null) {
+                    Location(
+                        name = experienceSerializable.location.name,
+                        longitude = experienceSerializable.location.longitude,
+                        latitude = experienceSerializable.location.latitude
+                    )
+                } else {
+                    null
+                }
+            )
+            val experienceID = insert(newExperience).toInt() // Get the auto-generated ID
+            
+            // Import ingestions
+            experienceSerializable.ingestions.forEach { ingestionSerializable ->
+                if (ingestionSerializable.substanceName != null) {
+                    val newIngestion = Ingestion(
+                        substanceName = ingestionSerializable.substanceName,
+                        time = ingestionSerializable.time,
+                        endTime = ingestionSerializable.endTime,
+                        creationDate = ingestionSerializable.creationDate,
+                        administrationRoute = ingestionSerializable.administrationRoute,
+                        dose = ingestionSerializable.dose,
+                        isDoseAnEstimate = ingestionSerializable.isDoseAnEstimate,
+                        estimatedDoseStandardDeviation = ingestionSerializable.estimatedDoseStandardDeviation,
+                        units = ingestionSerializable.units,
+                        experienceId = experienceID,
+                        notes = ingestionSerializable.notes,
+                        stomachFullness = ingestionSerializable.stomachFullness,
+                        consumerName = ingestionSerializable.consumerName,
+                        customUnitId = ingestionSerializable.customUnitId,
+                        customRecipeId = ingestionSerializable.customRecipeId,
+                        recipeGroupId = ingestionSerializable.recipeGroupId
+                    )
+                    insert(newIngestion)
+                }
+            }
+            
+            // Import timed notes with photos
+            experienceSerializable.timedNotes.forEach { timedNoteSerializable ->
+                val newTimedNote = TimedNote(
+                    time = timedNoteSerializable.time,
+                    creationDate = timedNoteSerializable.creationDate,
+                    experienceId = experienceID,
+                    isPartOfTimeline = timedNoteSerializable.isPartOfTimeline,
+                    color = timedNoteSerializable.color,
+                    customColor = timedNoteSerializable.customColor,
+                    note = timedNoteSerializable.note
+                )
+                val timedNoteId = insert(newTimedNote)
+                
+                // Import photos for this timed note
+                timedNoteSerializable.photos.forEach { photoSerializable ->
+                    if (photoSerializable.imageBase64.isNotEmpty()) {
+                        val fileName = imageExportHelper.generateUniqueFileName(photoSerializable.originalFileName)
+                        val filePath = imageExportHelper.base64ToImage(
+                            photoSerializable.imageBase64,
+                            fileName,
+                            imageExportHelper.getImagesDirectory()
+                        )
+                        
+                        if (filePath != null) {
+                            val newPhoto = TimedNotePhoto(
+                                timedNoteId = timedNoteId.toInt(),
+                                filePath = filePath,
+                                creationDate = photoSerializable.creationDate,
+                                caption = photoSerializable.caption
+                            )
+                            insert(newPhoto)
+                        }
+                    }
+                }
+            }
+            
+            // Import ratings
+            experienceSerializable.ratings.forEach { ratingSerializable ->
+                val newRating = ShulginRating(
+                    time = ratingSerializable.time,
+                    creationDate = ratingSerializable.creationDate,
+                    option = ratingSerializable.option,
+                    experienceId = experienceID
+                )
+                insert(newRating)
+            }
+        }
+        
+        // Import other data
+        journalExport.substanceCompanions.forEach { 
+            currentStep++
+            onProgressUpdate(currentStep.toFloat() / totalSteps, "Importing substance companions...")
+            insert(it) 
+        }
+        
+        journalExport.customSubstances.forEach { 
+            currentStep++
+            onProgressUpdate(currentStep.toFloat() / totalSteps, "Importing custom substances...")
+            insert(it) 
+        }
+        
+        journalExport.customUnits.forEach {
+            currentStep++
+            onProgressUpdate(currentStep.toFloat() / totalSteps, "Importing custom units...")
+            if (it.substanceName != null) {
+                insert(
+                    CustomUnit(
+                        id = 0, // Let database auto-generate new ID
+                        substanceName = it.substanceName,
+                        name = it.name,
+                        creationDate = it.creationDate,
+                        administrationRoute = it.administrationRoute ?: AdministrationRoute.ORAL,
+                        dose = it.dose,
+                        estimatedDoseStandardDeviation = it.estimatedDoseStandardDeviation,
+                        isEstimate = it.isEstimate,
+                        isArchived = it.isArchived,
+                        unit = it.unit,
+                        unitPlural = it.unitPlural,
+                        originalUnit = it.originalUnit ?: "",
+                        note = it.note
+                    )
+                )
+            }
+        }
+        
+        journalExport.customRecipes.forEach { recipeSerializable ->
+            currentStep++
+            onProgressUpdate(currentStep.toFloat() / totalSteps, "Importing custom recipes...")
+            val newRecipe = CustomRecipe(
+                id = 0, // Let database auto-generate new ID
+                name = recipeSerializable.name,
+                creationDate = recipeSerializable.creationDate,
+                administrationRoute = recipeSerializable.administrationRoute,
+                isArchived = recipeSerializable.isArchived,
+                unit = recipeSerializable.unit,
+                unitPlural = recipeSerializable.unitPlural,
+                note = recipeSerializable.note
+            )
+            val newRecipeId = insert(newRecipe).toInt() // Get the auto-generated ID
+            
+            recipeSerializable.subcomponents.forEach { subcomponentSerializable ->
+                val newSubcomponent = RecipeSubcomponent(
+                    id = 0, // Let database auto-generate new ID
+                    recipeId = newRecipeId, // Use the new recipe ID
+                    substanceName = subcomponentSerializable.substanceName,
+                    customUnitId = subcomponentSerializable.customUnitId,
+                    dose = subcomponentSerializable.dose,
+                    estimatedDoseStandardDeviation = subcomponentSerializable.estimatedDoseStandardDeviation,
+                    isEstimate = subcomponentSerializable.isEstimate,
+                    originalUnit = subcomponentSerializable.originalUnit,
+                    creationDate = subcomponentSerializable.creationDate
+                )
+                insert(newSubcomponent)
+            }
+        }
+        
+        // Import reminders
+        journalExport.ingestionReminders.forEach { reminderSerializable ->
+            currentStep++
+            onProgressUpdate(currentStep.toFloat() / totalSteps, "Importing reminders...")
+            val newReminder = IngestionReminder(
+                id = 0, // Let database auto-generate new ID
+                substanceName = reminderSerializable.substanceName,
+                reminderTime = reminderSerializable.reminderTime,
+                repeatMode = reminderSerializable.repeatMode,
+                dose = reminderSerializable.dose,
+                units = reminderSerializable.units,
+                note = reminderSerializable.note,
+                isEnabled = reminderSerializable.isEnabled,
+                createdAt = reminderSerializable.createdAt,
+                customRepeatData = reminderSerializable.customRepeatData
+            )
+            insert(newReminder)
+        }
+    }
 
     @Transaction
     suspend fun insertEverything(
@@ -611,4 +812,46 @@ interface ExperienceDao {
     @Transaction
     @Query("DELETE FROM recipesubcomponent")
     suspend fun deleteAllRecipeSubcomponents()
+
+    // TimedNotePhoto queries
+    @Insert
+    suspend fun insert(timedNotePhoto: com.isaakhanimann.journal.data.room.experiences.entities.TimedNotePhoto): Long
+
+    @Update
+    suspend fun update(timedNotePhoto: com.isaakhanimann.journal.data.room.experiences.entities.TimedNotePhoto)
+
+    @Delete
+    suspend fun delete(timedNotePhoto: com.isaakhanimann.journal.data.room.experiences.entities.TimedNotePhoto)
+
+    @Query("SELECT * FROM TimedNotePhoto WHERE timedNoteId = :timedNoteId")
+    fun getPhotosForTimedNoteFlow(timedNoteId: Int): Flow<List<com.isaakhanimann.journal.data.room.experiences.entities.TimedNotePhoto>>
+
+    @Transaction
+    @Query("SELECT * FROM TimedNote WHERE experienceId = :experienceId ORDER BY time ASC")
+    fun getTimedNotesWithPhotosFlow(experienceId: Int): Flow<List<com.isaakhanimann.journal.data.room.experiences.relations.TimedNoteWithPhotos>>
+
+    // IngestionReminder queries
+    @Insert
+    suspend fun insert(reminder: com.isaakhanimann.journal.data.room.experiences.entities.IngestionReminder): Long
+
+    @Update
+    suspend fun update(reminder: com.isaakhanimann.journal.data.room.experiences.entities.IngestionReminder)
+
+    @Delete
+    suspend fun delete(reminder: com.isaakhanimann.journal.data.room.experiences.entities.IngestionReminder)
+
+    @Query("SELECT * FROM ingestion_reminders ORDER BY reminderTime ASC")
+    fun getAllRemindersFlow(): Flow<List<com.isaakhanimann.journal.data.room.experiences.entities.IngestionReminder>>
+
+    @Query("SELECT * FROM ingestion_reminders WHERE isEnabled = 1 ORDER BY reminderTime ASC")
+    fun getEnabledRemindersFlow(): Flow<List<com.isaakhanimann.journal.data.room.experiences.entities.IngestionReminder>>
+
+    @Query("SELECT * FROM ingestion_reminders WHERE id = :id")
+    suspend fun getReminderById(id: Int): com.isaakhanimann.journal.data.room.experiences.entities.IngestionReminder?
+    
+    @Query("SELECT * FROM ingestion_reminders ORDER BY reminderTime ASC")
+    suspend fun getAllReminders(): List<com.isaakhanimann.journal.data.room.experiences.entities.IngestionReminder>
+    
+    @Query("SELECT * FROM TimedNote WHERE experienceId = :experienceId")
+    suspend fun getTimedNotesWithPhotos(experienceId: Int): List<com.isaakhanimann.journal.data.room.experiences.relations.TimedNoteWithPhotos>
 }

@@ -83,6 +83,7 @@ import com.isaakhanimann.journal.data.room.experiences.entities.AdaptiveColor
 import com.isaakhanimann.journal.data.room.experiences.entities.CustomUnit
 import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
 import com.isaakhanimann.journal.data.room.experiences.entities.TimedNote
+import com.isaakhanimann.journal.data.room.experiences.relations.TimedNoteWithPhotos
 import com.isaakhanimann.journal.data.room.experiences.entities.getSubstanceColor
 import com.isaakhanimann.journal.data.substances.AdministrationRoute
 import com.isaakhanimann.journal.ui.FULL_STOMACH_DISCLAIMER
@@ -121,6 +122,7 @@ fun ExperienceScreen(
     navigateToAddTimedNoteScreen: () -> Unit,
     navigateToEditRatingScreen: (ratingId: Int) -> Unit,
     navigateToEditTimedNoteScreen: (timedNoteId: Int) -> Unit,
+    navigateToChatStyleNotes: () -> Unit,
     navigateToTimelineScreen: (consumerName: String) -> Unit,
     navigateBack: () -> Unit,
 ) {
@@ -141,6 +143,7 @@ fun ExperienceScreen(
         interactionExplanations = viewModel.interactionExplanationsFlow.collectAsState().value,
         ratings = viewModel.ratingsFlow.collectAsState().value,
         timedNotesSorted = viewModel.timedNotesSortedFlow.collectAsState().value,
+        timedNotesWithPhotos = viewModel.timedNotesWithPhotosFlow.collectAsState().value,
         consumersWithIngestions = viewModel.consumersWithIngestionsFlow.collectAsState().value,
         dataForEffectLines = viewModel.dataForEffectTimelinesFlow.collectAsState().value
     )
@@ -164,6 +167,7 @@ fun ExperienceScreen(
         saveIsFavorite = viewModel::saveIsFavorite,
         navigateToEditRatingScreen = navigateToEditRatingScreen,
         navigateToEditTimedNoteScreen = navigateToEditTimedNoteScreen,
+        navigateToChatStyleNotes = navigateToChatStyleNotes,
         savedTimeDisplayOption = viewModel.savedTimeDisplayOption.collectAsState().value,
         timeDisplayOption = viewModel.timeDisplayOptionFlow.collectAsState().value,
         onChangeTimeDisplayOption = viewModel::saveTimeDisplayOption,
@@ -192,6 +196,7 @@ fun ExperienceScreen(
     saveIsFavorite: (Boolean) -> Unit,
     navigateToEditRatingScreen: (ratingId: Int) -> Unit,
     navigateToEditTimedNoteScreen: (timedNoteId: Int) -> Unit,
+    navigateToChatStyleNotes: () -> Unit,
     savedTimeDisplayOption: SavedTimeDisplayOption,
     timeDisplayOption: TimeDisplayOption,
     onChangeTimeDisplayOption: (SavedTimeDisplayOption) -> Unit,
@@ -256,12 +261,13 @@ fun ExperienceScreen(
                     areDosageDotsHidden = areDosageDotsHidden
                 )
             }
-            val timedNotesSorted = oneExperienceScreenModel.timedNotesSorted
-            if (timedNotesSorted.isNotEmpty()) {
+            val timedNotesWithPhotos = oneExperienceScreenModel.timedNotesWithPhotos
+            if (timedNotesWithPhotos.isNotEmpty()) {
                 TimedNotesSection(
-                    timedNotesSorted = timedNotesSorted,
+                    timedNotesWithPhotos = oneExperienceScreenModel.timedNotesWithPhotos,
                     navigateToEditTimedNoteScreen = navigateToEditTimedNoteScreen,
                     timeDisplayOption = timeDisplayOption,
+                    navigateToChatStyleNotes = navigateToChatStyleNotes,
                     firstIngestionTime = oneExperienceScreenModel.firstIngestionTime
                 )
             }
@@ -529,8 +535,9 @@ private fun ShulginRatingsSection(
 
 @Composable
 private fun TimedNotesSection(
-    timedNotesSorted: List<TimedNote>,
+    timedNotesWithPhotos: List<TimedNoteWithPhotos>,
     navigateToEditTimedNoteScreen: (timedNoteId: Int) -> Unit,
+    navigateToChatStyleNotes: () -> Unit,
     timeDisplayOption: TimeDisplayOption,
     firstIngestionTime: Instant,
 ) {
@@ -538,31 +545,42 @@ private fun TimedNotesSection(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
     ) {
-        Text(
-            text = stringResource(R.string.timed_notes),
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(16.dp)
-        )
-        if (timedNotesSorted.isNotEmpty()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.timed_notes),
+                style = MaterialTheme.typography.titleLarge
+            )
+            TextButton(onClick = navigateToChatStyleNotes) {
+                Text(stringResource(R.string.view_chat_notes))
+            }
+        }
+        if (timedNotesWithPhotos.isNotEmpty()) {
             HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
         }
-        timedNotesSorted.forEachIndexed { index, timedNote ->
+        timedNotesWithPhotos.forEachIndexed { index, timedNoteWithPhotos ->
             TimedNoteRow(
-                timedNote = timedNote,
+                timedNote = timedNoteWithPhotos.timedNote,
+                photoCount = timedNoteWithPhotos.photos.size,
                 modifier = Modifier
                     .clickable {
-                        navigateToEditTimedNoteScreen(timedNote.id)
+                        navigateToEditTimedNoteScreen(timedNoteWithPhotos.timedNote.id)
                     }
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
             ) {
                 NoteOrRatingTimeOrDurationText(
-                    time = timedNote.time,
+                    time = timedNoteWithPhotos.timedNote.time,
                     timeDisplayOption = timeDisplayOption,
                     firstIngestionTime = firstIngestionTime
                 )
             }
-            if (index < timedNotesSorted.size - 1) {
+            if (index < timedNotesWithPhotos.size - 1) {
                 HorizontalDivider(
                     modifier = Modifier.padding(horizontal = 16.dp),
                     thickness = DividerDefaults.Thickness,
@@ -1168,6 +1186,7 @@ fun ExperienceScreenPreview(
             saveIsFavorite = {},
             navigateToEditRatingScreen = {},
             navigateToEditTimedNoteScreen = {},
+            navigateToChatStyleNotes = {},
             savedTimeDisplayOption = SavedTimeDisplayOption.RELATIVE_TO_START,
             timeDisplayOption = TimeDisplayOption.RELATIVE_TO_START,
             onChangeTimeDisplayOption = {},

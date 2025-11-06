@@ -32,10 +32,12 @@ import com.isaakhanimann.journal.R
 import com.isaakhanimann.journal.data.room.experiences.ExperienceRepository
 import com.isaakhanimann.journal.data.room.experiences.entities.CustomUnit
 import com.isaakhanimann.journal.di.RecipeResultHolder
+import com.isaakhanimann.journal.di.SubstanceResultHolder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 sealed class SubstanceOrUnit {
@@ -46,6 +48,7 @@ sealed class SubstanceOrUnit {
 @HiltViewModel
 class SubstanceSelectorViewModel @Inject constructor(
     private val resultHolder: RecipeResultHolder,
+    private val substanceResultHolder: SubstanceResultHolder,
     experienceRepository: ExperienceRepository
 ) : ViewModel() {
 
@@ -57,12 +60,30 @@ class SubstanceSelectorViewModel @Inject constructor(
             initialValue = emptyList()
         )
 
+    private var pendingSubcomponentIndex: Int? = null
+
+    init {
+        // Listen for substance selection results from SubstancePickerScreen
+        viewModelScope.launch {
+            substanceResultHolder.resultFlow.collect { substanceName ->
+                pendingSubcomponentIndex?.let { index ->
+                    resultHolder.postResult(index, substanceName, null)
+                    pendingSubcomponentIndex = null
+                }
+            }
+        }
+    }
+
     fun selectSubstance(index: Int, name: String) {
         resultHolder.postResult(index, name, null)
     }
 
     fun selectCustomUnit(index: Int, customUnit: CustomUnit) {
         resultHolder.postResult(index, customUnit.substanceName, customUnit.id)
+    }
+
+    fun navigateToSubstancePicker(index: Int) {
+        pendingSubcomponentIndex = index
     }
 }
 
@@ -72,19 +93,12 @@ fun SubstanceSelectorScreen(
     subcomponentIndex: Int,
     allSubstances: List<String>,
     onSubstanceSelected: () -> Unit,
+    onNavigateToSubstancePicker: () -> Unit,
     onDismiss: () -> Unit
 ) {
     val viewModel: SubstanceSelectorViewModel = hiltViewModel()
     val customUnits by viewModel.customUnitsFlow.collectAsState()
     var searchText by remember { mutableStateOf("") }
-
-    val filteredSubstances = remember(searchText, allSubstances) {
-        if (searchText.isBlank()) {
-            allSubstances
-        } else {
-            allSubstances.filter { it.contains(searchText, ignoreCase = true) }
-        }
-    }
 
     val filteredCustomUnits = remember(searchText, customUnits) {
         if (searchText.isBlank()) {
@@ -123,27 +137,28 @@ fun SubstanceSelectorScreen(
             modifier = Modifier.fillMaxSize(),
             contentPadding = paddingValues
         ) {
-            if (filteredSubstances.isNotEmpty()) {
-                item {
-                    ListItem(
-                        headlineContent = {
-                            Text(
-                                text = "Substances",
-                                style = MaterialTheme.typography.titleSmall,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    )
-                }
-                items(filteredSubstances) { substanceName ->
-                    ListItem(
-                        headlineContent = { Text(substanceName) },
-                        modifier = Modifier.clickable {
-                            viewModel.selectSubstance(subcomponentIndex, substanceName)
-                            onSubstanceSelected()
-                        }
-                    )
-                }
+            // Add button to navigate to substance picker
+            item {
+                ListItem(
+                    headlineContent = {
+                        Text(
+                            text = stringResource(R.string.substances),
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                )
+            }
+            
+            item {
+                ListItem(
+                    headlineContent = { Text(stringResource(R.string.select_substance)) },
+                    supportingContent = { Text(stringResource(R.string.search_substances)) },
+                    modifier = Modifier.clickable {
+                        viewModel.navigateToSubstancePicker(subcomponentIndex)
+                        onNavigateToSubstancePicker()
+                    }
+                )
             }
 
             if (filteredCustomUnits.isNotEmpty()) {
@@ -151,7 +166,7 @@ fun SubstanceSelectorScreen(
                     ListItem(
                         headlineContent = {
                             Text(
-                                text = "Custom Units",
+                                text = stringResource(R.string.custom_units),
                                 style = MaterialTheme.typography.titleSmall,
                                 color = MaterialTheme.colorScheme.primary
                             )

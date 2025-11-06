@@ -27,11 +27,20 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.isaakhanimann.journal.R
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import android.widget.Toast
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.isaakhanimann.journal.ui.tabs.journal.experience.timednote.TimedNoteScreenContent
+import com.isaakhanimann.journal.ui.utils.PhotoPickerDialog
+import com.isaakhanimann.journal.ui.utils.copyPhotoToInternalStorage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,6 +48,8 @@ fun AddTimedNoteScreen(
     viewModel: AddTimedNoteViewModel = hiltViewModel(),
     navigateBack: () -> Unit
 ) {
+    val context = LocalContext.current
+    var showPhotoPicker by remember { mutableStateOf(false) }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -69,7 +80,25 @@ fun AddTimedNoteScreen(
             otherColors = viewModel.otherColors,
             isPartOfTimeline = viewModel.isPartOfTimeline,
             onChangeOfIsPartOfTimeline = viewModel::onChangeIsPartOfTimeline,
-            shouldFocusTextFieldOnAppear = true
+            shouldFocusTextFieldOnAppear = true,
+            onAddPhotoClick = { showPhotoPicker = true },
+            selectedPhotos = viewModel.selectedPhotoFilePaths,
+            onRemovePhoto = viewModel::removePhotoFilePath
+        )
+    }
+    
+    if (showPhotoPicker) {
+        PhotoPickerDialog(
+            onDismiss = { showPhotoPicker = false },
+            onPhotoSelected = { uri ->
+                val filePath = context.copyPhotoToInternalStorage(uri)
+                if (filePath != null) {
+                    viewModel.addPhotoFilePath(filePath)
+                    Toast.makeText(context, context.getString(R.string.photo_added), Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, context.getString(R.string.error_saving_photo), Toast.LENGTH_SHORT).show()
+                }
+            }
         )
     }
 }

@@ -164,8 +164,16 @@ class ExperienceViewModel @Inject constructor(
                 started = SharingStarted.WhileSubscribed(5000)
             )
 
+    val timedNotesWithPhotosFlow =
+        experienceRepo.getTimedNotesWithPhotosFlow(experienceId)
+            .stateIn(
+                initialValue = emptyList(),
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000)
+            )
+
     val timedNotesSortedFlow =
-        experienceRepo.getTimedNotesFlowSorted(experienceId)
+        timedNotesWithPhotosFlow.map { it.map { noteWithPhotos -> noteWithPhotos.timedNote } }
             .stateIn(
                 initialValue = emptyList(),
                 scope = viewModelScope,

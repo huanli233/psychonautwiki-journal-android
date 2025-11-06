@@ -156,7 +156,7 @@
     <string name="drug_testing_services">药物测试服务</string>
     <string name="reagent_testing">试剂测试</string>
     <string name="_3_dosage">3. 剂量</string>
-    <string name="_3_dosage_content">了解您的剂量，从小剂量开始并耐心等待。饱腹状态可能会将口服摄入的起效时间延迟数小时。对于有耐受性的人来说容易的剂量，对您来说可能过量。\n\n投资一个毫克秤，以便精确称量您的剂量。请注意，低于 %1$c1000 的毫克秤无法精确称量 50 毫克以下的剂量，并且在 10-15 毫克以下时非常不准确。如果药物量更小，请使用容量剂量法（将其溶解在水或酒精中以便测量）。\n\n许多物质的剂量-反应曲线并非线性，这意味着剂量加倍会导致效果增加超过两倍（并迅速导致难以承受、不愉快甚至危险的体验），因此应仅小幅增加剂量（例如，上次剂量的 1/4 到 1/2）。</string>
+    <string name="_3_dosage_content">了解您的剂量，从小剂量开始并耐心等待。饱腹状态可能会将口服摄入的起效时间延迟数小时。对于有耐受性的人来说容易的剂量，对您来说可能过量。\n\n投资一个毫克秤，以便精确称量您的剂量。请注意，低于 $1000 的毫克秤无法精确称量 50 毫克以下的剂量，并且在 10-15 毫克以下时非常不准确。如果药物量更小，请使用容量剂量法（将其溶解在水或酒精中以便测量）。\n\n许多物质的剂量-反应曲线并非线性，这意味着剂量加倍会导致效果增加超过两倍（并迅速导致难以承受、不愉快甚至危险的体验），因此应仅小幅增加剂量（例如，上次剂量的 1/4 到 1/2）。</string>
     <string name="dosage_guide">剂量指南</string>
     <string name="dosage_classification">剂量分类</string>
     <string name="_4_set_and_setting">4. 心态与环境 (Set and Setting)</string>
@@ -308,15 +308,15 @@
     <string name="ingestions_affected_by_edit">%1$s 受此编辑影响</string>
     <string name="no_ingestions_using_unit">尚无摄入记录使用此单位</string>
 
-    <string name="cannabis_info_joint" formatted="false">当通过卷烟吸食时，约23%的THC被吸入。因此，如果您吸食一支含有300毫克THC含量为20%的大麻的卷烟，您将吸入 300mg * 20/100 * 23/100 = 13.8mg THC。</string>
-    <string name="cannabis_info_bong" formatted="false">当使用水烟筒吸食时，约40%的THC被吸入。因此，如果您吸食300毫克THC含量为20%的大麻，您将吸入 300mg * 20/100 * 40/100 = 24mg THC。</string>
-    <string name="cannabis_info_vaporizer" formatted="false">当使用雾化器吸食时，约70%的THC被吸入。因此，如果您吸食300毫克THC含量为20%的大麻，您将吸入 300mg * 20/100 * 70/100 = 42mg THC。</string>
-    <string name="psilocybin_info_dried" formatted="false">干燥的古巴光盖伞约含有1%的赛洛西宾。</string>
-    <string name="psilocybin_info_fresh" formatted="false">新鲜的古巴光盖伞约含有0.1%的赛洛西宾。</string>
+    <string name="cannabis_info_joint">当通过卷烟吸食时，约23%的THC被吸入。因此，如果您吸食一支含有300毫克THC含量为20%的大麻的卷烟，您将吸入 300mg * 20/100 * 23/100 = 13.8mg THC。</string>
+    <string name="cannabis_info_bong">当使用水烟筒吸食时，约40%的THC被吸入。因此，如果您吸食300毫克THC含量为20%的大麻，您将吸入 300mg * 20/100 * 40/100 = 24mg THC。</string>
+    <string name="cannabis_info_vaporizer">当使用雾化器吸食时，约70%的THC被吸入。因此，如果您吸食300毫克THC含量为20%的大麻，您将吸入 300mg * 20/100 * 70/100 = 42mg THC。</string>
+    <string name="psilocybin_info_dried">干燥的古巴光盖伞约含有1%的赛洛西宾。</string>
+    <string name="psilocybin_info_fresh">新鲜的古巴光盖伞约含有0.1%的赛洛西宾。</string>
     <string name="psilocybin_info_research">请研究您所拥有的蘑菇品种，以便估算其赛洛西宾含量。</string>
-    <string name="alcohol_info" formatted="false">1毫升乙醇为0.8克。因此，如果您饮用200毫升酒精含量为40%的烈酒，您将摄入 200ml * 40/100 * 0.8 = 64克 乙醇。</string>
+    <string name="alcohol_info">1毫升乙醇为0.8克。因此，如果您饮用200毫升酒精含量为40%的烈酒，您将摄入 200ml * 40/100 * 0.8 = 64克 乙醇。</string>
 
-    <string name="prompt_cannabis_name" formatted="false">例如：卷烟（THC 20%），水烟筒（THC 15%），雾化器</string>
+    <string name="prompt_cannabis_name">例如：卷烟（THC 20%），水烟筒（THC 15%），雾化器</string>
     <string name="prompt_cannabis_unit">毫克，支，口</string>
     <string name="prompt_cannabis_unit_plural">毫克，支，口</string>
     <string name="prompt_mushrooms_name">蘑菇品种</string>
@@ -445,4 +445,174 @@
     <string name="custom_recipe_archive_title">自定义配方存档</string>
     <string name="no_archived_recipes_yet">暂无已存档的配方</string>
     <string name="no_archived_recipes_description">已存档的配方不会在添加摄入时显示</string>
+
+    <string name="search_multiple_substances">搜索多种物质</string>
+    <string name="add_substance_to_search">添加物质到搜索</string>
+    <string name="remove_substance_from_search">从搜索中移除物质</string>
+    <string name="searching_for_substances">正在搜索：%1$s</string>
+    <string name="no_experiences_with_combination">未找到包含此物质组合的体验</string>
+    <string name="substance_combination_search">物质组合</string>
+
+    <string name="search_in_timed_notes">在定时笔记中搜索</string>
+    <string name="no_matching_timed_notes">没有定时笔记符合您的搜索</string>
+    <string name="timed_note_contains">定时笔记包含：%1$s</string>
+
+    <string name="add_photo">添加照片</string>
+    <string name="take_photo">拍照</string>
+    <string name="choose_photo">从相册选择</string>
+    <string name="photo">照片</string>
+    <string name="photos">照片</string>
+    <string name="delete_photo">删除照片</string>
+    <string name="delete_photo_confirmation">确定要删除此照片吗？</string>
+    <string name="photo_deleted">照片已删除</string>
+    <string name="view_photo">查看照片</string>
+    <string name="no_photos_yet">暂无照片</string>
+    <string name="photo_added">照片已添加</string>
+    <string name="camera_permission_required">需要相机权限</string>
+    <string name="storage_permission_required">需要存储权限</string>
+    <string name="grant_permission">授予权限</string>
+
+    <string name="chat_style_notes">聊天式笔记</string>
+    <string name="type_your_note">输入您的笔记…</string>
+    <string name="send_note">发送笔记</string>
+    <string name="note_sent">笔记已发送</string>
+    <string name="edit_timestamp">编辑时间戳</string>
+    <string name="timestamp_updated">时间戳已更新</string>
+    <string name="message_options">消息选项</string>
+    <string name="long_press_to_edit">长按以编辑或删除</string>
+
+    <string name="notifications">通知</string>
+    <string name="notification_settings">通知设置</string>
+    <string name="enable_notifications">启用通知</string>
+    <string name="disable_notifications">禁用通知</string>
+    <string name="notification_permission_required">需要通知权限</string>
+    <string name="notification_channel_name">日志通知</string>
+    <string name="notification_channel_description">摄入提醒和提醒通知</string>
+
+    <string name="ingestion_reminders">摄入提醒</string>
+    <string name="add_reminder">添加提醒</string>
+    <string name="edit_reminder">编辑提醒</string>
+    <string name="delete_reminder">删除提醒</string>
+    <string name="delete_reminder_confirmation">确定要删除此提醒吗？</string>
+    <string name="reminder_deleted">提醒已删除</string>
+    <string name="reminder_saved">提醒已保存</string>
+    <string name="reminder_time">提醒时间</string>
+    <string name="reminder_substance">提醒物质</string>
+    <string name="reminder_dose">提醒剂量</string>
+    <string name="reminder_note">提醒备注</string>
+    <string name="reminder_repeat">重复</string>
+    <string name="reminder_repeat_daily">每天</string>
+    <string name="reminder_repeat_weekly">每周</string>
+    <string name="reminder_repeat_custom">自定义</string>
+    <string name="no_reminders_yet">暂无提醒</string>
+    <string name="no_reminders_description">为您的药物或补充剂添加提醒</string>
+    <string name="medication_planner">用药计划</string>
+    <string name="medication_plan">用药计划</string>
+    <string name="time_to_take">该服用 %1$s 了</string>
+    <string name="reminder_notification_title">摄入提醒</string>
+    <string name="reminder_notification_text">该服用 %1$s（%2$s）了</string>
+    <string name="mark_as_taken">标记为已服用</string>
+    <string name="snooze_reminder">稍后提醒</string>
+    <string name="skip_reminder">跳过</string>
+    <string name="reminder_snoozed">已将提醒推迟15分钟</string>
+    <string name="reminder_skipped">提醒已跳过</string>
+    <string name="reminder_marked_taken">已标记为已服用</string>
+    <string name="view_chat_notes">查看聊天式笔记</string>
+    <string name="camera_permission_rationale">允许相机访问以为定时笔记拍照</string>
+    <string name="choose_from_gallery">从相册选择</string>
+    <string name="storage_permission_rationale">允许存储访问以从相册选择照片</string>
+    <string name="select_photo_source">选择照片来源</string>
+    <string name="notification_permission_rationale">允许通知以接收摄入提醒</string>
+
+    <string name="search_notes">搜索笔记</string>
+    <string name="search_in_notes">在笔记中搜索</string>
+    <string name="no_notes_match_search">没有匹配的笔记</string>
+    <string name="notes_found">找到 %1$d 条笔记</string>
+
+    <string name="photo_removed">照片已移除</string>
+    <string name="remove_photo">移除照片</string>
+    <string name="photo_count">%1$d 张照片</string>
+    <string name="select_photos">选择照片</string>
+    <string name="max_photos_reached">已达到最大照片数量</string>
+
+    <string name="reminder_details">提醒详情</string>
+    <string name="select_substance">选择物质</string>
+    <string name="substance_required">物质为必填项</string>
+    <string name="select_roa">选择给药途径</string>
+    <string name="roa_required">给药途径为必填项</string>
+    <string name="enter_dose">输入剂量</string>
+    <string name="dose_required">剂量为必填项</string>
+    <string name="dose_must_be_positive">剂量必须大于0</string>
+    <string name="select_unit">选择单位</string>
+    <string name="unit_required">单位为必填项</string>
+    <string name="select_time">选择时间</string>
+    <string name="time_required">时间为必填项</string>
+    <string name="repeat_mode">重复模式</string>
+    <string name="select_repeat_mode">选择重复模式</string>
+    <string name="error">错误</string>
+    <string name="saving">保存中...</string>
+    <string name="reminder_repeat_once">仅一次</string>
+    <string name="repeat_none">不重复</string>
+    <string name="repeat_every_day">每天</string>
+    <string name="repeat_every_week">每周</string>
+    <string name="repeat_custom_days">自定义天数</string>
+    <string name="select_days">选择日期</string>
+    <string name="monday">星期一</string>
+    <string name="tuesday">星期二</string>
+    <string name="wednesday">星期三</string>
+    <string name="thursday">星期四</string>
+    <string name="friday">星期五</string>
+    <string name="saturday">星期六</string>
+    <string name="sunday">星期日</string>
+    <string name="at_least_one_day_required">至少选择一天</string>
+    <string name="reminder_enabled">提醒已启用</string>
+    <string name="reminder_disabled">提醒已禁用</string>
+    <string name="enable_reminder">启用提醒</string>
+    <string name="disable_reminder">禁用提醒</string>
+
+    <string name="substance_picker">物质选择器</string>
+    <string name="search_substance">搜索物质</string>
+    <string name="no_substance_selected">未选择物质</string>
+    <string name="custom_substance">自定义物质</string>
+    <string name="psychonautwiki_substance">PsychonautWiki物质</string>
+
+    <string name="time_picker">时间选择器</string>
+    <string name="select_date">选择日期</string>
+    <string name="select_hour">选择小时</string>
+    <string name="select_minute">选择分钟</string>
+    <string name="date_and_time">日期和时间</string>
+
+    <string name="dose_input">剂量输入</string>
+    <string name="enter_dose_value">输入剂量值</string>
+    <string name="dose_unit">剂量单位</string>
+
+    <string name="field_required">此字段为必填项</string>
+    <string name="invalid_value">无效值</string>
+    <string name="value_must_be_positive">值必须大于0</string>
+    <string name="value_too_large">值过大</string>
+    <string name="value_too_small">值过小</string>
+
+    <string name="reminder_created">提醒已创建</string>
+    <string name="reminder_updated">提醒已更新</string>
+    <string name="changes_saved">更改已保存</string>
+
+    <string name="error_creating_reminder">创建提醒时出错</string>
+    <string name="error_updating_reminder">更新提醒时出错</string>
+    <string name="error_deleting_reminder">删除提醒时出错</string>
+    <string name="error_loading_data">加载数据时出错</string>
+    <string name="error_saving_photo">保存照片时出错</string>
+    <string name="error_loading_photo">加载照片时出错</string>
+
+    <string name="discard_changes">放弃更改？</string>
+    <string name="discard_changes_message">您有未保存的更改。确定要放弃吗？</string>
+    <string name="discard">放弃</string>
+    <string name="keep_editing">继续编辑</string>
+    <string name="delete_photo_message">此操作无法撤销。</string>
+
+    <string name="save">保存</string>
+    <string name="confirm">确认</string>
+    <string name="apply">应用</string>
+    <string name="clear">清除</string>
+    <string name="reset">重置</string>
+    <string name="deselect_all">取消全选</string>
 </resources>

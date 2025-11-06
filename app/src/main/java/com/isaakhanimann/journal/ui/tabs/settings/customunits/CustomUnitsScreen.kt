@@ -133,16 +133,14 @@ fun CustomUnitsScreenContent(
                 val description = if (searchText.isEmpty()) stringResource(R.string.no_custom_units_description) else stringResource(R.string.no_custom_units_found_description)
                 EmptyScreenDisclaimer(title = title, description = description)
             } else {
-                LazyColumn {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 8.dp)
+                ) {
                     items(filteredUnits, key = { it.id }) { customUnit ->
                         CustomUnitRow(
                             customUnit = customUnit,
                             navigateToEditCustomUnit = navigateToEditCustomUnit
-                        )
-                        HorizontalDivider(
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            thickness = DividerDefaults.Thickness,
-                            color = DividerDefaults.color
                         )
                     }
                 }
@@ -156,20 +154,50 @@ fun CustomUnitRow(
     customUnit: CustomUnit,
     navigateToEditCustomUnit: (customUnitId: Int) -> Unit,
 ) {
-    ListItem(
-        modifier = Modifier.clickable { navigateToEditCustomUnit(customUnit.id) },
-        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-        headlineContent = {
-            Text(
-                text = "${customUnit.substanceName}, ${customUnit.name}",
-                style = MaterialTheme.typography.titleMedium
-            )
-        },
-        supportingContent = {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    androidx.compose.material3.Surface(
+        onClick = { navigateToEditCustomUnit(customUnit.id) },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 2.dp),
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        tonalElevation = 1.dp
+    ) {
+        androidx.compose.foundation.layout.Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Icon
+            androidx.compose.material3.Surface(
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.primaryContainer,
+                modifier = Modifier.padding(4.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Inventory,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
+            
+            // Content
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(
+                    text = "${customUnit.substanceName} • ${customUnit.name}",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Medium
+                )
                 Text(
                     text = "${customUnit.getDoseOfOneUnitDescription()} per ${customUnit.unit}",
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 if (customUnit.note.isNotBlank()) {
                     Text(
@@ -182,7 +210,7 @@ fun CustomUnitRow(
                 }
             }
         }
-    )
+    }
 }
 
 @Preview

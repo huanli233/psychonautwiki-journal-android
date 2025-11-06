@@ -1,8 +1,7 @@
 package com.isaakhanimann.journal.ui.tabs.journal.components
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,15 +10,17 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -28,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -44,32 +46,78 @@ fun ExperienceRow(
     isTimeRelativeToNow: Boolean = true
 ) {
     val experience = experienceWithIngestionsCompanionsAndRatings.experience
-    val ingestions = experienceWithIngestionsCompanionsAndRatings.ingestionsWithCompanions.sortedBy { it.ingestion.time }
+    val ingestions =
+        experienceWithIngestionsCompanionsAndRatings.ingestionsWithCompanions.sortedBy { it.ingestion.time }
 
-    ListItem(
-        modifier = Modifier.clickable(onClick = navigateToExperienceScreen),
-        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-        headlineContent = {
-            Text(
-                text = experience.title,
-                style = MaterialTheme.typography.titleMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        },
-        supportingContent = {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    ElevatedCard(
+        onClick = navigateToExperienceScreen,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .animateContentSize(), // M3 Expressive 动画
+        shape = RoundedCornerShape(16.dp), // 显式指定圆角以确保阴影正确裁剪
+        elevation = CardDefaults.elevatedCardElevation(
+            defaultElevation = 3.dp,
+            pressedElevation = 8.dp // 交互反馈
+        ),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            ColorRectangle(ingestions = ingestions)
+
+            // Content
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                // Title with favorite star
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = experience.title,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
+                    )
+                    if (experience.isFavorite) {
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = "Favorite",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
+
+                // Substances
                 val substanceNames = remember(ingestions) {
-                    ingestions.map { it.ingestion.substanceName }.distinct().joinToString(separator = ", ")
+                    ingestions.map { it.ingestion.substanceName }.distinct()
+                        .joinToString(separator = " • ")
                 }
                 Text(
                     text = substanceNames.ifEmpty { "No substance yet" },
                     style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+
+                // Consumer names
                 val consumerNames = remember(ingestions) {
-                    ingestions.mapNotNull { it.ingestion.consumerName }.distinct().joinToString(separator = ", ")
+                    ingestions.mapNotNull { it.ingestion.consumerName }.distinct()
+                        .joinToString(separator = ", ")
                 }
                 if (consumerNames.isNotEmpty()) {
                     Text(
@@ -81,46 +129,48 @@ fun ExperienceRow(
                     )
                 }
             }
-        },
-        leadingContent = {
-            ColorRectangle(ingestions = ingestions)
-        },
-        overlineContent = {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+
+            // Time and Rating
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
+                // Time
                 val timeStyle = MaterialTheme.typography.labelMedium
                 if (isTimeRelativeToNow) {
                     RelativeDateTextNew(
                         dateTime = experienceWithIngestionsCompanionsAndRatings.sortInstant,
-                        style = timeStyle
+                        style = timeStyle,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 } else {
                     Text(
                         text = experienceWithIngestionsCompanionsAndRatings.sortInstant.getDateWithWeekdayText(),
-                        style = timeStyle
+                        style = timeStyle,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+
+                // Rating
                 val rating = experienceWithIngestionsCompanionsAndRatings.rating?.sign
                 if (rating != null) {
-                    Text(text = rating, style = MaterialTheme.typography.labelLarge)
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.primaryContainer
+                    ) {
+                        Text(
+                            text = rating,
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
                 }
             }
-        },
-        trailingContent = {
-            if (experience.isFavorite) {
-                Icon(
-                    imageVector = Icons.Filled.Star,
-                    contentDescription = "Is favorite",
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
         }
-    )
+    }
 }
-
 
 
 @Composable
@@ -143,10 +193,13 @@ fun ColorRectangle(ingestions: List<IngestionWithCompanionAndCustomUnit>) {
             }
             Box(modifier = modifier.background(brush))
         }
+
         ingestions.size == 1 -> {
-            val color = ingestions.first().substanceCompanion?.getSubstanceColor()?.toColor() ?: Color.Gray
+            val color =
+                ingestions.first().substanceCompanion?.getSubstanceColor()?.toColor() ?: Color.Gray
             Box(modifier = modifier.background(color))
         }
+
         else -> {
             val color = MaterialTheme.colorScheme.surfaceVariant
             Box(modifier = modifier.background(color))

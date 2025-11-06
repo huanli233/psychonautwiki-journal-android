@@ -32,6 +32,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import android.widget.Toast
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import com.isaakhanimann.journal.R
+import com.isaakhanimann.journal.ui.utils.PhotoPickerDialog
+import com.isaakhanimann.journal.ui.utils.copyPhotoToInternalStorage
 import com.isaakhanimann.journal.ui.tabs.journal.experience.timednote.TimedNoteScreenContent
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,6 +49,8 @@ fun EditTimedNoteScreen(
     viewModel: EditTimedNoteViewModel = hiltViewModel(),
     navigateBack: () -> Unit
 ) {
+    val context = LocalContext.current
+    var showPhotoPicker by remember { mutableStateOf(false) }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -80,7 +91,25 @@ fun EditTimedNoteScreen(
             alreadyUsedColors = viewModel.alreadyUsedColorsFlow.collectAsState().value,
             otherColors = viewModel.otherColorsFlow.collectAsState().value,
             isPartOfTimeline = viewModel.isPartOfTimeline,
-            onChangeOfIsPartOfTimeline = viewModel::onChangeIsPartOfTimeline
+            onChangeOfIsPartOfTimeline = viewModel::onChangeIsPartOfTimeline,
+            onAddPhotoClick = { showPhotoPicker = true },
+            selectedPhotos = viewModel.selectedPhotoFilePaths,
+            onRemovePhoto = viewModel::removePhotoFilePath
+        )
+    }
+    
+    if (showPhotoPicker) {
+        PhotoPickerDialog(
+            onDismiss = { showPhotoPicker = false },
+            onPhotoSelected = { uri ->
+                val filePath = context.copyPhotoToInternalStorage(uri)
+                if (filePath != null) {
+                    viewModel.addPhotoFilePath(filePath)
+                    Toast.makeText(context, context.getString(R.string.photo_added), Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, context.getString(R.string.error_saving_photo), Toast.LENGTH_SHORT).show()
+                }
+            }
         )
     }
 }

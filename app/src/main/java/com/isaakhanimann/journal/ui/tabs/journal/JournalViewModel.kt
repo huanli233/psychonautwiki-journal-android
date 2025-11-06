@@ -27,6 +27,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.isaakhanimann.journal.data.room.experiences.ExperienceRepository
 import com.isaakhanimann.journal.data.substances.repositories.SearchRepository
+import com.isaakhanimann.journal.ui.tabs.journal.search.MultiSubstanceSearchHelper
 import com.isaakhanimann.journal.ui.tabs.settings.combinations.UserPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -103,6 +104,23 @@ class JournalViewModel @Inject constructor(
         }
     }
 
+    val selectedSubstancesFlow = MutableStateFlow<List<String>>(emptyList())
+
+    fun addSubstanceToSearch(substanceName: String) {
+        viewModelScope.launch {
+            val current = selectedSubstancesFlow.value
+            if (!current.contains(substanceName)) {
+                selectedSubstancesFlow.emit(current + substanceName)
+            }
+        }
+    }
+
+    fun removeSubstanceFromSearch(substanceName: String) {
+        viewModelScope.launch {
+            selectedSubstancesFlow.emit(selectedSubstancesFlow.value - substanceName)
+        }
+    }
+
     val experiences =
         experienceRepo.getSortedExperienceWithIngestionsCompanionsAndRatingsFlow()
             .combine(searchTextFlow) { experiencesWithIngestions, searchText ->
@@ -115,6 +133,14 @@ class JournalViewModel @Inject constructor(
                 var experiencesWithIngestions = pair.first.first
                 val searchText = pair.first.second
                 val customSubstances = pair.second
+
+                Pair(first = Triple(experiencesWithIngestions, searchText, customSubstances), second = isFavoriteEnabled)
+            }
+            .combine(selectedSubstancesFlow) { pair, selectedSubstances ->
+                var experiencesWithIngestions = pair.first.first
+                val searchText = pair.first.second
+                val customSubstances = pair.first.third
+                val isFavoriteEnabled = pair.second
 
                 if (isFavoriteEnabled) {
                     // only favorites
@@ -151,6 +177,15 @@ class JournalViewModel @Inject constructor(
                             ignoreCase = true
                         )
                     }
+                }
+                
+                
+                // Apply multi-substance filter
+                if (selectedSubstances.isNotEmpty()) {
+                    experiencesWithIngestions = MultiSubstanceSearchHelper.filterBySubstanceCombination(
+                        experiences = experiencesWithIngestions,
+                        substances = selectedSubstances
+                    )
                 }
                 return@combine experiencesWithIngestions
             }

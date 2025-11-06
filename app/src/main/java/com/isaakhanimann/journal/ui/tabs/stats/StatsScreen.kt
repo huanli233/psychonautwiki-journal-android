@@ -5,6 +5,8 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,8 +21,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -32,7 +36,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
+import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -45,6 +49,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -143,7 +148,7 @@ fun StatsScreen(
             )
         } else {
             Column(modifier = Modifier.padding(padding)) {
-                TabRow(
+                PrimaryTabRow(
                     selectedTabIndex = statsModel.selectedOption.tabIndex
                 ) {
                     TimePickerOption.entries.forEachIndexed { index, option ->
@@ -155,7 +160,10 @@ fun StatsScreen(
                     }
                 }
                 if (statsModel.statItems.isNotEmpty()) {
-                    LazyColumn {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        contentPadding = PaddingValues(bottom = 16.dp)
+                    ) {
                         item {
                             Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
                                 Text(
@@ -180,11 +188,8 @@ fun StatsScreen(
                         }
 
                         item {
-                            HorizontalDivider(
-                                modifier = Modifier,
-                                thickness = DividerDefaults.Thickness,
-                                color = DividerDefaults.color
-                            )
+                            // Spacer instead of full-width divider
+                            Spacer(modifier = Modifier.height(16.dp))
                         }
 
                         items(statsModel.statItems) { subStat ->
@@ -196,11 +201,6 @@ fun StatsScreen(
                                         statsModel.consumerName
                                     )
                                 }
-                            )
-                            HorizontalDivider(
-                                modifier = Modifier,
-                                thickness = DividerDefaults.Thickness,
-                                color = DividerDefaults.color
                             )
                         }
                     }
@@ -220,32 +220,53 @@ fun StatsScreen(
 
 @Composable
 private fun StatItemRow(subStat: StatItem, onClick: () -> Unit) {
-    val isDarkTheme = isSystemInDarkTheme()
-    ListItem(
-        modifier = Modifier.clickable(onClick = onClick),
-        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-        headlineContent = {
-            Text(
-                text = subStat.substanceName,
-                style = MaterialTheme.typography.titleMedium
-            )
-        },
-        supportingContent = {
-            val addOn = if (subStat.experienceCount == 1) stringResource(R.string.experience_count)
-            else stringResource(R.string.experiences_count)
-            Text(text = "${subStat.experienceCount}$addOn")
-        },
-        leadingContent = {
+    ElevatedCard(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Color indicator
             Surface(
-                shape = RoundedCornerShape(4.dp),
+                shape = RoundedCornerShape(6.dp),
                 color = subStat.color.toColor(),
                 modifier = Modifier
-                    .width(8.dp)
-                    .height(40.dp)
+                    .width(6.dp)
+                    .height(48.dp)
             ) {}
-        },
-        trailingContent = {
-            Column(horizontalAlignment = Alignment.End) {
+            
+            // Content
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = subStat.substanceName,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+                val addOn = if (subStat.experienceCount == 1) stringResource(R.string.experience_count)
+                else stringResource(R.string.experiences_count)
+                Text(
+                    text = "${subStat.experienceCount}$addOn",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            
+            // Dose info
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
                 val cumulativeDose = subStat.totalDose
                 val doseTextValue = if (cumulativeDose != null) {
                     if (cumulativeDose.isEstimate) {
@@ -260,9 +281,11 @@ private fun StatItemRow(subStat: StatItem, onClick: () -> Unit) {
                 } else {
                     stringResource(R.string.dose_unknown)
                 }
+                
                 Text(
                     text = stringResource(R.string.total, doseTextValue),
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium
                 )
 
                 if (subStat.routeCounts.isNotEmpty()) {
@@ -274,7 +297,7 @@ private fun StatItemRow(subStat: StatItem, onClick: () -> Unit) {
                 }
             }
         }
-    )
+    }
 }
 
 

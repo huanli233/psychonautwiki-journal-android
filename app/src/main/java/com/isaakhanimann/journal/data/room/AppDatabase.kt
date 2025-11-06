@@ -25,35 +25,43 @@ import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.isaakhanimann.journal.data.room.experiences.ExperienceDao
+import com.isaakhanimann.journal.data.room.experiences.entities.CustomRecipe
 import com.isaakhanimann.journal.data.room.experiences.entities.CustomSubstance
 import com.isaakhanimann.journal.data.room.experiences.entities.CustomUnit
 import com.isaakhanimann.journal.data.room.experiences.entities.Experience
 import com.isaakhanimann.journal.data.room.experiences.entities.Ingestion
+import com.isaakhanimann.journal.data.room.experiences.entities.IngestionReminder
 import com.isaakhanimann.journal.data.room.experiences.entities.InstantConverter
+import com.isaakhanimann.journal.data.room.LocalTimeConverter
+import com.isaakhanimann.journal.data.room.RepeatModeConverter
+import com.isaakhanimann.journal.data.room.experiences.entities.RecipeSubcomponent
 import com.isaakhanimann.journal.data.room.experiences.entities.ShulginRating
 import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceCompanion
 import com.isaakhanimann.journal.data.room.experiences.entities.TimedNote
-import com.isaakhanimann.journal.data.room.experiences.entities.CustomRecipe
-import com.isaakhanimann.journal.data.room.experiences.entities.RecipeSubcomponent
+import com.isaakhanimann.journal.data.room.experiences.entities.TimedNotePhoto
 
-@TypeConverters(InstantConverter::class, Converters::class)
+@TypeConverters(InstantConverter::class, Converters::class, LocalTimeConverter::class, RepeatModeConverter::class)
 @Database(
-    version = 14,
-    entities = [Experience::class, Ingestion::class, SubstanceCompanion::class, CustomSubstance::class, ShulginRating::class, TimedNote::class, CustomUnit::class, CustomRecipe::class, RecipeSubcomponent::class],
+    version = 18,
+    entities = [Experience::class, Ingestion::class, SubstanceCompanion::class, CustomSubstance::class, ShulginRating::class, TimedNote::class, CustomUnit::class, CustomRecipe::class, RecipeSubcomponent::class, TimedNotePhoto::class, IngestionReminder::class],
     autoMigrations = [
-        AutoMigration (from = 1, to = 2),
-        AutoMigration (from = 2, to = 3),
-        AutoMigration (from = 3, to = 4),
-        AutoMigration (from = 4, to = 5),
-        AutoMigration (from = 5, to = 6),
-        AutoMigration (from = 6, to = 7),
-        AutoMigration (from = 7, to = 8),
+        AutoMigration(from = 1, to = 2),
+        AutoMigration(from = 2, to = 3),
+        AutoMigration(from = 3, to = 4),
+        AutoMigration(from = 4, to = 5),
+        AutoMigration(from = 5, to = 6),
+        AutoMigration(from = 6, to = 7),
+        AutoMigration(from = 7, to = 8),
         // Version 9 is handled by MIGRATION_8_9
         // Version 10 is handled by MIGRATION_9_10
         // Version 11 is handled by MIGRATION_10_11
         // Version 12 is handled by MIGRATION_11_12
         // Version 13 is handled by MIGRATION_12_13
-        // Version 14 is handled by MIGRATION_12_14
+        // Version 14 is handled by MIGRATION_13_14
+        // Version 15 is handled by MIGRATION_14_15
+        // Version 16 is handled by MIGRATION_15_16
+        // Version 17 is handled by MIGRATION_16_17
+        // Version 18 is handled by MIGRATION_17_18
     ]
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -90,10 +98,10 @@ abstract class AppDatabase : RoomDatabase() {
             override fun migrate(db: SupportSQLiteDatabase) {
                 // Add customRecipeId column to Ingestion table
                 db.execSQL("ALTER TABLE `Ingestion` ADD COLUMN `customRecipeId` INTEGER")
-                
+
                 // Create CustomRecipe table
                 db.execSQL("CREATE TABLE `CustomRecipe` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `creationDate` INTEGER NOT NULL, `administrationRoute` TEXT NOT NULL, `isArchived` INTEGER NOT NULL, `unit` TEXT NOT NULL, `unitPlural` TEXT, `note` TEXT NOT NULL)")
-                
+
                 // Create RecipeSubcomponent table
                 db.execSQL("CREATE TABLE `RecipeSubcomponent` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `recipeId` INTEGER NOT NULL, `substanceName` TEXT NOT NULL, `dose` REAL, `estimatedDoseStandardDeviation` REAL, `isEstimate` INTEGER NOT NULL, `originalUnit` TEXT NOT NULL, `creationDate` INTEGER NOT NULL, FOREIGN KEY(`recipeId`) REFERENCES `CustomRecipe`(`id`) ON DELETE CASCADE)")
             }
@@ -109,7 +117,8 @@ abstract class AppDatabase : RoomDatabase() {
 
         val MIGRATION_12_13 = object : Migration(12, 13) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("""
+                db.execSQL(
+                    """
                 CREATE TABLE RecipeSubcomponent_new (
                 id INTEGER PRIMARY KEY NOT NULL,
             creationDate INTEGER NOT NULL,
@@ -124,9 +133,12 @@ abstract class AppDatabase : RoomDatabase() {
             unit TEXT NOT NULL DEFAULT 'mg',
             FOREIGN KEY(recipeId) REFERENCES CustomRecipe(id) ON DELETE CASCADE,
             FOREIGN KEY(customUnitId) REFERENCES CustomUnit(id) ON DELETE SET NULL
-        )""")
-                db.execSQL("""INSERT INTO RecipeSubcomponent_new (id, creationDate, dose, estimatedDoseStandardDeviation, isEstimate, originalUnit, recipeId, substanceName, unit)
-                SELECT id, creationDate, dose, estimatedDoseStandardDeviation, isEstimate, originalUnit, recipeId, substanceName, 'mg' FROM RecipeSubcomponent""")
+        )"""
+                )
+                db.execSQL(
+                    """INSERT INTO RecipeSubcomponent_new (id, creationDate, dose, estimatedDoseStandardDeviation, isEstimate, originalUnit, recipeId, substanceName, unit)
+                SELECT id, creationDate, dose, estimatedDoseStandardDeviation, isEstimate, originalUnit, recipeId, substanceName, 'mg' FROM RecipeSubcomponent"""
+                )
                 db.execSQL("DROP TABLE RecipeSubcomponent")
                 db.execSQL("ALTER TABLE RecipeSubcomponent_new RENAME TO RecipeSubcomponent")
             }
@@ -134,7 +146,8 @@ abstract class AppDatabase : RoomDatabase() {
 
         val MIGRATION_13_14 = object : Migration(13, 14) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("""
+                db.execSQL(
+                    """
             CREATE TABLE RecipeSubcomponent_new (
                 id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 recipeId INTEGER NOT NULL,
@@ -149,9 +162,11 @@ abstract class AppDatabase : RoomDatabase() {
                 FOREIGN KEY(recipeId) REFERENCES CustomRecipe(id) ON DELETE CASCADE,
                 FOREIGN KEY(customUnitId) REFERENCES CustomUnit(id) ON DELETE SET NULL
             )
-        """.trimIndent())
+        """.trimIndent()
+                )
 
-                db.execSQL("""
+                db.execSQL(
+                    """
             INSERT INTO RecipeSubcomponent_new (
                 id, recipeId, substanceName, customUnitId, customUnitDose,
                 dose, estimatedDoseStandardDeviation, isEstimate, originalUnit, creationDate
@@ -159,7 +174,8 @@ abstract class AppDatabase : RoomDatabase() {
             SELECT id, recipeId, substanceName, customUnitId, customUnitDose,
                    dose, estimatedDoseStandardDeviation, isEstimate, originalUnit, creationDate
             FROM RecipeSubcomponent
-        """.trimIndent())
+        """.trimIndent()
+                )
 
                 db.execSQL("DROP TABLE RecipeSubcomponent")
 
@@ -167,5 +183,81 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+
+        val MIGRATION_14_15 = object : Migration(14, 15) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Add TimedNotePhoto table
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS TimedNotePhoto (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        timedNoteId INTEGER NOT NULL,
+                        filePath TEXT NOT NULL,
+                        creationDate INTEGER NOT NULL,
+                        caption TEXT,
+                        thumbnailPath TEXT,
+                        FOREIGN KEY(timedNoteId) REFERENCES TimedNote(id) ON DELETE CASCADE
+                    )
+                """.trimIndent()
+                )
+
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_TimedNotePhoto_timedNoteId ON TimedNotePhoto(timedNoteId)")
+
+                // Add IngestionReminder table
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS IngestionReminder (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        substanceName TEXT NOT NULL,
+                        dose REAL,
+                        units TEXT,
+                        reminderTime INTEGER NOT NULL,
+                        isEnabled INTEGER NOT NULL,
+                        repeatMode TEXT NOT NULL,
+                        note TEXT NOT NULL,
+                        creationDate INTEGER NOT NULL,
+                        lastTriggered INTEGER
+                    )
+                """.trimIndent()
+                )
+            }
+
+        }
+
+        val MIGRATION_15_16 = object : Migration(15, 16) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Add indices for foreign keys in Ingestion table
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_Ingestion_customUnitId ON Ingestion(customUnitId)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_Ingestion_customRecipeId ON Ingestion(customRecipeId)")
+            }
+        }
+
+        val MIGRATION_16_17 = object : Migration(16, 17) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Create ingestion_reminders table for reminder functionality
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS ingestion_reminders (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        substanceName TEXT NOT NULL,
+                        reminderTime TEXT NOT NULL,
+                        repeatMode TEXT NOT NULL,
+                        dose REAL,
+                        units TEXT,
+                        note TEXT NOT NULL DEFAULT '',
+                        isEnabled INTEGER NOT NULL DEFAULT 1,
+                        createdAt INTEGER NOT NULL
+                    )
+                """.trimIndent()
+                )
+            }
+        }
+
+        val MIGRATION_17_18 = object : Migration(17, 18) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Add customRepeatData column to ingestion_reminders table
+                db.execSQL("ALTER TABLE ingestion_reminders ADD COLUMN customRepeatData TEXT")
+            }
+        }
     }
 }

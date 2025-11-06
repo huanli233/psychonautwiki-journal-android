@@ -19,6 +19,7 @@
 package com.isaakhanimann.journal.ui.tabs.journal.experience.timednote.edit
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
@@ -29,6 +30,7 @@ import com.isaakhanimann.journal.data.room.experiences.ExperienceRepository
 import com.isaakhanimann.journal.data.room.experiences.entities.AdaptiveColor
 import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
 import com.isaakhanimann.journal.data.room.experiences.entities.TimedNote
+import com.isaakhanimann.journal.data.room.experiences.entities.TimedNotePhoto
 import com.isaakhanimann.journal.data.room.experiences.entities.getSubstanceColor
 import com.isaakhanimann.journal.ui.main.navigation.graphs.EditTimedNoteRoute
 import com.isaakhanimann.journal.ui.utils.getInstant
@@ -42,6 +44,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.Instant
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -53,6 +56,10 @@ class EditTimedNoteViewModel @Inject constructor(
     var note by mutableStateOf("")
     var color by mutableStateOf<SubstanceColor>(SubstanceColor.Predefined(AdaptiveColor.BLUE))
     var isPartOfTimeline by mutableStateOf(true)
+    
+    // Photo support
+    val selectedPhotoFilePaths = mutableStateListOf<String>()
+    val maxPhotos = 10
     var localDateTimeFlow = MutableStateFlow(LocalDateTime.now())
     private var timedNote: TimedNote? = null
     private val editTimedNoteRoute = state.toRoute<EditTimedNoteRoute>()
@@ -74,6 +81,12 @@ class EditTimedNoteViewModel @Inject constructor(
                 ?: loadedNote.color?.let { SubstanceColor.Predefined(it) }
                         ?: SubstanceColor.Predefined(AdaptiveColor.BLUE)
             isPartOfTimeline = loadedNote.isPartOfTimeline
+
+            // Load existing photos
+            experienceRepo.getPhotosForTimedNoteFlow(timedNoteId).collect { photos ->
+                selectedPhotoFilePaths.clear()
+                selectedPhotoFilePaths.addAll(photos.map { it.filePath })
+            }
         }
     }
 
@@ -94,6 +107,16 @@ class EditTimedNoteViewModel @Inject constructor(
 
     fun onChangeColor(newColor: SubstanceColor) {
         color = newColor
+    }
+    
+    fun addPhotoFilePath(filePath: String) {
+        if (selectedPhotoFilePaths.size < maxPhotos) {
+            selectedPhotoFilePaths.add(filePath)
+        }
+    }
+    
+    fun removePhotoFilePath(filePath: String) {
+        selectedPhotoFilePaths.remove(filePath)
     }
 
     private val ingestionsFlow = experienceRepo.getIngestionsWithCompanionsFlow(experienceId)
@@ -149,6 +172,29 @@ class EditTimedNoteViewModel @Inject constructor(
                 it.customColor = customColor
                 it.isPartOfTimeline = isPartOfTimeline
                 experienceRepo.update(it)
+
+                // Handle photos
+                // First, get existing photos
+                val existingPhotos = experienceRepo.getPhotosForTimedNoteFlow(timedNoteId).firstOrNull() ?: emptyList()
+                val existingPaths = existingPhotos.map { it.filePath }.toSet()
+                val currentPaths = selectedPhotoFilePaths.toSet()
+
+                // Delete removed photos
+                val photosToDelete = existingPhotos.filter { !currentPaths.contains(it.filePath) }
+                photosToDelete.forEach { photo ->
+                    experienceRepo.delete(photo)
+                }
+
+                // Add new photos
+                val newPaths = currentPaths - existingPaths
+                newPaths.forEach { filePath ->
+                    val photo = TimedNotePhoto(
+                        timedNoteId = timedNoteId,
+                        filePath = filePath,
+                        creationDate = Instant.now()
+                    )
+                    experienceRepo.insert(photo)
+                }
             }
         }
     }

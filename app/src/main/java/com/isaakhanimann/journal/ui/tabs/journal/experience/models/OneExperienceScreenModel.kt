@@ -20,6 +20,7 @@ package com.isaakhanimann.journal.ui.tabs.journal.experience.models
 
 import com.isaakhanimann.journal.data.room.experiences.entities.ShulginRating
 import com.isaakhanimann.journal.data.room.experiences.entities.TimedNote
+import com.isaakhanimann.journal.data.room.experiences.relations.TimedNoteWithPhotos
 import com.isaakhanimann.journal.ui.tabs.journal.addingestion.interactions.Interaction
 import com.isaakhanimann.journal.ui.tabs.journal.experience.ExperienceListElement
 import com.isaakhanimann.journal.ui.tabs.journal.experience.components.DataForOneEffectLine
@@ -38,6 +39,7 @@ data class OneExperienceScreenModel(
     val interactionExplanations: List<InteractionExplanation>,
     val ratings: List<ShulginRating>,
     val timedNotesSorted: List<TimedNote>,
+    val timedNotesWithPhotos: List<TimedNoteWithPhotos>,
     val consumersWithIngestions: List<ConsumerWithIngestions>,
     val dataForEffectLines: List<DataForOneEffectLine>,
 )

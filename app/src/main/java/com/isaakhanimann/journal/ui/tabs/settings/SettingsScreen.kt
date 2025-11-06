@@ -24,6 +24,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -34,8 +35,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.ui.draw.alpha
 import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Alarm
 import androidx.compose.material.icons.automirrored.outlined.Article
 import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.automirrored.outlined.OpenInNew
@@ -110,6 +115,7 @@ fun SettingsPreview() {
         navigateToCustomSubstances = {},
         navigateToCustomRecipes = {},
         navigateToDonate = {},
+        navigateToReminders = {},
         importFile = {},
         exportFile = {},
         language = "SYSTEM",
@@ -121,6 +127,17 @@ fun SettingsPreview() {
         saveIsTimelineHidden = {},
         areSubstanceHeightsIndependent = false,
         saveAreSubstanceHeightsIndependent = {},
+        isImporting = false,
+        isExporting = false,
+        importProgress = 0f,
+        exportProgress = 0f,
+        progressMessage = "",
+        showErrorDialog = false,
+        errorTitle = "",
+        errorMessage = "",
+        errorDetails = "",
+        dismissErrorDialog = {},
+        copyErrorToClipboard = {},
     )
 }
 
@@ -133,6 +150,7 @@ fun SettingsScreen(
     navigateToCustomUnits: () -> Unit,
     navigateToCustomRecipes: () -> Unit,
     navigateToCustomSubstances: () -> Unit,
+    navigateToReminders: () -> Unit,
     navigateToDonate: () -> Unit,
 ) {
     SettingsScreen(
@@ -142,6 +160,7 @@ fun SettingsScreen(
         navigateToCustomUnits = navigateToCustomUnits,
         navigateToCustomRecipes = navigateToCustomRecipes,
         navigateToCustomSubstances = navigateToCustomSubstances,
+        navigateToReminders = navigateToReminders,
         navigateToDonate = navigateToDonate,
         deleteEverything = viewModel::deleteEverything,
         importFile = viewModel::importFile,
@@ -155,6 +174,17 @@ fun SettingsScreen(
         saveIsTimelineHidden = viewModel::saveIsTimelineHidden,
         areSubstanceHeightsIndependent = viewModel.areSubstanceHeightsIndependentFlow.collectAsState().value,
         saveAreSubstanceHeightsIndependent = viewModel::saveAreSubstanceHeightsIndependent,
+        isImporting = viewModel.isImporting,
+        isExporting = viewModel.isExporting,
+        importProgress = viewModel.importProgress,
+        exportProgress = viewModel.exportProgress,
+        progressMessage = viewModel.progressMessage,
+        showErrorDialog = viewModel.showErrorDialog,
+        errorTitle = viewModel.errorTitle,
+        errorMessage = viewModel.errorMessage,
+        errorDetails = viewModel.errorDetails,
+        dismissErrorDialog = viewModel::dismissErrorDialog,
+        copyErrorToClipboard = viewModel::copyErrorToClipboard,
     )
 }
 
@@ -167,6 +197,7 @@ fun SettingsScreen(
     navigateToCustomUnits: () -> Unit,
     navigateToCustomRecipes: () -> Unit,
     navigateToCustomSubstances: () -> Unit,
+    navigateToReminders: () -> Unit,
     navigateToDonate: () -> Unit,
     deleteEverything: () -> Unit,
     importFile: (uri: Uri) -> Unit,
@@ -180,6 +211,17 @@ fun SettingsScreen(
     saveIsTimelineHidden: (Boolean) -> Unit,
     areSubstanceHeightsIndependent: Boolean,
     saveAreSubstanceHeightsIndependent: (Boolean) -> Unit,
+    isImporting: Boolean,
+    isExporting: Boolean,
+    importProgress: Float,
+    exportProgress: Float,
+    progressMessage: String,
+    showErrorDialog: Boolean,
+    errorTitle: String,
+    errorMessage: String,
+    errorDetails: String,
+    dismissErrorDialog: () -> Unit,
+    copyErrorToClipboard: () -> Unit,
 ) {
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
@@ -302,6 +344,21 @@ fun SettingsScreen(
             }
 
             item {
+                Preference(
+                    title = stringResource(R.string.reminder_notification_title),
+                    icon = Icons.Outlined.Alarm,
+                    onClick = navigateToReminders
+                )
+            }
+            item {
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    thickness = DividerDefaults.Thickness,
+                    color = DividerDefaults.color
+                )
+            }
+
+            item {
                 SwitchPreference(
                     title = stringResource(R.string.hide_dosage_dots),
                     summary = stringResource(R.string.hide_dosage_dots_summary),
@@ -353,7 +410,8 @@ fun SettingsScreen(
                     title = stringResource(R.string.export_file),
                     summary = stringResource(R.string.export_description_short),
                     icon = Icons.Outlined.FileUpload,
-                    onClick = { showExportDialog = true }
+                    onClick = { if (!isImporting && !isExporting) showExportDialog = true },
+                    enabled = !isImporting && !isExporting
                 )
             }
             item {
@@ -369,8 +427,64 @@ fun SettingsScreen(
                     title = stringResource(R.string.import_file_title),
                     summary = stringResource(R.string.import_description_short),
                     icon = Icons.Outlined.FileDownload,
-                    onClick = { showImportDialog = true }
+                    onClick = { if (!isImporting && !isExporting) showImportDialog = true },
+                    enabled = !isImporting && !isExporting
                 )
+            }
+            
+            // Import/Export Progress Display
+            if (isImporting || isExporting) {
+                item {
+                    androidx.compose.material3.Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        colors = androidx.compose.material3.CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Row(
+                                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                androidx.compose.material3.CircularProgressIndicator(
+                                    modifier = Modifier.size(24.dp),
+                                    strokeWidth = 3.dp
+                                )
+                                Text(
+                                    text = if (isImporting) "Importing..." else "Exporting...",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Medium
+                                )
+                            }
+                            
+                            if (progressMessage.isNotEmpty()) {
+                                Text(
+                                    text = progressMessage,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            
+                            androidx.compose.material3.LinearProgressIndicator(
+                                progress = { if (isImporting) importProgress else exportProgress },
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                            
+                            val progressPercent = ((if (isImporting) importProgress else exportProgress) * 100).toInt()
+                            Text(
+                                text = "$progressPercent%",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.align(androidx.compose.ui.Alignment.End)
+                            )
+                        }
+                    }
+                }
             }
             item {
                 HorizontalDivider(
@@ -556,6 +670,64 @@ fun SettingsScreen(
             }
         )
     }
+    
+    // Error Dialog
+    if (showErrorDialog) {
+        AlertDialog(
+            onDismissRequest = dismissErrorDialog,
+            title = { 
+                Text(
+                    text = errorTitle,
+                    style = MaterialTheme.typography.headlineSmall
+                ) 
+            },
+            text = { 
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = errorMessage,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    
+                    if (errorDetails.isNotEmpty()) {
+                        Text(
+                            text = "Technical Details:",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
+                        )
+                        androidx.compose.material3.Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.surfaceContainerHighest
+                        ) {
+                            Text(
+                                text = errorDetails,
+                                style = MaterialTheme.typography.bodySmall,
+                                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                                modifier = Modifier.padding(12.dp)
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = dismissErrorDialog) { 
+                    Text("OK") 
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        copyErrorToClipboard()
+                        dismissErrorDialog()
+                    }
+                ) { 
+                    Text("Copy Error Details") 
+                }
+            }
+        )
+    }
 }
 
 const val SHARE_APP_URL = "https://psychonautwiki.org/wiki/PsychonautWiki_Journal"
@@ -583,13 +755,15 @@ private fun Preference(
     title: String,
     summary: String? = null,
     icon: ImageVector,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    enabled: Boolean = true
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(16.dp),
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(16.dp)
+            .alpha(if (enabled) 1f else 0.6f),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(

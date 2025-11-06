@@ -26,6 +26,7 @@ import com.isaakhanimann.journal.data.room.experiences.entities.ShulginRatingOpt
 import com.isaakhanimann.journal.data.room.experiences.entities.StomachFullness
 import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceCompanion
 import com.isaakhanimann.journal.data.room.experiences.entities.TimedNote
+import com.isaakhanimann.journal.data.room.experiences.relations.TimedNoteWithPhotos
 import com.isaakhanimann.journal.data.room.experiences.relations.IngestionWithCompanionAndCustomUnit
 import com.isaakhanimann.journal.data.substances.AdministrationRoute
 import com.isaakhanimann.journal.data.substances.classes.InteractionType
@@ -133,43 +134,71 @@ class OneExperienceScreenPreviewProvider :
                 TimedNote(
                     creationDate = getInstant(
                         year = 2022,
-                        month = 2,
-                        day = 19,
-                        hourOfDay = 23,
-                        minute = 25
-                    )!!,
+                        month = 7,
+                        day = 10,
+                        hourOfDay = 12,
+                        minute = 0
+                    ),
                     time = getInstant(
                         year = 2022,
-                        month = 2,
-                        day = 19,
-                        hourOfDay = 23,
-                        minute = 25
-                    )!!,
-                    note = "Onset start",
-                    color = AdaptiveColor.PURPLE,
-                    customColor = null,
-                    experienceId = 0,
-                    isPartOfTimeline = true
-                ),
-                TimedNote(
-                    creationDate = getInstant(
-                        year = 2022,
-                        month = 2,
-                        day = 19,
-                        hourOfDay = 23,
-                        minute = 25
-                    )!!,
-                    time = getInstant(
-                        year = 2022,
-                        month = 2,
-                        day = 19,
-                        hourOfDay = 23,
-                        minute = 45
-                    )!!,
-                    note = "Peak start and this is a note that spans multiple lines, so long that we can see what a bigger layout looks like.",
+                        month = 7,
+                        day = 10,
+                        hourOfDay = 12,
+                        minute = 0
+                    ),
+                    note = "Sample note",
                     color = AdaptiveColor.BLUE,
+                    isPartOfTimeline = true,
                     experienceId = 0,
-                    isPartOfTimeline = true
+                )
+            ),
+            timedNotesWithPhotos = listOf(
+                TimedNoteWithPhotos(
+                    timedNote = TimedNote(
+                        creationDate = getInstant(
+                            year = 2022,
+                            month = 2,
+                            day = 19,
+                            hourOfDay = 23,
+                            minute = 25
+                        )!!,
+                        time = getInstant(
+                            year = 2022,
+                            month = 2,
+                            day = 19,
+                            hourOfDay = 23,
+                            minute = 25
+                        )!!,
+                        note = "Onset start",
+                        color = AdaptiveColor.PURPLE,
+                        customColor = null,
+                        experienceId = 0,
+                        isPartOfTimeline = true
+                    ),
+                    photos = emptyList()
+                ),
+                TimedNoteWithPhotos(
+                    timedNote = TimedNote(
+                        creationDate = getInstant(
+                            year = 2022,
+                            month = 2,
+                            day = 19,
+                            hourOfDay = 23,
+                            minute = 25
+                        )!!,
+                        time = getInstant(
+                            year = 2022,
+                            month = 2,
+                            day = 19,
+                            hourOfDay = 23,
+                            minute = 45
+                        )!!,
+                        note = "Peak start and this is a note that spans multiple lines, so long that we can see what a bigger layout looks like.",
+                        color = AdaptiveColor.BLUE,
+                        experienceId = 0,
+                        isPartOfTimeline = true
+                    ),
+                    photos = emptyList()
                 )
             ),
             consumersWithIngestions = emptyList(),

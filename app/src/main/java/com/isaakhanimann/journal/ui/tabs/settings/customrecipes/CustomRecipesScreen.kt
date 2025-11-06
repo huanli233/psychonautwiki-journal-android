@@ -3,7 +3,6 @@ package com.isaakhanimann.journal.ui.tabs.settings.customrecipes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
@@ -47,7 +46,6 @@ import com.isaakhanimann.journal.data.room.experiences.entities.CustomRecipe
 import com.isaakhanimann.journal.data.room.experiences.entities.CustomUnit
 import com.isaakhanimann.journal.data.room.experiences.entities.RecipeSubcomponent
 import com.isaakhanimann.journal.data.room.experiences.relations.CustomRecipeWithSubcomponents
-import com.isaakhanimann.journal.data.substances.AdministrationRoute
 import com.isaakhanimann.journal.ui.tabs.stats.EmptyScreenDisclaimer
 
 @Composable
@@ -140,17 +138,15 @@ fun CustomRecipesScreenContent(
                 val description = if (searchText.isEmpty()) stringResource(R.string.no_custom_recipes_description) else stringResource(R.string.no_custom_recipes_found_description)
                 EmptyScreenDisclaimer(title = title, description = description)
             } else {
-                LazyColumn {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 8.dp)
+                ) {
                     items(filteredRecipes, key = { it.recipe.id }) { customRecipeWithSubcomponents ->
                         CustomRecipeRow(
                             customRecipeWithSubcomponents = customRecipeWithSubcomponents,
                             customUnitsMap = customUnitsMap,
                             navigateToEditCustomRecipe = navigateToEditCustomRecipe
-                        )
-                        HorizontalDivider(
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            thickness = DividerDefaults.Thickness,
-                            color = DividerDefaults.color
                         )
                     }
                 }
@@ -166,20 +162,51 @@ fun CustomRecipeRow(
     navigateToEditCustomRecipe: (customRecipeId: Int) -> Unit,
 ) {
     val recipe = customRecipeWithSubcomponents.recipe
-    ListItem(
-        modifier = Modifier.clickable { navigateToEditCustomRecipe(recipe.id) },
-        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-        headlineContent = {
-            Text(
-                text = recipe.name,
-                style = MaterialTheme.typography.titleMedium
-            )
-        },
-        supportingContent = {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    androidx.compose.material3.OutlinedCard(
+        onClick = { navigateToEditCustomRecipe(recipe.id) },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        border = androidx.compose.foundation.BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+        )
+    ) {
+        androidx.compose.foundation.layout.Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Recipe icon
+            androidx.compose.material3.Surface(
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp),
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                modifier = Modifier.padding(2.dp)
+            ) {
+                Icon(
+                    imageVector = androidx.compose.material.icons.Icons.Default.Inventory,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.padding(10.dp)
+                )
+            }
+            
+            // Content
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = recipe.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Medium
+                )
                 Text(
                     text = stringResource(R.string.recipe_contains, customRecipeWithSubcomponents.getSubcomponentsSummary(customUnitsMap)),
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 if (recipe.note.isNotBlank()) {
                     Text(
@@ -192,7 +219,7 @@ fun CustomRecipeRow(
                 }
             }
         }
-    )
+    }
 }
 
 @Preview

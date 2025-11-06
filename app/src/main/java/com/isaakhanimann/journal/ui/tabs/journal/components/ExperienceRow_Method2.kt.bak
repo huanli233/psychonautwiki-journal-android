@@ -1,0 +1,286 @@
+package com.isaakhanimann.journal.ui.tabs.journal.components
+
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.dp
+import com.isaakhanimann.journal.data.room.experiences.entities.getSubstanceColor
+import com.isaakhanimann.journal.data.room.experiences.relations.ExperienceWithIngestionsCompanionsAndRatings
+import com.isaakhanimann.journal.data.room.experiences.relations.IngestionWithCompanionAndCustomUnit
+import com.isaakhanimann.journal.ui.utils.getDateWithWeekdayText
+
+@Composable
+fun ExperienceRow(
+    experienceWithIngestionsCompanionsAndRatings: ExperienceWithIngestionsCompanionsAndRatings,
+    navigateToExperienceScreen: () -> Unit = {},
+    isTimeRelativeToNow: Boolean = true
+) {
+    val experience = experienceWithIngestionsCompanionsAndRatings.experience
+    val ingestions =
+        experienceWithIngestionsCompanionsAndRatings.ingestionsWithCompanions.sortedBy { it.ingestion.time }
+
+    Surface(
+        onClick = navigateToExperienceScreen,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 4.dp)
+            .animateContentSize(), // M3 Expressive 动画
+        shape = RoundedCornerShape(20.dp), // 更大圆角，流体设计
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        tonalElevation = 2.dp,
+        shadowElevation = 1.dp
+    ) {
+        Box {
+            // 微妙的渐变装饰
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(4.dp)
+                    .background(
+                        androidx.compose.ui.graphics.Brush.horizontalGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
+                                MaterialTheme.colorScheme.secondary.copy(alpha = 0.4f),
+                                Color.Transparent
+                            )
+                        ),
+                        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+                    )
+            )
+            
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp)
+                    .padding(top = 4.dp), // 为渐变条留空间
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Color indicator - 更流体的设计
+                Surface(
+                    modifier = Modifier
+                        .width(4.dp)
+                        .height(48.dp),
+                    shape = RoundedCornerShape(2.dp),
+                    color = getIngestionColor(ingestions)
+                ) {}
+
+                // Content
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    // Title with favorite star
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = experience.title,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Medium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f)
+                        )
+                        if (experience.isFavorite) {
+                            Surface(
+                                shape = androidx.compose.foundation.shape.CircleShape,
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Star,
+                                    contentDescription = "Favorite",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                        .padding(2.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    // Substances with flowing design
+                    val substanceNames = remember(ingestions) {
+                        ingestions.map { it.ingestion.substanceName }.distinct()
+                            .joinToString(separator = " • ")
+                    }
+                    Text(
+                        text = substanceNames.ifEmpty { "No substance yet" },
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                    // Consumer names and time in flowing layout
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        val consumerNames = remember(ingestions) {
+                            ingestions.mapNotNull { it.ingestion.consumerName }.distinct()
+                                .joinToString(separator = ", ")
+                        }
+                        if (consumerNames.isNotEmpty()) {
+                            Text(
+                                text = "With: $consumerNames",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f)
+                            )
+                        } else {
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
+
+                        // Time in flowing style
+                        val timeStyle = MaterialTheme.typography.bodyMedium
+                        if (isTimeRelativeToNow) {
+                            RelativeDateTextNew(
+                                dateTime = experienceWithIngestionsCompanionsAndRatings.sortInstant,
+                                style = timeStyle,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        } else {
+                            Text(
+                                text = experienceWithIngestionsCompanionsAndRatings.sortInstant.getDateWithWeekdayText(),
+                                style = timeStyle,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+
+                // Rating with flowing design
+                val rating = experienceWithIngestionsCompanionsAndRatings.rating?.sign
+                if (rating != null) {
+                    Surface(
+                        shape = RoundedCornerShape(16.dp), // 更流体的圆角
+                        color = MaterialTheme.colorScheme.primaryContainer
+                    ) {
+                        Text(
+                            text = rating,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+// Helper function to get ingestion color
+@Composable
+private fun getIngestionColor(ingestions: List<IngestionWithCompanionAndCustomUnit>): androidx.compose.ui.graphics.Color {
+    return when {
+        ingestions.size >= 2 -> {
+            val colors = ingestions.map {
+                it.substanceCompanion?.color?.getComposeColor(isSystemInDarkTheme()) ?: MaterialTheme.colorScheme.primary
+            }.distinct()
+            if (colors.size > 1) {
+                // Multiple colors - use primary as fallback
+                MaterialTheme.colorScheme.primary
+            } else {
+                colors.first()
+            }
+        }
+        ingestions.size == 1 -> {
+            ingestions.first().substanceCompanion?.color?.getComposeColor(isSystemInDarkTheme()) ?: MaterialTheme.colorScheme.primary
+        }
+        else -> MaterialTheme.colorScheme.outline
+    }
+}
+
+@Composable
+fun ColorRectangle(ingestions: List<IngestionWithCompanionAndCustomUnit>) {
+    val width = 6.dp
+    val cornerRadius = 3.dp
+
+    val modifier = Modifier
+        .width(width)
+        .height(56.dp)
+        .clip(RoundedCornerShape(cornerRadius))
+
+    when {
+        ingestions.size >= 2 -> {
+            val colors = ingestions.map {
+                it.substanceCompanion?.getSubstanceColor()?.toColor() ?: Color.Gray
+            }
+            val brush = remember(ingestions) {
+                Brush.verticalGradient(colors = colors)
+            }
+            Box(modifier = modifier.background(brush))
+        }
+
+        ingestions.size == 1 -> {
+            val color =
+                ingestions.first().substanceCompanion?.getSubstanceColor()?.toColor() ?: Color.Gray
+            Box(modifier = modifier.background(color))
+        }
+
+        else -> {
+            val color = MaterialTheme.colorScheme.surfaceVariant
+            Box(modifier = modifier.background(color))
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ExperienceRowPreview(
+    @PreviewParameter(ExperienceWithIngestionsCompanionsAndRatingsPreviewProvider::class) experienceWithIngestionsCompanionsAndRatings: ExperienceWithIngestionsCompanionsAndRatings
+) {
+    Column {
+        ExperienceRow(
+            experienceWithIngestionsCompanionsAndRatings = experienceWithIngestionsCompanionsAndRatings,
+            navigateToExperienceScreen = {},
+            isTimeRelativeToNow = true
+        )
+        HorizontalDivider()
+        ExperienceRow(
+            experienceWithIngestionsCompanionsAndRatings = experienceWithIngestionsCompanionsAndRatings.copy(
+                experience = experienceWithIngestionsCompanionsAndRatings.experience.copy(isFavorite = false)
+            ),
+            navigateToExperienceScreen = {},
+            isTimeRelativeToNow = false
+        )
+    }
+}

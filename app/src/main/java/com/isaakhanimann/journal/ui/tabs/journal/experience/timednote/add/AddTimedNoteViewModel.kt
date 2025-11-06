@@ -19,6 +19,7 @@
 package com.isaakhanimann.journal.ui.tabs.journal.experience.timednote.add
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
@@ -29,6 +30,7 @@ import com.isaakhanimann.journal.data.room.experiences.ExperienceRepository
 import com.isaakhanimann.journal.data.room.experiences.entities.AdaptiveColor
 import com.isaakhanimann.journal.data.room.experiences.entities.SubstanceColor
 import com.isaakhanimann.journal.data.room.experiences.entities.TimedNote
+import com.isaakhanimann.journal.data.room.experiences.entities.TimedNotePhoto
 import com.isaakhanimann.journal.data.room.experiences.entities.getSubstanceColor
 import com.isaakhanimann.journal.ui.main.navigation.graphs.AddTimedNoteRoute
 import com.isaakhanimann.journal.ui.utils.getInstant
@@ -53,6 +55,10 @@ class AddTimedNoteViewModel @Inject constructor(
     var localDateTimeFlow = MutableStateFlow(LocalDateTime.now())
     var alreadyUsedColors by mutableStateOf(emptyList<AdaptiveColor>())
     var otherColors by mutableStateOf(emptyList<AdaptiveColor>())
+    
+    // Photo support
+    val selectedPhotoFilePaths = mutableStateListOf<String>()
+    val maxPhotos = 10
 
     init {
         viewModelScope.launch {
@@ -103,8 +109,19 @@ class AddTimedNoteViewModel @Inject constructor(
         color = newColor
     }
 
+    fun addPhotoFilePath(filePath: String) {
+        if (selectedPhotoFilePaths.size < maxPhotos) {
+            selectedPhotoFilePaths.add(filePath)
+        }
+    }
+    
+    fun removePhotoFilePath(filePath: String) {
+        selectedPhotoFilePaths.remove(filePath)
+    }
+
     fun onDoneTap() {
-        if (note.isNotBlank()) {
+        // Allow saving if there's either a note or photos
+        if (note.isNotBlank() || selectedPhotoFilePaths.isNotEmpty()) {
             viewModelScope.launch {
                 val (adaptiveColor, customColor) = when (val c = color) {
                     is SubstanceColor.Predefined -> Pair(c.color, null)
@@ -120,7 +137,17 @@ class AddTimedNoteViewModel @Inject constructor(
                     experienceId = experienceId,
                     isPartOfTimeline = isPartOfTimeline
                 )
-                experienceRepo.insert(newTimedNote)
+                val timedNoteId = experienceRepo.insert(newTimedNote)
+                
+                // Insert photos
+                selectedPhotoFilePaths.forEach { filePath ->
+                    val photo = TimedNotePhoto(
+                        timedNoteId = timedNoteId.toInt(),
+                        filePath = filePath,
+                        creationDate = Instant.now()
+                    )
+                    experienceRepo.insert(photo)
+                }
             }
         }
     }

@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -58,6 +59,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.isaakhanimann.journal.R
 import com.isaakhanimann.journal.data.room.experiences.relations.ExperienceWithIngestionsCompanionsAndRatings
+import com.isaakhanimann.journal.ui.tabs.journal.search.MultiSubstanceSearchBar
+import com.isaakhanimann.journal.ui.tabs.journal.search.MultiSubstanceSearchHelper
 import com.isaakhanimann.journal.ui.tabs.journal.components.ExperienceRow
 import com.isaakhanimann.journal.ui.tabs.stats.EmptyScreenDisclaimer
 import com.isaakhanimann.journal.ui.theme.JournalTheme
@@ -71,6 +74,10 @@ fun JournalScreen(
     viewModel: JournalViewModel = hiltViewModel()
 ) {
     val experiences = viewModel.experiences.collectAsState().value
+    val selectedSubstances = viewModel.selectedSubstancesFlow.collectAsState().value
+    val allSubstances = remember(experiences) {
+        MultiSubstanceSearchHelper.getAllUniqueSubstances(experiences)
+    }
     LaunchedEffect(Unit) {
         viewModel.maybeMigrate()
     }
@@ -90,6 +97,10 @@ fun JournalScreen(
         isSearchEnabled = viewModel.isSearchEnabled.value,
         onChangeIsSearchEnabled = viewModel::onChangeOfIsSearchEnabled,
         experiences = experiences,
+        selectedSubstances = selectedSubstances,
+        allSubstances = allSubstances,
+        onAddSubstance = viewModel::addSubstanceToSearch,
+        onRemoveSubstance = viewModel::removeSubstanceFromSearch,
     )
 }
 
@@ -108,6 +119,10 @@ fun JournalScreen(
     isSearchEnabled: Boolean,
     onChangeIsSearchEnabled: (Boolean) -> Unit,
     experiences: List<ExperienceWithIngestionsCompanionsAndRatings>,
+    selectedSubstances: List<String>,
+    allSubstances: List<String>,
+    onAddSubstance: (String) -> Unit,
+    onRemoveSubstance: (String) -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
@@ -169,28 +184,38 @@ fun JournalScreen(
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
             AnimatedVisibility(visible = isSearchEnabled) {
-                val focusManager = LocalFocusManager.current
-                OutlinedTextField(
-                    value = searchText,
-                    onValueChange = onChangeSearchText,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-                    shape = CircleShape,
-                    placeholder = { Text(text = stringResource(R.string.search_experiences)) },
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search)) },
-                    trailingIcon = {
-                        if (searchText.isNotEmpty()) {
-                            IconButton(onClick = { onChangeSearchText("") }) {
-                                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close))
+                Column {
+                    val focusManager = LocalFocusManager.current
+                    OutlinedTextField(
+                        value = searchText,
+                        onValueChange = onChangeSearchText,
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                        shape = CircleShape,
+                        placeholder = { Text(text = stringResource(R.string.search_experiences)) },
+                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search)) },
+                        trailingIcon = {
+                            if (searchText.isNotEmpty()) {
+                                IconButton(onClick = { onChangeSearchText("") }) {
+                                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close))
+                                }
                             }
-                        }
-                    },
-                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        capitalization = KeyboardCapitalization.Sentences
-                    ),
-                    singleLine = true
-                )
+                        },
+                        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            capitalization = KeyboardCapitalization.Sentences
+                        ),
+                        singleLine = true
+                    )
+                    
+                    // Multi-substance search
+                    MultiSubstanceSearchBar(
+                        selectedSubstances = selectedSubstances,
+                        availableSubstances = allSubstances,
+                        onAddSubstance = onAddSubstance,
+                        onRemoveSubstance = onRemoveSubstance
+                    )
+                }
             }
 
             if (experiences.isEmpty()) {
@@ -222,7 +247,10 @@ fun JournalScreen(
             } else {
                 Box(modifier = Modifier.fillMaxSize()) {
                     val listState = rememberLazyListState()
-                    LazyColumn(state = listState) {
+                    LazyColumn(
+                        state = listState,
+                        contentPadding = PaddingValues(vertical = 8.dp)
+                    ) {
                         items(experiences, key = { it.experience.id }) { experienceWithIngestions ->
                             ExperienceRow(
                                 experienceWithIngestions,
@@ -231,7 +259,6 @@ fun JournalScreen(
                                 },
                                 isTimeRelativeToNow = isTimeRelativeToNow
                             )
-                            HorizontalDivider()
                         }
                     }
 
@@ -275,6 +302,10 @@ fun ExperiencesScreenPreview(
             isSearchEnabled = true,
             onChangeIsSearchEnabled = {},
             experiences = experiences,
+            selectedSubstances = emptyList(),
+            allSubstances = emptyList(),
+            onAddSubstance = {},
+            onRemoveSubstance = {},
         )
     }
 }

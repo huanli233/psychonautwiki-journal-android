@@ -17,15 +17,32 @@
  */
 
 package com.isaakhanimann.journal.ui.tabs.journal.experience.timednote
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.*
+import coil.compose.AsyncImage
+import java.io.File
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,6 +53,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
@@ -87,7 +105,8 @@ fun TimedNoteScreenContentPreview() {
             alreadyUsedColors = alreadyUsedColors,
             otherColors = otherColors,
             isPartOfTimeline = true,
-            onChangeOfIsPartOfTimeline = {}
+            onChangeOfIsPartOfTimeline = {},
+            onAddPhotoClick = {}
         )
     }
 }
@@ -105,6 +124,9 @@ fun TimedNoteScreenContent(
     isPartOfTimeline: Boolean,
     onChangeOfIsPartOfTimeline: (Boolean) -> Unit,
     shouldFocusTextFieldOnAppear: Boolean = false,
+    onAddPhotoClick: () -> Unit = {},
+    selectedPhotos: List<String> = emptyList(),
+    onRemovePhoto: (String) -> Unit = {},
     modifier: Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
@@ -140,7 +162,8 @@ fun TimedNoteScreenContent(
     Column(
         modifier = modifier
             .padding(16.dp)
-            .fillMaxSize(),
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -199,7 +222,68 @@ fun TimedNoteScreenContent(
                         .background(color.toColor())
                 )
             }
+            HorizontalDivider()
+            // Row for Add Photo
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onAddPhotoClick() }
+                    .padding(vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Add Photo",
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+                Icon(
+                    imageVector = Icons.Default.CameraAlt,
+                    contentDescription = "Add Photo",
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+            }
         }
+        
+        // Display selected photos preview
+        if (selectedPhotos.isNotEmpty()) {
+            CardWithTitle(title = stringResource(R.string.photos)) {
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(8.dp)
+                ) {
+                    items(selectedPhotos) { photoPath ->
+                        Box(
+                            modifier = Modifier.size(100.dp)
+                        ) {
+                            AsyncImage(
+                                model = java.io.File(photoPath),
+                                contentDescription = "Photo preview",
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(MaterialTheme.shapes.medium),
+                                contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                            )
+                            // Remove button
+                            IconButton(
+                                onClick = { onRemovePhoto(photoPath) },
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .size(24.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.Close,
+                                    contentDescription = stringResource(R.string.remove_photo),
+                                    tint = MaterialTheme.colorScheme.error,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
         TimePickerSection(selectedTime = selectedTime, onTimeChange = onTimeChange)
     }
 }

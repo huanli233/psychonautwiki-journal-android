@@ -12,6 +12,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,6 +35,7 @@ import com.isaakhanimann.journal.data.room.experiences.entities.TimedNote
 fun TimedNoteRowPreview(@PreviewParameter(TimedNotePreviewProvider::class) timedNote: TimedNote) {
     TimedNoteRow(
         timedNote = timedNote,
+        photoCount = 2,
         modifier = Modifier.fillMaxWidth()
     ) {
         Text(text = "Sat 7:34")
@@ -42,6 +46,7 @@ fun TimedNoteRowPreview(@PreviewParameter(TimedNotePreviewProvider::class) timed
 @Composable
 fun TimedNoteRow(
     timedNote: TimedNote,
+    photoCount: Int = 0,
     modifier: Modifier = Modifier,
     timeText: @Composable () -> Unit
 ) {
@@ -52,7 +57,7 @@ fun TimedNoteRow(
     ) {
         val strokeWidth = 2.dp
 
-        // 从 TimedNote 实体中获取 SubstanceColor
+        // �?TimedNote 实体中获�?SubstanceColor
         val substanceColor = remember(timedNote) {
             timedNote.customColor?.let { SubstanceColor.Custom(it) }
                 ?: timedNote.color?.let { SubstanceColor.Predefined(it) }
@@ -86,7 +91,37 @@ fun TimedNoteRow(
                 }
             }
             Spacer(modifier = Modifier.height(4.dp))
-            Text(text = timedNote.note, style = MaterialTheme.typography.bodyMedium)
+            // Show note text or photo indicator
+            if (timedNote.note.isNotBlank()) {
+                Text(text = timedNote.note, style = MaterialTheme.typography.bodyMedium)
+            }
+            // Show photo count if there are photos
+            if (photoCount > 0) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.CameraAlt,
+                        contentDescription = "Photos",
+                        modifier = Modifier.width(16.dp).height(16.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = photoCount.toString(),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            // Show placeholder for photo-only notes
+            if (timedNote.note.isBlank() && photoCount > 0) {
+                Text(
+                    text = "Photo note",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
     }
 }

@@ -26,6 +26,10 @@ import com.isaakhanimann.journal.ui.tabs.settings.customsubstances.CustomSubstan
 import com.isaakhanimann.journal.ui.tabs.settings.customunits.CustomUnitsScreen
 import com.isaakhanimann.journal.ui.tabs.settings.customunits.archive.CustomUnitArchiveScreen
 import com.isaakhanimann.journal.ui.tabs.settings.customunits.edit.EditCustomUnitScreen
+import com.isaakhanimann.journal.ui.tabs.settings.reminders.RemindersScreen
+import com.isaakhanimann.journal.ui.tabs.settings.reminders.AddReminderScreen
+import com.isaakhanimann.journal.ui.tabs.settings.reminders.EditReminderScreen
+import com.isaakhanimann.journal.ui.components.SubstancePickerScreen
 import kotlinx.serialization.Serializable
 
 fun NavGraphBuilder.settingsGraph(navController: NavHostController) {
@@ -54,9 +58,44 @@ fun NavGraphBuilder.settingsGraph(navController: NavHostController) {
                 },
                 navigateToCustomRecipes = {
                     navController.navigate(CustomRecipesRoute)
+                },
+                navigateToReminders = {
+                    navController.navigate(RemindersRoute)
                 }
             )
         }
+        
+        // Reminders composables
+        composableWithTransitions<RemindersRoute> {
+            RemindersScreen(
+                navigateToAddReminder = { navController.navigate(AddReminderRoute) },
+                navigateToEditReminder = { reminderId ->
+                    navController.navigate(EditReminderRoute(reminderId)) 
+                },
+                navigateBack = { navController.popBackStack() }
+            )
+        }
+        composableWithTransitions<AddReminderRoute> {
+            AddReminderScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToSubstancePicker = { navController.navigate(SubstancePickerRoute) }
+            )
+        }
+        composableWithTransitions<EditReminderRoute> { backStackEntry ->
+            val args = backStackEntry.toRoute<EditReminderRoute>()
+            EditReminderScreen(
+                reminderId = args.reminderId,
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToSubstancePicker = { navController.navigate(SubstancePickerRoute) }
+            )
+        }
+        
+        composableWithTransitions<SubstancePickerRoute> {
+            SubstancePickerScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
         composableWithTransitions<FAQRoute> { FAQScreen() }
         composableWithTransitions<DonateRoute> { DonateScreen() }
         composableWithTransitions<CombinationSettingsRoute> { CombinationSettingsScreen() }
@@ -149,6 +188,9 @@ fun NavGraphBuilder.settingsGraph(navController: NavHostController) {
                 onSubstanceSelected = {
                     navController.popBackStack()
                 },
+                onNavigateToSubstancePicker = {
+                    navController.navigate(SubstancePickerRoute)
+                },
                 onDismiss = { navController.popBackStack() }
             )
         }
@@ -198,4 +240,19 @@ object AddCustomRecipeRoute
 object CustomRecipeArchiveRoute
 
 @Serializable
+data class EditCustomSubstanceRoute(val customSubstanceId: Int)
+
+@Serializable
 data class SubstanceSelectorRoute(val subcomponentIndex: Int)
+
+@Serializable
+data object RemindersRoute
+
+@Serializable
+data object AddReminderRoute
+
+@Serializable
+data class EditReminderRoute(val reminderId: Int)
+
+@Serializable
+data object SubstancePickerRoute

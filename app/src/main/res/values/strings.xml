@@ -1,21 +1,3 @@
-<!--
-  ~ Copyright (c) 2022-2023. Isaak Hanimann.
-  ~ This file is part of PsychonautWiki Journal.
-  ~
-  ~ PsychonautWiki Journal is free software: you can redistribute it and/or modify
-  ~ it under the terms of the GNU General Public License as published by
-  ~ the Free Software Foundation, either version 3 of the License, or (at
-  ~ your option) any later version.
-  ~
-  ~ PsychonautWiki Journal is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with PsychonautWiki Journal.  If not, see https://www.gnu.org/licenses/gpl-3.0.en.html.
-  -->
-
 <resources>
     <string name="app_name">Journal</string>
     <string name="follow_system">Follow System</string>
@@ -169,7 +151,7 @@
     <string name="_1_research">1. Research</string>
     <string name="_1_research_content">In advance research the duration, subjective effects and potential adverse effects which the substance or combination of substances are likely to produce.\nRead the info in here and also the PsychonautWiki article. Its best to cross-reference with other sources (Tripsit, Erowid, Wikipedia, Bluelight, Reddit, etc). There is no rush.</string>
     <string name="_2_testing">2. Testing</string>
-    <string name="_2_testing_content">Test your substance with anonymous and free drug testing services. If those are not available in your country, use reagent testing kits. Don‘t trust your dealer to sell reliable product. Its better to have a tested stash instead of relying on a source spontaneously.</string>
+    <string name="_2_testing_content">Test your substance with anonymous and free drug testing services. If those are not available in your country, use reagent testing kits. Don\'t trust your dealer to sell reliable product. Its better to have a tested stash instead of relying on a source spontaneously.</string>
     <string name="open_link">Open link</string>
     <string name="drug_testing_services">Drug testing services</string>
     <string name="reagent_testing">Reagent testing</string>
@@ -181,21 +163,21 @@
     <string name="_4_set_and_setting_content">Set: Make sure your thoughts, desires, feelings, general mood, and any preconceived notions or expectations about what you are about to experience are conducive to the experience. Make sure your body is well. Better not to take it if you feel sick, injured or generally unhealthy.\n\nSetting: An unfamiliar, uncontrollable or otherwise disagreeable social or physical environment may result in an unpleasant or dangerous experience. Choose an environment that provides a sense of safety, familiarity, control, and comfort. For using hallucinogens (psychedelics, dissociatives and deliriants) refer to the safer hallucinogen guide.</string>
     <string name="safer_hallucinogen_guide">Safer hallucinogen guide</string>
     <string name="_5_combinations">5. Combinations</string>
-    <string name="_5_combinations_content">Don’t combine drugs, including Alcohol, without research on the combo. The most common cause of substance-related deaths is the combination of depressants (such as opiates, benzodiazepines, or alcohol) with other depressants.</string>
+    <string name="_5_combinations_content">Don\'t combine drugs, including Alcohol, without research on the combo. The most common cause of substance-related deaths is the combination of depressants (such as opiates, benzodiazepines, or alcohol) with other depressants.</string>
     <string name="responsible_drug_use_article">Responsible drug use article</string>
     <string name="responsible_drug_use">Responsible drug use</string>
     <string name="recovery_position_video">Recovery position video</string>
     <string name="_10_recovery_position">10. Recovery position</string>
     <string name="_10_recovery_position_content">If someone is unconscious and breathing place them into Recovery Position to prevent death by the suffocation of vomit after a drug overdose.\nHave the contact details of help services to hand in case of urgent need.</string>
     <string name="_9_safety_of_others">9. Safety of others</string>
-    <string name="_9_safety_of_others_content">Don’t drive, operate heavy machinery, or otherwise be directly or indirectly responsible for the safety or care of another person while intoxicated.</string>
+    <string name="_9_safety_of_others_content">Don\'t drive, operate heavy machinery, or otherwise be directly or indirectly responsible for the safety or care of another person while intoxicated.</string>
     <string name="_8_reflection">8. Reflection</string>
     <string name="_8_reflection_content">Carefully monitor the frequency and intensity of any substance use to ensure it is not sliding into abuse and addiction. In particular, many stimulants, opioids, and depressants are known to be highly addictive.</string>
     <string name="_7_allergy_tests">7. Allergy tests</string>
     <string name="_7_allergy_tests_content">Simply dose a minuscule amount of the substance (e.g. 1/10 to 1/4 of a regular dose) and wait several hours to verify that you do not exhibit an unusual or idiosyncratic response.</string>
     <string name="administration_routes_info">Administration routes info</string>
     <string name="_6_administration_routes">6. Administration routes</string>
-    <string name="_6_administration_routes_content">Don’t share snorting equipment (straws, banknotes, bullets) to avoid blood-borne diseases such as Hepatitis C that can be transmitted through blood amounts so small you can’t notice. Injection is the the most dangerous route of administration and highly advised against. If you are determined to inject, don’t share injection materials and refer to the safer injection guide.</string>
+    <string name="_6_administration_routes_content">Don\'t share snorting equipment (straws, banknotes, bullets) to avoid blood-borne diseases such as Hepatitis C that can be transmitted through blood amounts so small you can\'t notice. Injection is the the most dangerous route of administration and highly advised against. If you are determined to inject, don\'t share injection materials and refer to the safer injection guide.</string>
     <string name="swiss_combination_checker">Swiss combination checker</string>
     <string name="tripsit_combination_checker">Tripsit combination checker</string>
     <string name="full_stomach_disclaimer">A full stomach may delay the onset of oral ingestions by approx. 3 hours.</string>
@@ -326,15 +308,15 @@
     <string name="ingestions_affected_by_edit">%1$s are affected by this edit</string>
     <string name="no_ingestions_using_unit">No ingestions are using this unit yet</string>
 
-    <string name="cannabis_info_joint" formatted="false">When smoking a joint about 23% of the THC in the bud is inhaled. So if you smoke a joint with 300mg of a bud that has 20% THC then you inhale 300mg * 20/100 * 23/100 = 13.8mg THC.</string>
-    <string name="cannabis_info_bong" formatted="false">When smoking with a bong about 40% of the THC in the bud is inhaled. So if you smoke 300mg of a bud that has 20% THC then you inhale 300mg * 20/100 * 40/100 = 24mg THC.</string>
-    <string name="cannabis_info_vaporizer" formatted="false">When smoking with a vaporizer about 70% of the THC in the bud is inhaled. So if you smoke 300mg of a bud that has 20% THC then you inhale 300mg * 20/100 * 70/100 = 42mg THC.</string>
-    <string name="psilocybin_info_dried" formatted="false">Dried Psilocybe cubensis contain around 1% of Psilocybin.</string>
-    <string name="psilocybin_info_fresh" formatted="false">Fresh Psilocybe cubensis contain around 0.1% of Psilocybin.</string>
+    <string name="cannabis_info_joint" formatted="false">When smoking a joint about 23%% of the THC in the bud is inhaled. So if you smoke a joint with 300mg of a bud that has 20%% THC then you inhale 300mg * 20/100 * 23/100 = 13.8mg THC.</string>
+    <string name="cannabis_info_bong" formatted="false">When smoking with a bong about 40%% of the THC in the bud is inhaled. So if you smoke 300mg of a bud that has 20%% THC then you inhale 300mg * 20/100 * 40/100 = 24mg THC.</string>
+    <string name="cannabis_info_vaporizer" formatted="false">When smoking with a vaporizer about 70%% of the THC in the bud is inhaled. So if you smoke 300mg of a bud that has 20%% THC then you inhale 300mg * 20/100 * 70/100 = 42mg THC.</string>
+    <string name="psilocybin_info_dried" formatted="false">Dried Psilocybe cubensis contain around 1%% of Psilocybin.</string>
+    <string name="psilocybin_info_fresh" formatted="false">Fresh Psilocybe cubensis contain around 0.1%% of Psilocybin.</string>
     <string name="psilocybin_info_research">Research the strain of mushroom you have to be able to estimate the amount of Psilocybin it contains.</string>
-    <string name="alcohol_info">1 ml of Ethanol is 0.8g. So if you are e.g. consuming 200ml of a spirit with 40% of Alcohol you are consuming 200ml * 40/100 * 0.8 = 64g Ethanol.</string>
+    <string name="alcohol_info">1 ml of Ethanol is 0.8g. So if you are e.g. consuming 200ml of a spirit with 40%% of Alcohol you are consuming 200ml * 40/100 * 0.8 = 64g Ethanol.</string>
 
-    <string name="prompt_cannabis_name" formatted="false">e.g. Joint weed 20%, Bong weed 15%, Vaporizer</string>
+    <string name="prompt_cannabis_name" formatted="false">e.g. Joint weed 20%%, Bong weed 15%%, Vaporizer</string>
     <string name="prompt_cannabis_unit">mg, joint, hit</string>
     <string name="prompt_cannabis_unit_plural">mg, joints, hits</string>
     <string name="prompt_mushrooms_name">Mushroom strain</string>
@@ -346,10 +328,10 @@
     <string name="prompt_caffeine_name">e.g. coffee, tea, energy drink</string>
     <string name="prompt_caffeine_unit">e.g. cup, can</string>
     <string name="prompt_caffeine_unit_plural">cups, cans</string>
-    <string name="prompt_oral_name">e.g. Blue rocket, 85% powder</string>
+    <string name="prompt_oral_name">e.g. Blue rocket, 85%% powder</string>
     <string name="prompt_oral_unit">e.g. pill, capsule, mg</string>
     <string name="prompt_oral_unit_plural">e.g. pills, capsules, mg</string>
-    <string name="prompt_smoked_name">e.g. 85% powder</string>
+    <string name="prompt_smoked_name">e.g. 85%% powder</string>
     <string name="prompt_smoked_unit">e.g. mg, hit</string>
     <string name="prompt_smoked_unit_plural">e.g. mg, hits</string>
     <string name="prompt_insufflated_name">e.g. Nasal solution, Blue dispenser</string>
@@ -361,7 +343,7 @@
     <string name="prompt_transdermal_name">e.g. brand name</string>
     <string name="prompt_transdermal_unit">e.g. patch</string>
     <string name="prompt_transdermal_unit_plural">patches</string>
-    <string name="prompt_default_name">e.g. 85% powder, blue rocket</string>
+    <string name="prompt_default_name">e.g. 85%% powder, blue rocket</string>
     <string name="prompt_default_unit">e.g. pill, spray, spoon</string>
     <string name="prompt_default_unit_plural">e.g. pills, sprays, spoons</string>
 
@@ -374,6 +356,7 @@
     <string name="ingestion_sample_preview">Ingestion sample preview:</string>
     <string name="archive_this_unit_cd">Archive this unit</string>
     <string name="archive">Archive</string>
+    <string name="unarchive">Unarchive</string>
     <string name="archive_description">Archived custom units don\'t show up when adding ingestions</string>
 
     <string name="done_cd">Done</string>
@@ -385,8 +368,8 @@
     </string-array>
     <string-array name="psilocybin_info">
         <item>The dosages refer to dried psilocybin mushrooms.</item>
-        <item>Fresh mushrooms are about 90% water, so the dose is 10x higher.</item>
-        <item>Research suggests that 1% of the dried weight is psilocybin.</item>
+        <item>Fresh mushrooms are about 90%% water, so the dose is 10x higher.</item>
+        <item>Research suggests that 1%% of the dried weight is psilocybin.</item>
     </string-array>
     <string-array name="alcohol_info">
         <item>1 standard unit in the US is 14g, in the UK 8g of alcohol.</item>
@@ -461,5 +444,163 @@
     <string name="custom_recipe_archive_title">Custom recipe archive</string>
     <string name="no_archived_recipes_yet">No archived recipes yet</string>
     <string name="no_archived_recipes_description">Archived recipes don\'t show up when adding ingestions</string>
-    <string name="unarchive">Unarchive</string>
+
+    <string name="search_multiple_substances">Search multiple substances</string>
+    <string name="add_substance_to_search">Add substance to search</string>
+    <string name="remove_substance_from_search">Remove substance from search</string>
+    <string name="searching_for_substances">Searching for: %1$s</string>
+    <string name="no_experiences_with_combination">No experiences found with this substance combination</string>
+    <string name="substance_combination_search">Substance combination</string>
+
+    <string name="search_in_timed_notes">Search in timed notes</string>
+    <string name="no_matching_timed_notes">No timed notes match your search</string>
+    <string name="timed_note_contains">Timed note contains: %1$s</string>
+
+    <string name="add_photo">Add photo</string>
+    <string name="take_photo">Take photo</string>
+    <string name="choose_photo">Choose from gallery</string>
+    <string name="photo">Photo</string>
+    <string name="photos">Photos</string>
+    <string name="delete_photo">Delete photo</string>
+    <string name="delete_photo_confirmation">Are you sure you want to delete this photo?</string>
+    <string name="photo_deleted">Photo deleted</string>
+    <string name="view_photo">View photo</string>
+    <string name="no_photos_yet">No photos yet</string>
+    <string name="photo_added">Photo added</string>
+    <string name="camera_permission_required">Camera permission required</string>
+    <string name="storage_permission_required">Storage permission required</string>
+    <string name="grant_permission">Grant permission</string>
+
+    <string name="notification_permission_required">Notification permission required</string>
+    <string name="notification_permission_rationale">Allow notifications to receive reminders for ingestions</string>
+    <string name="camera_permission_rationale">Allow camera access to take photos for timed notes</string>
+    <string name="storage_permission_rationale">Allow storage access to select photos from gallery</string>
+
+    <string name="type_your_note">Type your note</string>
+    <string name="send_note">Send note</string>
+
+    <string name="notification_channel_name">Journal notifications</string>
+
+    <string name="ingestion_reminders">Ingestion reminders</string>
+    <string name="add_reminder">Add reminder</string>
+    <string name="edit_reminder">Edit reminder</string>
+    <string name="delete_reminder">Delete reminder</string>
+    <string name="delete_reminder_confirmation">Are you sure you want to delete this reminder?</string>
+    <string name="no_reminders_yet">No reminders yet</string>
+    <string name="no_reminders_description">Add reminders for your medication or supplements</string>
+    <string name="reminder_repeat_daily">Daily</string>
+    <string name="reminder_repeat_weekly">Weekly</string>
+    <string name="reminder_repeat_custom">Custom</string>
+    <string name="reminder_notification_title">Ingestion reminder</string>
+    <string name="reminder_repeat_once">Once</string>
+    <string name="dose_optional">Dose (Optional)</string>
+    <string name="note_optional">Note (Optional)</string>
+    <string name="update_reminder">Update Reminder</string>
+    <string name="create_reminder">Create Reminder</string>
+    <string name="reminder_time">Reminder Time</string>
+    <string name="repeat_mode">Repeat Mode</string>
+    <string name="enable_reminder">Enable Reminder</string>
+    <string name="select_time">Select Time</string>
+    <string name="select_repeat_mode">Select Repeat Mode</string>
+    <string name="error">Error</string>
+    <string name="saving">Saving...</string>
+    <string name="reminder_notification_text">Time to take %1$s (%2$s)</string>
+    <string name="mark_as_taken">Mark as taken</string>
+    <string name="snooze_reminder">Snooze</string>
+    <string name="skip_reminder">Skip</string>
+    <string name="reminder_marked_taken">Marked as taken</string>
+    <string name="reminder_snoozed">Reminder snoozed for 15 minutes</string>
+    <string name="reminder_skipped">Reminder skipped</string>
+
+    <string name="view_chat_notes">View chat-style notes</string>
+    <string name="chat_style_notes">Chat-style notes</string>
+    <string name="select_photo_source">Select photo source</string>
+    <string name="choose_from_gallery">Choose from gallery</string>
+
+    <string name="search_notes">Search notes</string>
+    <string name="search_in_notes">Search in notes</string>
+    <string name="no_notes_match_search">No notes match your search</string>
+    <string name="notes_found">%1$d note(s) found</string>
+
+    <string name="photo_removed">Photo removed</string>
+    <string name="remove_photo">Remove photo</string>
+    <string name="photo_count">%1$d photo(s)</string>
+    <string name="select_photos">Select photos</string>
+    <string name="max_photos_reached">Maximum number of photos reached</string>
+
+    <string name="reminder_details">Reminder details</string>
+    <string name="select_substance">Select substance</string>
+    <string name="substance_required">Substance is required</string>
+    <string name="select_roa">Select route of administration</string>
+    <string name="roa_required">Route of administration is required</string>
+    <string name="enter_dose">Enter dose</string>
+    <string name="dose_required">Dose is required</string>
+    <string name="dose_must_be_positive">Dose must be greater than 0</string>
+    <string name="select_unit">Select unit</string>
+    <string name="unit_required">Unit is required</string>
+    <string name="repeat_mode_title">Repeat mode</string>
+    <string name="select_repeat_mode_action">Select repeat mode</string>
+    <string name="repeat_none">Does not repeat</string>
+    <string name="repeat_every_day">Every day</string>
+    <string name="repeat_every_week">Every week</string>
+    <string name="repeat_custom_days">Custom days</string>
+    <string name="select_days">Select days</string>
+    <string name="monday">Monday</string>
+    <string name="tuesday">Tuesday</string>
+    <string name="wednesday">Wednesday</string>
+    <string name="thursday">Thursday</string>
+    <string name="friday">Friday</string>
+    <string name="saturday">Saturday</string>
+    <string name="sunday">Sunday</string>
+    <string name="at_least_one_day_required">Select at least one day</string>
+    <string name="reminder_enabled">Reminder enabled</string>
+    <string name="reminder_disabled">Reminder disabled</string>
+    <string name="disable_reminder">Disable reminder</string>
+
+    <string name="substance_picker">Substance picker</string>
+    <string name="search_substance">Search substance</string>
+    <string name="no_substance_selected">No substance selected</string>
+    <string name="custom_substance">Custom substance</string>
+    <string name="psychonautwiki_substance">PsychonautWiki substance</string>
+
+    <string name="time_picker">Time picker</string>
+    <string name="select_date">Select date</string>
+    <string name="select_hour">Select hour</string>
+    <string name="select_minute">Select minute</string>
+    <string name="date_and_time">Date and time</string>
+
+    <string name="dose_input">Dose input</string>
+    <string name="enter_dose_value">Enter dose value</string>
+    <string name="dose_unit">Dose unit</string>
+
+    <string name="field_required">This field is required</string>
+    <string name="invalid_value">Invalid value</string>
+    <string name="value_must_be_positive">Value must be greater than 0</string>
+    <string name="value_too_large">Value is too large</string>
+    <string name="value_too_small">Value is too small</string>
+
+    <string name="reminder_created">Reminder created</string>
+    <string name="reminder_updated">Reminder updated</string>
+    <string name="reminder_deleted">Reminder deleted</string>
+    <string name="changes_saved">Changes saved</string>
+
+    <string name="error_creating_reminder">Error creating reminder</string>
+    <string name="error_updating_reminder">Error updating reminder</string>
+    <string name="error_deleting_reminder">Error deleting reminder</string>
+    <string name="error_loading_data">Error loading data</string>
+    <string name="error_saving_photo">Error saving photo</string>
+    <string name="error_loading_photo">Error loading photo</string>
+
+    <string name="discard_changes">Discard changes?</string>
+    <string name="discard_changes_message">You have unsaved changes. Are you sure you want to discard them?</string>
+    <string name="discard">Discard</string>
+    <string name="keep_editing">Keep editing</string>
+    <string name="delete_photo_message">This action cannot be undone.</string>
+
+    <string name="save">Save</string>
+    <string name="confirm">Confirm</string>
+    <string name="apply">Apply</string>
+    <string name="clear">Clear</string>
+    <string name="reset">Reset</string>
+    <string name="deselect_all">Deselect all</string>
 </resources>

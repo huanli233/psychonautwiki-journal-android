@@ -35,6 +35,7 @@ import com.isaakhanimann.journal.ui.tabs.journal.experience.timednote.add.AddTim
 import com.isaakhanimann.journal.ui.tabs.journal.experience.timednote.edit.EditTimedNoteScreen
 import com.isaakhanimann.journal.ui.tabs.journal.experience.timeline.ExplainTimelineScreen
 import com.isaakhanimann.journal.ui.tabs.journal.experience.timeline.screen.TimelineScreen
+import com.isaakhanimann.journal.ui.tabs.journal.experience.timednote.ChatStyleNotesScreen
 import com.isaakhanimann.journal.ui.tabs.safer.VolumetricDosingScreen
 import com.isaakhanimann.journal.ui.tabs.search.substance.SaferSniffingScreen
 import kotlinx.serialization.Serializable
@@ -118,6 +119,9 @@ fun NavGraphBuilder.journalGraph(navController: NavHostController) {
                             experienceId = experienceId
                         )
                     )
+                },
+                navigateToChatStyleNotes = {
+                    navController.navigate(ChatStyleNotesRoute(experienceId))
                 }
             )
         }
@@ -137,6 +141,13 @@ fun NavGraphBuilder.journalGraph(navController: NavHostController) {
                 navigateToExperiencePopNothing = { experienceId ->
                     navController.navigate(ExperienceRoute(experienceId))
                 },
+            )
+        }
+        composableWithTransitions<ChatStyleNotesRoute> { backStackEntry ->
+            val route: ChatStyleNotesRoute = backStackEntry.toRoute()
+            ChatStyleNotesScreen(
+                experienceId = route.experienceId,
+                navigateBack = navController::popBackStack
             )
         }
     }
@@ -180,3 +191,6 @@ object SaferSniffingRouteOnJournalTab
 
 @Serializable
 object CalendarRoute
+
+@Serializable
+data class ChatStyleNotesRoute(val experienceId: Int)

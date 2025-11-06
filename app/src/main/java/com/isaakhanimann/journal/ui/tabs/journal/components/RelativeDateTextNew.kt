@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.delay
@@ -35,7 +36,8 @@ import java.util.*
 @Composable
 fun RelativeDateTextNew(
     dateTime: Instant,
-    style: TextStyle = MaterialTheme.typography.bodyMedium
+    style: TextStyle = MaterialTheme.typography.bodyMedium,
+    color: Color = MaterialTheme.colorScheme.onSurfaceVariant
 ) {
     val now: MutableState<Instant> = remember { mutableStateOf(Instant.now()) }
     LaunchedEffect(key1 = "updateTime") {
@@ -56,7 +58,8 @@ fun RelativeDateTextNew(
     }
     Text(
         text = relativeTime,
-        style = style
+        style = style,
+        color = color
     )
 }
 

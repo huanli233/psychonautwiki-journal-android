@@ -17,8 +17,8 @@ android {
         applicationId = "com.huanli233.journal.open"
         minSdk = 26
         targetSdk = 36
-        versionCode = 74
-        versionName = "11.16.3"
+        versionCode = 76
+        versionName = "11.17.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -97,8 +97,10 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.compose)
     implementation(libs.androidx.appcompat)
+    implementation(libs.coil.compose)
 
     implementation(libs.androidx.core.splashscreen)
 
     implementation("com.github.skydoves:colorpicker-compose:1.1.2")
+    implementation("com.google.accompanist:accompanist-permissions:0.32.0")
 }

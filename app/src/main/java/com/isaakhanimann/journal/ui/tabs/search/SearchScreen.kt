@@ -101,7 +101,10 @@ fun SearchScreen(
                     }
                 }
             } else {
-                LazyColumn {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(vertical = 8.dp)
+                ) {
                     items(filteredCustomSubstances) { customSubstance ->
                         SubstanceRow(
                             substanceModel = SubstanceModel(
@@ -117,21 +120,11 @@ fun SearchScreen(
                             ), onTap = {
                                 onCustomSubstanceTap(customSubstance.id)
                             })
-                        HorizontalDivider(
-                            Modifier,
-                            DividerDefaults.Thickness,
-                            DividerDefaults.color
-                        )
                     }
                     items(filteredSubstances) { substance ->
                         SubstanceRow(substanceModel = substance, onTap = {
                             onSubstanceTap(substance)
                         })
-                        HorizontalDivider(
-                            Modifier,
-                            DividerDefaults.Thickness,
-                            DividerDefaults.color
-                        )
                     }
                     item {
                         ListItem(
