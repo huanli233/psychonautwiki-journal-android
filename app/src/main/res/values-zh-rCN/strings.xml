@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
     <string name="app_name">日志</string>
     <string name="follow_system">跟随系统</string>
@@ -231,7 +232,6 @@
     <string name="navigate_back">返回</string>
     <string name="dose_unknown">总剂量未知</string>
     <string name="explain_timeline_title">时间轴信息</string>
-
     <string name="explain_timeline_assumptions_title">简化/错误假设</string>
     <string name="explain_timeline_assumptions_intro_part1">为了能够使用给定数据绘制时间轴，我们做出了多个</string>
     <string name="explain_timeline_assumptions_intro_part2_bold">通常是错误的</string>
@@ -242,18 +242,16 @@
         <item>PsychonautWiki中的时效范围适用于所有剂量。</item>
         <item>口服摄入总是在空腹状态下进行，因此不会被延迟（最多4小时）。</item>
     </string-array>
-
     <string name="explain_timeline_understanding_title">理解时间轴</string>
     <string-array name="explain_timeline_understanding_bullets">
         <item>时间轴是根据PsychonautWiki提供的起效、上升、峰值和消退（有时还有总）时效绘制的。</item>
-        <item>在理想情况下，所有4个时效（起效、上升、峰值和消退）都有定义，完整的时间轴会按照 averageOnset -> averageComeup -> weightedPeak -> weightedOffset 的顺序绘制。其中“weighted”意味着给定的范围已根据剂量进行线性插值，所以如果摄入阈值剂量，则取范围的最小值；如果摄入高剂量，则取最大值；介于两者之间的则进行线性插值。</item>
+        <item>在理想情况下，所有4个时效（起效、上升、峰值和消退）都有定义，完整的时间轴会按照 averageOnset -&gt; averageComeup -&gt; weightedPeak -&gt; weightedOffset 的顺序绘制。其中“weighted”意味着给定的范围已根据剂量进行线性插值，所以如果摄入阈值剂量，则取范围的最小值；如果摄入高剂量，则取最大值；介于两者之间的则进行线性插值。</item>
         <item>对于具有已定义起效、上升、峰值和消退时效的同种物质和给药途径的摄入，其时间轴通过简单地将各条线叠加来合并为累积时间轴。对于缺少起效、上升、峰值或消退中任何一个时效的摄入，则不进行此操作。</item>
         <item>即使是同一种物质，不同的给药途径也总是绘制为单独的时间轴。它们也会占据画布的整个高度，而不是与剂量或效果成比例的高度。</item>
         <item>如果缺少4个时效中的任何一个，但给出了总时效，那么会先绘制已定义的时效部分，一旦遇到缺失的时效，就会使用总时效来推断时间轴的终点，并画一条虚线直至终点。如果未给出总时效，则停止绘制线条。因此，如果没有时间轴或部分时间轴缺失，意味着PsychonautWiki中未定义该时效。如果您在PsychonautWiki中添加缺失的时效，完整的时间轴将在下次更新中显示。</item>
         <item>虚线的垂直轨迹是未知的。因此，如果您看到虚线，意味着效果在该时间段内如何发展是未知的。唯一已知的是线条的终点位置。</item>
         <item>如果给出了摄入的时间范围，并且该给药途径的所有时效都有定义，那么应用会假设剂量在该时间范围内被均匀消耗，并使用卷积累积无限小次摄入的曲线。</item>
     </string-array>
-
     <string name="explain_timeline_pw_durations_title">PsychonautWiki 时效信息</string>
     <string name="explain_timeline_pw_durations_intro">时效指的是精神活性物质的主观效果显现的时间长度。\n时效可分为6个部分：(1) 总时效 (2) 起效 (3) 上升 (4) 峰值 (5) 消退 和 (6) 后续效应。根据所消耗的物质，这些部分各自以独立且连续的方式发生。</string>
     <string name="explain_timeline_pw_durations_total_title">总时效</string>
@@ -268,7 +266,6 @@
     <string name="explain_timeline_pw_durations_offset_desc">消退阶段可以定义为从峰值结束到转变为清醒状态之间的时间。通俗地称为“下头”。</string>
     <string name="explain_timeline_pw_durations_after_effects_title">后续效应</string>
     <string name="explain_timeline_pw_durations_after_effects_desc">后续效应可以定义为在体验结束后可能残留的任何效果。根据物质和使用情况，通俗地称为“宿醉”或“余辉”。\n后续效应不包含在总时效内。</string>
-
     <string name="faq_title">常见问题</string>
     <string name="faq_q1_info_source">信息来源是哪里？</string>
     <string name="faq_a1_info_source">剂量、时效、相互作用、耐受性、通用名称、精神活性类别、毒性和成瘾潜力来自 PsychonautWiki。物质摘要和附加类别来自 Tripsit。效果、剂量说明、一般及长期风险和更安全的使用方法来自苏黎世药物信息中心（DIZ）。</string>
@@ -280,7 +277,6 @@
     <string name="faq_a4_timeline_independence">因为关于耐受性和交叉耐受性的信息尚不能可靠地支持更复杂的处理方式。</string>
     <string name="faq_q5_dose_dots">摄入剂量旁边的点代表什么？</string>
     <string name="faq_a5_dose_dots">0个点表示剂量低于阈值，1：轻微，2：普通，3：强烈，4：高。超过4个点意味着减去高剂量后，剩余部分再次按照轻微、普通和强烈的标准进行分类。</string>
-
     <string name="description">描述</string>
     <string name="add_route">添加途径</string>
     <string name="remove_route">移除途径</string>
@@ -298,7 +294,6 @@
     <string name="max">最大</string>
     <string name="units_placeholder">单位</string>
     <string name="disabled">禁用</string>
-
     <string name="substance_unit_title">%1$s 单位</string>
     <string name="delete_custom_unit_cd">删除自定义单位</string>
     <string name="delete_custom_unit_dialog_title">删除自定义单位？</string>
@@ -307,7 +302,6 @@
     <string name="ingestion_plural">摄入记录</string>
     <string name="ingestions_affected_by_edit">%1$s 受此编辑影响</string>
     <string name="no_ingestions_using_unit">尚无摄入记录使用此单位</string>
-
     <string name="cannabis_info_joint">当通过卷烟吸食时，约23%的THC被吸入。因此，如果您吸食一支含有300毫克THC含量为20%的大麻的卷烟，您将吸入 300mg * 20/100 * 23/100 = 13.8mg THC。</string>
     <string name="cannabis_info_bong">当使用水烟筒吸食时，约40%的THC被吸入。因此，如果您吸食300毫克THC含量为20%的大麻，您将吸入 300mg * 20/100 * 40/100 = 24mg THC。</string>
     <string name="cannabis_info_vaporizer">当使用雾化器吸食时，约70%的THC被吸入。因此，如果您吸食300毫克THC含量为20%的大麻，您将吸入 300mg * 20/100 * 70/100 = 42mg THC。</string>
@@ -315,7 +309,6 @@
     <string name="psilocybin_info_fresh">新鲜的古巴光盖伞约含有0.1%的赛洛西宾。</string>
     <string name="psilocybin_info_research">请研究您所拥有的蘑菇品种，以便估算其赛洛西宾含量。</string>
     <string name="alcohol_info">1毫升乙醇为0.8克。因此，如果您饮用200毫升酒精含量为40%的烈酒，您将摄入 200ml * 40/100 * 0.8 = 64克 乙醇。</string>
-
     <string name="prompt_cannabis_name">例如：卷烟（THC 20%），水烟筒（THC 15%），雾化器</string>
     <string name="prompt_cannabis_unit">毫克，支，口</string>
     <string name="prompt_cannabis_unit_plural">毫克，支，口</string>
@@ -346,7 +339,6 @@
     <string name="prompt_default_name">例如：85%粉末，蓝色火箭</string>
     <string name="prompt_default_unit">例如：片，喷，勺</string>
     <string name="prompt_default_unit_plural">例如：片，喷，勺</string>
-
     <string name="unit_singular">单位（单数）</string>
     <string name="unit_plural">单位（复数）</string>
     <string name="note">备注</string>
@@ -358,9 +350,7 @@
     <string name="archive">存档</string>
     <string name="unarchive">取消存档</string>
     <string name="archive_description">添加摄入记录时不会显示已存档的自定义单位</string>
-
     <string name="done_cd">完成</string>
-
     <string-array name="cannabis_info">
         <item>手卷烟: 0.2-1克</item>
         <item>水烟筒: 0.1-0.5克</item>
@@ -426,7 +416,6 @@
     <string name="expand">展开</string>
     <string name="edit_ingestion">编辑摄入记录</string>
     <string name="add_content_description">添加</string>
-
     <string name="delete_ingestion_dialog_title">要删除此摄入记录吗？</string>
     <string name="delete_ingestion_content_description">删除摄入记录</string>
     <string name="done_icon_content_description">完成图标</string>
@@ -435,28 +424,23 @@
     <string name="default_unit">默认</string>
     <string name="ingestion_notes">摄入笔记</string>
     <string name="consumer_icon_content_description">消费者</string>
-
     <string name="file_not_found">未找到文件</string>
     <string name="import_successful">导入成功</string>
     <string name="decoding_file_failed">文件解码失败</string>
     <string name="export_successful">导出成功</string>
     <string name="export_failed">导出失败</string>
-
     <string name="custom_recipe_archive_title">自定义配方存档</string>
     <string name="no_archived_recipes_yet">暂无已存档的配方</string>
     <string name="no_archived_recipes_description">已存档的配方不会在添加摄入时显示</string>
-
     <string name="search_multiple_substances">搜索多种物质</string>
     <string name="add_substance_to_search">添加物质到搜索</string>
     <string name="remove_substance_from_search">从搜索中移除物质</string>
     <string name="searching_for_substances">正在搜索：%1$s</string>
     <string name="no_experiences_with_combination">未找到包含此物质组合的体验</string>
     <string name="substance_combination_search">物质组合</string>
-
     <string name="search_in_timed_notes">在定时笔记中搜索</string>
     <string name="no_matching_timed_notes">没有定时笔记符合您的搜索</string>
     <string name="timed_note_contains">定时笔记包含：%1$s</string>
-
     <string name="add_photo">添加照片</string>
     <string name="take_photo">拍照</string>
     <string name="choose_photo">从相册选择</string>
@@ -471,44 +455,23 @@
     <string name="camera_permission_required">需要相机权限</string>
     <string name="storage_permission_required">需要存储权限</string>
     <string name="grant_permission">授予权限</string>
-
     <string name="chat_style_notes">聊天式笔记</string>
     <string name="type_your_note">输入您的笔记…</string>
     <string name="send_note">发送笔记</string>
-    <string name="note_sent">笔记已发送</string>
-    <string name="edit_timestamp">编辑时间戳</string>
-    <string name="timestamp_updated">时间戳已更新</string>
-    <string name="message_options">消息选项</string>
-    <string name="long_press_to_edit">长按以编辑或删除</string>
-
-    <string name="notifications">通知</string>
-    <string name="notification_settings">通知设置</string>
-    <string name="enable_notifications">启用通知</string>
-    <string name="disable_notifications">禁用通知</string>
     <string name="notification_permission_required">需要通知权限</string>
     <string name="notification_channel_name">日志通知</string>
-    <string name="notification_channel_description">摄入提醒和提醒通知</string>
-
     <string name="ingestion_reminders">摄入提醒</string>
     <string name="add_reminder">添加提醒</string>
     <string name="edit_reminder">编辑提醒</string>
     <string name="delete_reminder">删除提醒</string>
     <string name="delete_reminder_confirmation">确定要删除此提醒吗？</string>
     <string name="reminder_deleted">提醒已删除</string>
-    <string name="reminder_saved">提醒已保存</string>
     <string name="reminder_time">提醒时间</string>
-    <string name="reminder_substance">提醒物质</string>
-    <string name="reminder_dose">提醒剂量</string>
-    <string name="reminder_note">提醒备注</string>
-    <string name="reminder_repeat">重复</string>
     <string name="reminder_repeat_daily">每天</string>
     <string name="reminder_repeat_weekly">每周</string>
     <string name="reminder_repeat_custom">自定义</string>
     <string name="no_reminders_yet">暂无提醒</string>
     <string name="no_reminders_description">为您的药物或补充剂添加提醒</string>
-    <string name="medication_planner">用药计划</string>
-    <string name="medication_plan">用药计划</string>
-    <string name="time_to_take">该服用 %1$s 了</string>
     <string name="reminder_notification_title">摄入提醒</string>
     <string name="reminder_notification_text">该服用 %1$s（%2$s）了</string>
     <string name="mark_as_taken">标记为已服用</string>
@@ -523,18 +486,15 @@
     <string name="storage_permission_rationale">允许存储访问以从相册选择照片</string>
     <string name="select_photo_source">选择照片来源</string>
     <string name="notification_permission_rationale">允许通知以接收摄入提醒</string>
-
     <string name="search_notes">搜索笔记</string>
     <string name="search_in_notes">在笔记中搜索</string>
     <string name="no_notes_match_search">没有匹配的笔记</string>
     <string name="notes_found">找到 %1$d 条笔记</string>
-
     <string name="photo_removed">照片已移除</string>
     <string name="remove_photo">移除照片</string>
     <string name="photo_count">%1$d 张照片</string>
     <string name="select_photos">选择照片</string>
     <string name="max_photos_reached">已达到最大照片数量</string>
-
     <string name="reminder_details">提醒详情</string>
     <string name="select_substance">选择物质</string>
     <string name="substance_required">物质为必填项</string>
@@ -546,7 +506,6 @@
     <string name="select_unit">选择单位</string>
     <string name="unit_required">单位为必填项</string>
     <string name="select_time">选择时间</string>
-    <string name="time_required">时间为必填项</string>
     <string name="repeat_mode">重复模式</string>
     <string name="select_repeat_mode">选择重复模式</string>
     <string name="error">错误</string>
@@ -569,46 +528,38 @@
     <string name="reminder_disabled">提醒已禁用</string>
     <string name="enable_reminder">启用提醒</string>
     <string name="disable_reminder">禁用提醒</string>
-
     <string name="substance_picker">物质选择器</string>
     <string name="search_substance">搜索物质</string>
     <string name="no_substance_selected">未选择物质</string>
     <string name="custom_substance">自定义物质</string>
     <string name="psychonautwiki_substance">PsychonautWiki物质</string>
-
     <string name="time_picker">时间选择器</string>
     <string name="select_date">选择日期</string>
     <string name="select_hour">选择小时</string>
     <string name="select_minute">选择分钟</string>
     <string name="date_and_time">日期和时间</string>
-
     <string name="dose_input">剂量输入</string>
     <string name="enter_dose_value">输入剂量值</string>
     <string name="dose_unit">剂量单位</string>
-
     <string name="field_required">此字段为必填项</string>
     <string name="invalid_value">无效值</string>
     <string name="value_must_be_positive">值必须大于0</string>
     <string name="value_too_large">值过大</string>
     <string name="value_too_small">值过小</string>
-
     <string name="reminder_created">提醒已创建</string>
     <string name="reminder_updated">提醒已更新</string>
     <string name="changes_saved">更改已保存</string>
-
     <string name="error_creating_reminder">创建提醒时出错</string>
     <string name="error_updating_reminder">更新提醒时出错</string>
     <string name="error_deleting_reminder">删除提醒时出错</string>
     <string name="error_loading_data">加载数据时出错</string>
     <string name="error_saving_photo">保存照片时出错</string>
     <string name="error_loading_photo">加载照片时出错</string>
-
     <string name="discard_changes">放弃更改？</string>
     <string name="discard_changes_message">您有未保存的更改。确定要放弃吗？</string>
     <string name="discard">放弃</string>
     <string name="keep_editing">继续编辑</string>
     <string name="delete_photo_message">此操作无法撤销。</string>
-
     <string name="save">保存</string>
     <string name="confirm">确认</string>
     <string name="apply">应用</string>
