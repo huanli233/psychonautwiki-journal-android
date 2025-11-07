@@ -368,13 +368,158 @@ interface ExperienceDao {
         imageExportHelper: com.isaakhanimann.journal.ui.tabs.settings.ImageExportHelper,
         onProgressUpdate: (Float, String) -> Unit
     ) {
+        // ID映射表，用于维护旧ID到新ID的关系
+        val customUnitIdMap = mutableMapOf<Int, Int>()
+        val customRecipeIdMap = mutableMapOf<Int, Int>()
+        
+        // 收集所有被引用的CustomUnit ID
+        val referencedCustomUnitIds = mutableSetOf<Int>()
+        journalExport.experiences.forEach { experience ->
+            experience.ingestions.forEach { ingestion ->
+                ingestion.customUnitId?.let { referencedCustomUnitIds.add(it) }
+            }
+        }
+        journalExport.customRecipes.forEach { recipe ->
+            recipe.subcomponents.forEach { subcomponent ->
+                subcomponent.customUnitId?.let { referencedCustomUnitIds.add(it) }
+            }
+        }
+        
+        val exportedCustomUnitIds = journalExport.customUnits.map { it.id }.toSet()
+        val missingCustomUnitIds = referencedCustomUnitIds - exportedCustomUnitIds
+        
+        println("[IMPORT] Referenced CustomUnit IDs: $referencedCustomUnitIds")
+        println("[IMPORT] Exported CustomUnit IDs: $exportedCustomUnitIds") 
+        println("[IMPORT] Missing CustomUnit IDs: $missingCustomUnitIds")
+        
+        // 现在计算totalSteps，包含占位符创建步骤
         val totalSteps = journalExport.experiences.size + 
                         journalExport.substanceCompanions.size + 
                         journalExport.customSubstances.size + 
                         journalExport.customUnits.size + 
                         journalExport.customRecipes.size +
-                        journalExport.ingestionReminders.size
+                        journalExport.ingestionReminders.size +
+                        missingCustomUnitIds.size // Add placeholder creation steps
         var currentStep = 0
+        
+        // 先导入其他数据以建立ID映射
+        journalExport.substanceCompanions.forEach { 
+            currentStep++
+            onProgressUpdate(currentStep.toFloat() / totalSteps, "Importing substance companions...")
+            insert(it) 
+        }
+        
+        journalExport.customSubstances.forEach { 
+            currentStep++
+            onProgressUpdate(currentStep.toFloat() / totalSteps, "Importing custom substances...")
+            insert(it) 
+        }
+        
+        // 为缺失的CustomUnit创建占位符
+        if (missingCustomUnitIds.isNotEmpty()) {
+            println("[IMPORT] Creating placeholder CustomUnits for missing IDs: $missingCustomUnitIds")
+            missingCustomUnitIds.forEach { missingId ->
+                currentStep++
+                onProgressUpdate(currentStep.toFloat() / totalSteps, "Creating placeholder CustomUnit $missingId...")
+                val placeholderUnit = CustomUnit(
+                    id = 0, // Let database auto-generate new ID
+                    substanceName = "Unknown", // Placeholder substance
+                    name = "Missing CustomUnit (ID: $missingId)",
+                    creationDate = java.time.Instant.now(),
+                    administrationRoute = AdministrationRoute.ORAL,
+                    dose = null,
+                    estimatedDoseStandardDeviation = null,
+                    isEstimate = false,
+                    isArchived = true, // Mark as archived since it's a placeholder
+                    unit = "unknown",
+                    unitPlural = "unknown",
+                    originalUnit = "",
+                    note = "This is a placeholder CustomUnit created for compatibility during import. Original ID was $missingId but the CustomUnit data was missing from the export file."
+                )
+                val newId = insert(placeholderUnit).toInt()
+                customUnitIdMap[missingId] = newId
+                println("[IMPORT] Created placeholder CustomUnit: $missingId -> $newId")
+            }
+        }
+        
+        // 导入CustomUnits并建立ID映射
+        println("[IMPORT] Starting CustomUnits import, total: ${journalExport.customUnits.size}")
+        journalExport.customUnits.forEach {
+            currentStep++
+            onProgressUpdate(currentStep.toFloat() / totalSteps, "Importing custom units...")
+            if (it.substanceName != null) {
+                val oldId = it.id
+                println("[IMPORT] CustomUnit: oldId=$oldId, name='${it.name}', substance='${it.substanceName}'")
+                val newId = insert(
+                    CustomUnit(
+                        id = 0, // Let database auto-generate new ID
+                        substanceName = it.substanceName,
+                        name = it.name,
+                        creationDate = it.creationDate,
+                        administrationRoute = it.administrationRoute ?: AdministrationRoute.ORAL,
+                        dose = it.dose,
+                        estimatedDoseStandardDeviation = it.estimatedDoseStandardDeviation,
+                        isEstimate = it.isEstimate,
+                        isArchived = it.isArchived,
+                        unit = it.unit,
+                        unitPlural = it.unitPlural,
+                        originalUnit = it.originalUnit ?: "",
+                        note = it.note
+                    )
+                ).toInt()
+                customUnitIdMap[oldId] = newId
+                println("[IMPORT] CustomUnit ID mapping: $oldId -> $newId")
+            }
+        }
+        println("[IMPORT] CustomUnit ID mappings: $customUnitIdMap")
+        
+        // 导入CustomRecipes并建立ID映射
+        println("[IMPORT] Starting CustomRecipes import, total: ${journalExport.customRecipes.size}")
+        journalExport.customRecipes.forEach { recipeSerializable ->
+            currentStep++
+            onProgressUpdate(currentStep.toFloat() / totalSteps, "Importing custom recipes...")
+            val oldRecipeId = recipeSerializable.id
+            println("[IMPORT] CustomRecipe: oldId=$oldRecipeId, name='${recipeSerializable.name}'")
+            val newRecipe = CustomRecipe(
+                id = 0, // Let database auto-generate new ID
+                name = recipeSerializable.name,
+                creationDate = recipeSerializable.creationDate,
+                administrationRoute = recipeSerializable.administrationRoute,
+                isArchived = recipeSerializable.isArchived,
+                unit = recipeSerializable.unit,
+                unitPlural = recipeSerializable.unitPlural,
+                note = recipeSerializable.note
+            )
+            val newRecipeId = insert(newRecipe).toInt()
+            customRecipeIdMap[oldRecipeId] = newRecipeId
+            println("[IMPORT] CustomRecipe ID mapping: $oldRecipeId -> $newRecipeId")
+            
+            recipeSerializable.subcomponents.forEach { subcomponentSerializable ->
+                val oldSubUnitId = subcomponentSerializable.customUnitId
+                val newSubUnitId = oldSubUnitId?.let { oldUnitId ->
+                    val mapped = customUnitIdMap[oldUnitId]
+                    println("[IMPORT] RecipeSubcomponent customUnitId mapping: $oldUnitId -> $mapped")
+                    if (mapped == null) {
+                        println("[IMPORT] WARNING: CustomUnit ID $oldUnitId not found in mapping for RecipeSubcomponent, setting to null for compatibility")
+                    }
+                    mapped
+                }
+                
+                val newSubcomponent = RecipeSubcomponent(
+                    id = 0, // Let database auto-generate new ID
+                    recipeId = newRecipeId, // Use the new recipe ID
+                    substanceName = subcomponentSerializable.substanceName,
+                    customUnitId = newSubUnitId,
+                    dose = subcomponentSerializable.dose,
+                    estimatedDoseStandardDeviation = subcomponentSerializable.estimatedDoseStandardDeviation,
+                    isEstimate = subcomponentSerializable.isEstimate,
+                    originalUnit = subcomponentSerializable.originalUnit,
+                    creationDate = subcomponentSerializable.creationDate
+                )
+                insert(newSubcomponent)
+            }
+        }
+        println("[IMPORT] CustomRecipe ID mappings: $customRecipeIdMap")
         
         // Import experiences with photos
         journalExport.experiences.forEachIndexed { indexExperience, experienceSerializable ->
@@ -401,8 +546,29 @@ interface ExperienceDao {
             val experienceID = insert(newExperience).toInt() // Get the auto-generated ID
             
             // Import ingestions
+            println("[IMPORT] Importing ${experienceSerializable.ingestions.size} ingestions for experience $experienceID")
             experienceSerializable.ingestions.forEach { ingestionSerializable ->
                 if (ingestionSerializable.substanceName != null) {
+                    val oldCustomUnitId = ingestionSerializable.customUnitId
+                    val oldCustomRecipeId = ingestionSerializable.customRecipeId
+                    
+                    val newCustomUnitId = oldCustomUnitId?.let { oldUnitId ->
+                        val mapped = customUnitIdMap[oldUnitId]
+                        println("[IMPORT] Ingestion customUnitId mapping: $oldUnitId -> $mapped")
+                        if (mapped == null) {
+                            println("[IMPORT] WARNING: CustomUnit ID $oldUnitId not found in mapping, setting to null for compatibility")
+                        }
+                        mapped
+                    }
+                    
+                    val newCustomRecipeId = oldCustomRecipeId?.let { oldRecipeId ->
+                        val mapped = customRecipeIdMap[oldRecipeId]
+                        println("[IMPORT] Ingestion customRecipeId mapping: $oldRecipeId -> $mapped")
+                        mapped
+                    }
+                    
+                    println("[IMPORT] Ingestion: substance='${ingestionSerializable.substanceName}', oldCustomUnitId=$oldCustomUnitId, newCustomUnitId=$newCustomUnitId")
+                    
                     val newIngestion = Ingestion(
                         substanceName = ingestionSerializable.substanceName,
                         time = ingestionSerializable.time,
@@ -417,8 +583,8 @@ interface ExperienceDao {
                         notes = ingestionSerializable.notes,
                         stomachFullness = ingestionSerializable.stomachFullness,
                         consumerName = ingestionSerializable.consumerName,
-                        customUnitId = ingestionSerializable.customUnitId,
-                        customRecipeId = ingestionSerializable.customRecipeId,
+                        customUnitId = newCustomUnitId,
+                        customRecipeId = newCustomRecipeId,
                         recipeGroupId = ingestionSerializable.recipeGroupId
                     )
                     insert(newIngestion)
@@ -470,74 +636,6 @@ interface ExperienceDao {
                     experienceId = experienceID
                 )
                 insert(newRating)
-            }
-        }
-        
-        // Import other data
-        journalExport.substanceCompanions.forEach { 
-            currentStep++
-            onProgressUpdate(currentStep.toFloat() / totalSteps, "Importing substance companions...")
-            insert(it) 
-        }
-        
-        journalExport.customSubstances.forEach { 
-            currentStep++
-            onProgressUpdate(currentStep.toFloat() / totalSteps, "Importing custom substances...")
-            insert(it) 
-        }
-        
-        journalExport.customUnits.forEach {
-            currentStep++
-            onProgressUpdate(currentStep.toFloat() / totalSteps, "Importing custom units...")
-            if (it.substanceName != null) {
-                insert(
-                    CustomUnit(
-                        id = 0, // Let database auto-generate new ID
-                        substanceName = it.substanceName,
-                        name = it.name,
-                        creationDate = it.creationDate,
-                        administrationRoute = it.administrationRoute ?: AdministrationRoute.ORAL,
-                        dose = it.dose,
-                        estimatedDoseStandardDeviation = it.estimatedDoseStandardDeviation,
-                        isEstimate = it.isEstimate,
-                        isArchived = it.isArchived,
-                        unit = it.unit,
-                        unitPlural = it.unitPlural,
-                        originalUnit = it.originalUnit ?: "",
-                        note = it.note
-                    )
-                )
-            }
-        }
-        
-        journalExport.customRecipes.forEach { recipeSerializable ->
-            currentStep++
-            onProgressUpdate(currentStep.toFloat() / totalSteps, "Importing custom recipes...")
-            val newRecipe = CustomRecipe(
-                id = 0, // Let database auto-generate new ID
-                name = recipeSerializable.name,
-                creationDate = recipeSerializable.creationDate,
-                administrationRoute = recipeSerializable.administrationRoute,
-                isArchived = recipeSerializable.isArchived,
-                unit = recipeSerializable.unit,
-                unitPlural = recipeSerializable.unitPlural,
-                note = recipeSerializable.note
-            )
-            val newRecipeId = insert(newRecipe).toInt() // Get the auto-generated ID
-            
-            recipeSerializable.subcomponents.forEach { subcomponentSerializable ->
-                val newSubcomponent = RecipeSubcomponent(
-                    id = 0, // Let database auto-generate new ID
-                    recipeId = newRecipeId, // Use the new recipe ID
-                    substanceName = subcomponentSerializable.substanceName,
-                    customUnitId = subcomponentSerializable.customUnitId,
-                    dose = subcomponentSerializable.dose,
-                    estimatedDoseStandardDeviation = subcomponentSerializable.estimatedDoseStandardDeviation,
-                    isEstimate = subcomponentSerializable.isEstimate,
-                    originalUnit = subcomponentSerializable.originalUnit,
-                    creationDate = subcomponentSerializable.creationDate
-                )
-                insert(newSubcomponent)
             }
         }
         

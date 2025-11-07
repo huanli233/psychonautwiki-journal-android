@@ -299,22 +299,44 @@ class SettingsViewModel @Inject constructor(
                 exportProgress = 0.5f
                 progressMessage = "Loading custom units..."
                 
-                val customUnitsSerializable = experienceRepository.getAllCustomUnitsSorted().map {
-                CustomUnitSerializable(
-                    id = it.id,
-                    substanceName = it.substanceName,
-                    name = it.name,
-                    creationDate = it.creationDate,
-                    administrationRoute = it.administrationRoute,
-                    dose = it.dose,
-                    estimatedDoseStandardDeviation = it.estimatedDoseStandardDeviation,
-                    isEstimate = it.isEstimate,
-                    isArchived = it.isArchived,
-                    unit = it.unit,
-                    unitPlural = it.unitPlural,
-                    originalUnit = it.originalUnit,
-                    note = it.note
-                )
+                // 获取所有被引用的CustomUnit ID
+                val referencedCustomUnitIds = mutableSetOf<Int>()
+                experiencesSerializable.forEach { experience ->
+                    experience.ingestions.forEach { ingestion ->
+                        ingestion.customUnitId?.let { referencedCustomUnitIds.add(it) }
+                    }
+                }
+                
+                println("[EXPORT] Referenced CustomUnit IDs: $referencedCustomUnitIds")
+                
+                val allCustomUnits = experienceRepository.getAllCustomUnitsSorted()
+                val availableCustomUnitIds = allCustomUnits.map { it.id }.toSet()
+                val missingCustomUnitIds = referencedCustomUnitIds - availableCustomUnitIds
+                
+                println("[EXPORT] Available CustomUnit IDs: $availableCustomUnitIds")
+                println("[EXPORT] Missing CustomUnit IDs: $missingCustomUnitIds")
+                
+                if (missingCustomUnitIds.isNotEmpty()) {
+                    println("[EXPORT] WARNING: Some referenced CustomUnits are missing from database!")
+                    println("[EXPORT] This may cause import issues. Missing IDs: $missingCustomUnitIds")
+                }
+                
+                val customUnitsSerializable = allCustomUnits.map {
+                    CustomUnitSerializable(
+                        id = it.id,
+                        substanceName = it.substanceName,
+                        name = it.name,
+                        creationDate = it.creationDate,
+                        administrationRoute = it.administrationRoute,
+                        dose = it.dose,
+                        estimatedDoseStandardDeviation = it.estimatedDoseStandardDeviation,
+                        isEstimate = it.isEstimate,
+                        isArchived = it.isArchived,
+                        unit = it.unit,
+                        unitPlural = it.unitPlural,
+                        originalUnit = it.originalUnit,
+                        note = it.note
+                    )
                 }
                 
                 exportProgress = 0.6f
